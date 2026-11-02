@@ -449,6 +449,10 @@ body{background:linear-gradient(180deg,#22397a 0%,#4b67ad 28%,#c9b6c4 60%,#f2d9c
 .cinfo div{background:#f8f4ec;border-radius:10px;padding:7px 9px}
 .cinfo small{display:block;font-size:11px;color:#8a7f6a}
 .cinfo b{font-size:13px;color:#2a2116;line-height:1.35}
+.gmsub{position:relative;margin-top:10px;padding:10px 8px 8px;border-radius:16px;background:rgba(224,69,58,.06);border:1.5px dashed rgba(224,69,58,.35)}
+.gmsub.anim{animation:gmdrop .28s ease-out}
+.gmsubh{font-size:12.5px;font-weight:900;color:#a3121b;margin:0 0 8px 4px}
+@keyframes gmdrop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous" onerror="this.dataset.failed=1"></script>
 </head>
@@ -573,16 +577,19 @@ let S = null;
 /* ---------- 로비: 게임 모드 카드 · 게임 길이 슬라이더 ---------- */
 function modeHTML() {
   const ai = L.mode === 'ai', on = !ai && L.fsub === 'online', loc = !ai && L.fsub === 'local';
+  setTimeout(() => { L._fx = 0; }, 0);
   const card = (cls, sel, img, t, d, click) => `<button class="gmc ${cls} ${sel ? 'on' : ''}" onclick="${click}"><img src="assets/ui/${img}.png" alt=""><span class="tx"><b>${t}</b><small>${d}</small></span><i class="arr">›</i></button>`;
   return `<div class="gm">
     <svg class="gmsky" viewBox="0 0 300 90" aria-hidden="true"><g fill="#8fb3f0" opacity=".55"><rect x="20" y="52" width="40" height="38" rx="3"/><rect x="66" y="30" width="34" height="60" rx="3"/><rect x="106" y="8" width="30" height="82" rx="3"/><rect x="142" y="44" width="36" height="46" rx="3"/><rect x="184" y="26" width="30" height="64" rx="3"/><rect x="220" y="56" width="44" height="34" rx="3"/></g><g fill="#fff" opacity=".7"><rect x="112" y="16" width="6" height="6"/><rect x="124" y="16" width="6" height="6"/><rect x="112" y="28" width="6" height="6"/><rect x="124" y="28" width="6" height="6"/><rect x="72" y="38" width="6" height="6"/><rect x="86" y="38" width="6" height="6"/><rect x="190" y="34" width="6" height="6"/><rect x="202" y="34" width="6" height="6"/></g><ellipse cx="250" cy="20" rx="26" ry="9" fill="#fff" opacity=".8"/><ellipse cx="40" cy="26" rx="22" ry="8" fill="#fff" opacity=".7"/></svg>
     <div class="gmh"><img src="assets/ui/pad.png" alt=""><div><h2>게임 모드 <span class="spk">✨</span></h2><p>원하는 방식으로 부동산 게임을 즐겨보세요!</p></div></div>
     <div class="gmgrid">
       ${card('c-ai', ai, 'm_ai', 'AI 대전', '혼자서 즐기는<br>부동산 투자 대결', "L.mode='ai';renderLobby()")}
-      ${card('c-fr', !ai, 'm_friend', '친구 대전', '친구와 함께하는<br>부동산 경쟁', "L.mode='friend';renderLobby()")}
-      ${card('c-on', on, 'm_online', '온라인 매칭', '링크로 들어온 사람끼리<br>실시간 플레이', "L.mode='friend';L.fsub='online';renderLobby()")}
-      ${card('c-lo', loc, 'm_local', '한 기기에서', '하나의 기기로<br>돌아가며 플레이', "L.mode='friend';L.fsub='local';renderLobby()")}
-    </div></div>`;
+      ${card('c-fr', !ai, 'm_friend', '친구 대전', '친구와 함께하는<br>부동산 경쟁', "if(L.mode!=='friend'){L.mode='friend';L._fx=1};renderLobby()")}
+    </div>
+    ${ai ? '' : `<div class="gmsub ${L._fx ? 'anim' : ''}"><div class="gmsubh">👇 어떻게 같이 할까요?</div><div class="gmgrid">
+      ${card('c-on', on, 'm_online', '온라인 매칭', '링크로 들어온 사람끼리<br>실시간 플레이', "L.fsub='online';renderLobby()")}
+      ${card('c-lo', loc, 'm_local', '한 기기에서', '하나의 기기로<br>돌아가며 플레이', "L.fsub='local';renderLobby()")}
+    </div></div>`}</div>`;
 }
 const LENS = [[12, '짧게'], [20, '보통'], [30, '길게']];
 function lenHTML() {
