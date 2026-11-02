@@ -184,6 +184,16 @@ const server = http.createServer(async (req, res) => {
     (Array.isArray(b.msgs) ? b.msgs : []).slice(0, 200).forEach(m => handleMsg(c, m));
     return json(res, 200, { ok: true });
   }
+  // 광고 설정 (Render 환경변수로 관리 — 코드 수정 없이 켜고 끌 수 있음)
+  if (p === '/api/config') {
+    const client = (process.env.ADSENSE_CLIENT || '').trim();
+    return json(res, 200, { ads: { client: /^ca-pub-\d{10,20}$/.test(client) ? client : '', test: process.env.ADSENSE_TEST === 'on', bannerSlot: (process.env.ADSENSE_BANNER_SLOT || '').replace(/\D/g, '') } });
+  }
+  if (p === '/ads.txt') {
+    const pub = (process.env.ADSENSE_CLIENT || '').replace(/^ca-/, '').trim();
+    res.writeHead(pub ? 200 : 404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end(pub ? `google.com, ${pub}, DIRECT, f08c47fec0942fa0\n` : 'not configured');
+  }
   if (p === '/api/ping') return json(res, 200, { ok: true, online: [...clients.values()].filter(c => c.online).length, rooms: rooms.size });
   if (p === '/api/ranking') {
     const r = rankNow();

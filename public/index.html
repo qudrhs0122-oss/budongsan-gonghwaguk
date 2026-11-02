@@ -1395,6 +1395,8 @@ function showRewarded(label, lobby, dur = 5) {
   return new Promise(res => {
     if (!lobby && !(S && rewardedLeft())) return res(false);
     const m = $('#modal');
+    if (ADS.client && ADS.blocked) return noAdBox(res);
+    if (ADS.client) return realRewarded(label, lobby, res);
     if (Math.random() < 0.07) { // 광고가 준비되지 않은 경우에도 게임은 계속
       m.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:34px">📭</div><b>지금은 볼 수 있는 광고가 없어요</b><p class="note" style="margin:6px 0 12px">잠시 후 다시 시도해 주세요. 게임은 그대로 진행됩니다.</p><button class="btn dark" id="adx">확인</button></div>`;
       m.classList.add('on'); m.onclick = null;
@@ -1428,6 +1430,8 @@ function showRewarded(label, lobby, dur = 5) {
 }
 function showInterstitial() {
   return new Promise(res => {
+    if (ADS.client && ADS.blocked) return res();
+    if (ADS.client) return realInterstitial(res);
     const m = $('#modal');
     m.innerHTML = `<div class="adscreen"><div style="display:flex;justify-content:space-between;font-size:12px;opacity:.8"><span><span class="adtag">AD</span>전면 광고 (데모)</span><span id="it">3</span></div>
       <div class="vid" style="height:240px"><b>전면 광고 자리</b>게임 종료 후 1회만 노출</div>
@@ -1617,6 +1621,7 @@ function bootServer() {
   fetch('api/ping', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => {
     if (!j || !j.ok) return;
     SRV = true; SHARE_URL = location.origin + location.pathname;
+    fetch('api/config', { cache: 'no-store' }).then(r => r.json()).then(c => initAds(c.ads)).catch(() => {});
     if (!S && !NET.roster) renderLobby();
   }).catch(() => {});
 }
@@ -1809,6 +1814,70 @@ function srvRankInner(hi) {
 }
 function loadRanking() {
   fetch('api/ranking', { cache: 'no-store' }).then(r => r.json()).then(j => { RANK_CACHE = j; const el = $('#rankp'); if (el) el.innerHTML = srvRankInner(RANK_HI); }).catch(() => {});
+}
+
+/* =========================================================
+   실제 광고 (Google AdSense · H5 Games Ads)
+   서버 환경변수 ADSENSE_CLIENT 가 있으면 자동으로 켜짐, 없으면 데모 광고 유지
+   ========================================================= */
+const ADS = { client: '', test: false, bannerSlot: '', ready: false };
+function initAds(cfg) {
+  if (!cfg || !cfg.client) return;
+  Object.assign(ADS, cfg);
+  const sc = document.createElement('script');
+  sc.async = true; sc.crossOrigin = 'anonymous';
+  sc.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(cfg.client);
+  if (cfg.test) sc.setAttribute('data-adbreak-test', 'on');
+  sc.onerror = () => { ADS.blocked = true; };
+  document.head.appendChild(sc);
+  window.adsbygoogle = window.adsbygoogle || [];
+  window.adBreak = window.adConfig = o => window.adsbygoogle.push(o);
+  adConfig({ preloadAdBreaks: 'on', sound: 'on', onReady: () => { ADS.ready = true; } });
+  fillBanners();
+  new MutationObserver(() => { clearTimeout(ADS.mt); ADS.mt = setTimeout(fillBanners, 120); }).observe($('#app'), { childList: true, subtree: false });
+}
+function noAdBox(res) {
+  const m = $('#modal');
+  m.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:34px">📭</div><b>지금은 볼 수 있는 광고가 없어요</b><p class="note" style="margin:6px 0 12px">잠시 후 다시 시도해 주세요. 게임은 그대로 진행됩니다.</p><button class="btn dark" id="adx">확인</button></div>`;
+  m.classList.add('on'); m.onclick = null;
+  $('#adx').onclick = () => { m.classList.remove('on'); res(false); };
+}
+function realRewarded(label, lobby, res) {
+  let viewed = false, settled = false, started = false;
+  const fin = ok => { if (settled) return; settled = true; clearTimeout(t); if (!ok) return noAdBox(res);
+    if (!lobby && S) S.rewarded++;
+    const m = $('#modal');
+    m.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:38px">🎁</div><b style="font-size:17px">${label} 지급 완료!</b>${!lobby && S ? `<p class="note" style="margin:6px 0 0">이번 판 남은 보상형 광고 ${MAX_REWARDED - S.rewarded}회</p>` : ''}<button class="btn pri" style="margin-top:12px" id="adok">받기</button></div>`;
+    m.classList.add('on'); m.onclick = null;
+    $('#adok').onclick = () => { m.classList.remove('on'); res(true); };
+  };
+  let t = setTimeout(() => { if (!started) fin(false); else t = setTimeout(() => fin(viewed), 120000); }, 8000);
+  const m = $('#modal');
+  m.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:30px">📺</div><b>광고 불러오는 중…</b><p class="note" style="margin-top:6px">끝까지 시청하면 <b>${label}</b> 지급</p></div>`;
+  m.classList.add('on'); m.onclick = null;
+  adBreak({
+    type: 'reward', name: 'reward_' + label.replace(/\s+/g, '_').slice(0, 30),
+    beforeAd: () => { started = true; m.classList.remove('on'); },
+    beforeReward: showAdFn => { started = true; showAdFn(); },
+    adViewed: () => { viewed = true; },
+    adDismissed: () => { viewed = false; },
+    adBreakDone: () => { m.classList.remove('on'); if (viewed) fin(true); else if (!settled) { settled = true; clearTimeout(t); const mm = $('#modal'); mm.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:34px">🙅</div><b>광고를 끝까지 보지 않아 보상이 지급되지 않았어요</b><button class="btn dark" style="margin-top:12px" id="adx">확인</button></div>`; mm.classList.add('on'); $('#adx').onclick = () => { mm.classList.remove('on'); res(false); }; } },
+  });
+}
+function realInterstitial(res) {
+  let done = false; const fin = () => { if (!done) { done = true; res(); } };
+  setTimeout(fin, 12000);
+  adBreak({ type: 'next', name: 'game_over', adBreakDone: fin });
+}
+function fillBanners() {
+  if (!ADS.client || !ADS.bannerSlot) return;
+  document.querySelectorAll('.banner:not(.real), img.gbanner').forEach(el => {
+    const box = document.createElement('div');
+    box.className = 'banner real'; box.style.cssText = 'padding:0;min-height:60px;background:transparent;border:0;overflow:hidden';
+    box.innerHTML = `<ins class="adsbygoogle" style="display:block" data-ad-client="${ADS.client}" data-ad-slot="${ADS.bannerSlot}" data-ad-format="horizontal" data-full-width-responsive="true"${ADS.test ? ' data-adtest="on"' : ''}></ins>`;
+    el.replaceWith(box);
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+  });
 }
 
 renderLobby();
