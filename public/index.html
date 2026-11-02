@@ -381,6 +381,74 @@ body{background:linear-gradient(180deg,#22397a 0%,#4b67ad 28%,#c9b6c4 60%,#f2d9c
 .hbanner{display:block;margin-top:12px;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(60,40,10,.12);transition:transform .15s}
 .hbanner:active{transform:scale(.98)}
 .hbanner img{display:block;width:100%;height:auto;min-height:46px;object-fit:cover;object-position:51% 50%}
+
+/* 게임 모드 카드 */
+.gm{position:relative;margin:-4px -4px 4px;padding:14px 12px 12px;border-radius:20px;background:linear-gradient(160deg,#ffffff 0%,#f4f7ff 55%,#e6eeff 100%);box-shadow:0 2px 10px rgba(60,80,140,.1);overflow:hidden}
+.gmsky{position:absolute;right:-6px;top:-4px;width:58%;max-width:300px;pointer-events:none}
+.gmh{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.gmh img{width:54px;height:auto;flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.15))}
+.gmh h2{margin:0;font-size:24px;font-weight:900;color:#1f2547;letter-spacing:-.5px}
+.gmh .spk{font-size:16px;vertical-align:top}
+.gmh p{margin:2px 0 0;font-size:12.5px;color:#4a4f66;background:linear-gradient(transparent 70%,#ffe08a 70%);display:inline}
+.gmgrid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.gmc{position:relative;display:flex;align-items:center;gap:8px;padding:10px 26px 10px 8px;min-height:84px;border-radius:16px;border:2px solid #efdcc4;background:linear-gradient(135deg,#fffaf3,#fdf0e1);text-align:left;box-shadow:0 2px 6px rgba(120,80,30,.08);transition:transform .15s,box-shadow .15s}
+.gmc:active{transform:scale(.98)}
+.gmc img{width:56px;height:56px;object-fit:contain;flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.15))}
+.gmc .tx b{display:block;font-size:16px;font-weight:900;color:#1f2547;letter-spacing:-.4px}
+.gmc .tx small{display:block;font-size:11px;line-height:1.35;color:#5d5547;margin-top:2px}
+.gmc .arr{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#d9a36e;color:#fff;font-style:normal;font-weight:900;font-size:17px;line-height:20px;text-align:center}
+.gmc.c-ai.on{border-color:#e9a85b;box-shadow:0 0 0 3px rgba(233,168,91,.3),0 4px 12px rgba(233,168,91,.25)}
+.gmc.c-fr.on{border-color:#e0453a;background:linear-gradient(135deg,#ffe9e6,#ffd4cf);box-shadow:0 0 0 3px rgba(224,69,58,.18),0 4px 12px rgba(224,69,58,.2)}
+.gmc.c-fr.on b{color:#a3121b}.gmc.c-fr.on .arr{background:#ef8b80}
+.gmc.c-on.on{border-color:#1f2547;background:linear-gradient(135deg,#3a4479,#262d57);box-shadow:0 4px 14px rgba(31,37,71,.35)}
+.gmc.c-on.on b,.gmc.c-on.on small{color:#fff}.gmc.c-on.on .arr{background:#4f63c7}
+.gmc.c-lo.on{border-color:#e9a85b;box-shadow:0 0 0 3px rgba(233,168,91,.3),0 4px 12px rgba(233,168,91,.25)}
+@media(min-width:560px){.gmc{min-height:110px;padding:14px 40px 14px 12px;gap:12px}.gmc img{width:86px;height:86px}.gmc .tx b{font-size:20px}.gmc .tx small{font-size:13px}.gmc .arr{width:30px;height:30px;line-height:28px;font-size:22px;right:12px}.gmh h2{font-size:30px}.gmh img{width:70px}.gmh p{font-size:15px}}
+@media(max-width:370px){.gmc img{width:44px;height:44px}.gmc .tx b{font-size:14px}.gmc .tx small{font-size:10px}}
+/* 게임 길이 슬라이더 */
+.glbox{margin-top:6px;padding:46px 30px 12px;border-radius:18px;border:1.5px solid #f0dcc0;background:linear-gradient(180deg,#fffaf2,#fdf3e3)}
+.glrail{position:relative;height:30px}
+.glrail .flag{position:absolute;top:-12px;font-size:24px;line-height:1}
+.glrail .flag.l{left:-28px}.glrail .flag.r{right:-28px;filter:sepia(1) saturate(4) hue-rotate(5deg)}
+.glbar{position:absolute;left:0;right:0;top:9px;height:12px;border-radius:8px;background:#ddd6cc;box-shadow:inset 0 1px 2px rgba(0,0,0,.12)}
+.glbar i{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:linear-gradient(180deg,#ffd45a,#f2b01e);transition:width .25s}
+.glbar u{position:absolute;top:16px;width:2px;height:8px;margin-left:-1px;background:#cfc4b4;border-radius:1px}
+.glthumb{position:absolute;top:-6px;width:42px;height:42px;margin-left:-21px;border-radius:50%;background:#fff;border:4px solid #1f2547;box-shadow:0 0 0 4px rgba(255,212,90,.55),0 3px 8px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;transition:left .25s;pointer-events:none}
+.glthumb svg{width:22px;height:22px}
+.gltip{position:absolute;bottom:42px;transform:translateX(-50%);background:#1f2547;color:#fff;font-weight:900;font-size:14px;white-space:nowrap;padding:6px 12px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:left .25s;pointer-events:none}
+.gltip em{font-style:normal;color:#ffc53d}
+.gltip::after{content:"";position:absolute;left:50%;top:100%;margin-left:-7px;border:7px solid transparent;border-top-color:#1f2547}
+.glrail input{position:absolute;left:-21px;right:-21px;top:-8px;width:calc(100% + 42px);height:46px;margin:0;opacity:0;cursor:pointer;z-index:2}
+.gllabels{position:relative;height:50px;margin-top:6px}
+.gll{position:absolute;top:0;transform:translateX(-50%);text-align:center;cursor:pointer;white-space:nowrap}
+.gll .pill{display:inline-block;padding:3px 14px;border-radius:14px;background:#fbe9d3;border:1.5px solid #f0d3ac;font-weight:900;font-size:14px;color:#3a2e1e}
+.gll small{display:block;margin-top:3px;font-size:12px;font-weight:700;color:#3a3f5c}
+.gll.on .pill{background:#1f2547;border-color:#1f2547;color:#fff;box-shadow:0 0 0 3px rgba(255,212,90,.5)}
+.gll[data-k="0"]{transform:translateX(-35%)}.gll[data-k="2"]{transform:translateX(-65%)}
+.rules{margin-top:10px;display:grid;gap:5px;font-size:12.5px;color:#4a4436;line-height:1.45}
+.rules b{color:#1f2547}
+
+@media(max-width:559px){
+ .gmsky{width:42%;top:-16px;opacity:.6}
+ .gmc{display:grid;grid-template-columns:44px 1fr;column-gap:6px;row-gap:4px;align-items:center;padding:10px 8px 10px 8px;min-height:0}
+ .gmc img{width:44px;height:44px}
+ .gmc .tx{display:contents}
+ .gmc .tx b{grid-column:2;font-size:14px;padding-right:20px;line-height:1.2;white-space:nowrap;letter-spacing:-.6px}
+ .gmc .tx small{grid-column:1/3;font-size:11px;margin:0}
+ .gmc .arr{top:22px;transform:none;width:20px;height:20px;line-height:18px;font-size:15px;right:7px}
+}
+.gltip.k0{transform:translateX(-22%)}.gltip.k0::after{left:22%}
+.gltip.k2{transform:translateX(-78%)}.gltip.k2::after{left:78%}
+.glrail .flag{top:-30px}.glrail .flag.l{left:-24px}.glrail .flag.r{right:-24px}
+.cihero{position:relative;height:160px;margin:-4px -4px 0;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#e9eef7}
+.cihero .cibg{position:absolute;inset:-20px;background:center/cover;filter:blur(14px) saturate(1.2);opacity:.75}
+.cihero img{position:relative;height:132px;width:auto;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.3);border:3px solid #fff}
+.cihero .cig{position:absolute;left:8px;top:8px;color:#fff;font-weight:900;font-size:12px;padding:3px 9px;border-radius:9px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.cihero .cit{position:absolute;right:8px;top:8px;background:rgba(31,37,71,.85);color:#fff;font-weight:800;font-size:11px;padding:3px 8px;border-radius:9px}
+.cinfo{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.cinfo div{background:#f8f4ec;border-radius:10px;padding:7px 9px}
+.cinfo small{display:block;font-size:11px;color:#8a7f6a}
+.cinfo b{font-size:13px;color:#2a2116;line-height:1.35}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous" onerror="this.dataset.failed=1"></script>
 </head>
@@ -502,6 +570,50 @@ let S = null;
 /* =========================================================
    로비
    ========================================================= */
+/* ---------- 로비: 게임 모드 카드 · 게임 길이 슬라이더 ---------- */
+function modeHTML() {
+  const ai = L.mode === 'ai', on = !ai && L.fsub === 'online', loc = !ai && L.fsub === 'local';
+  const card = (cls, sel, img, t, d, click) => `<button class="gmc ${cls} ${sel ? 'on' : ''}" onclick="${click}"><img src="assets/ui/${img}.png" alt=""><span class="tx"><b>${t}</b><small>${d}</small></span><i class="arr">›</i></button>`;
+  return `<div class="gm">
+    <svg class="gmsky" viewBox="0 0 300 90" aria-hidden="true"><g fill="#8fb3f0" opacity=".55"><rect x="20" y="52" width="40" height="38" rx="3"/><rect x="66" y="30" width="34" height="60" rx="3"/><rect x="106" y="8" width="30" height="82" rx="3"/><rect x="142" y="44" width="36" height="46" rx="3"/><rect x="184" y="26" width="30" height="64" rx="3"/><rect x="220" y="56" width="44" height="34" rx="3"/></g><g fill="#fff" opacity=".7"><rect x="112" y="16" width="6" height="6"/><rect x="124" y="16" width="6" height="6"/><rect x="112" y="28" width="6" height="6"/><rect x="124" y="28" width="6" height="6"/><rect x="72" y="38" width="6" height="6"/><rect x="86" y="38" width="6" height="6"/><rect x="190" y="34" width="6" height="6"/><rect x="202" y="34" width="6" height="6"/></g><ellipse cx="250" cy="20" rx="26" ry="9" fill="#fff" opacity=".8"/><ellipse cx="40" cy="26" rx="22" ry="8" fill="#fff" opacity=".7"/></svg>
+    <div class="gmh"><img src="assets/ui/pad.png" alt=""><div><h2>게임 모드 <span class="spk">✨</span></h2><p>원하는 방식으로 부동산 게임을 즐겨보세요!</p></div></div>
+    <div class="gmgrid">
+      ${card('c-ai', ai, 'm_ai', 'AI 대전', '혼자서 즐기는<br>부동산 투자 대결', "L.mode='ai';renderLobby()")}
+      ${card('c-fr', !ai, 'm_friend', '친구 대전', '친구와 함께하는<br>부동산 경쟁', "L.mode='friend';renderLobby()")}
+      ${card('c-on', on, 'm_online', '온라인 매칭', '링크로 들어온 사람끼리<br>실시간 플레이', "L.mode='friend';L.fsub='online';renderLobby()")}
+      ${card('c-lo', loc, 'm_local', '한 기기에서', '하나의 기기로<br>돌아가며 플레이', "L.mode='friend';L.fsub='local';renderLobby()")}
+    </div></div>`;
+}
+const LENS = [[12, '짧게'], [20, '보통'], [30, '길게']];
+function lenHTML() {
+  const idx = Math.max(0, LENS.findIndex(x => x[0] === L.rounds));
+  return `<div class="glen" id="glen">
+    <h3 style="margin-top:16px">게임 길이</h3>
+    <div class="glbox">
+      <div class="glrail">
+        <span class="flag l">🏁</span><span class="flag r">🏁</span>
+        <div class="gltip" id="gltip"></div>
+        <div class="glbar"><i id="glfill"></i>${[1, 2, 3, 5, 6, 7].map(k => `<u style="left:${k * 12.5}%"></u>`).join('')}</div>
+        <div class="glthumb" id="glthumb"><svg viewBox="0 0 24 24"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z" fill="#1f2547"/></svg></div>
+        <input type="range" min="0" max="2" step="1" value="${idx}" aria-label="게임 길이" oninput="setLen(+this.value)" onchange="setLen(+this.value)">
+      </div>
+      <div class="gllabels">${LENS.map(([n, t], k) => `<div class="gll" data-k="${k}" style="left:${k * 50}%" onclick="setLen(${k})"><span class="pill">${t}</span><small>${n}라운드</small></div>`).join('')}</div>
+    </div>
+    <div class="rules">
+      <div>🪙 대출 매입가의 40%까지 · <b>내 차례마다 대출 잔액의 5% 이자</b></div>
+      <div>🔒 10라운드마다 한 바퀴는 <b>토지거래허가구역</b>(대출 불가)</div>
+      <div>📢 라운드마다 확률적으로 <b>대출규제·금리상승·취득세 중과·보유세 중과</b> 발표 → 다음 라운드부터 3라운드 적용</div>
+    </div></div>`;
+}
+function setLen(k) {
+  k = Math.max(0, Math.min(2, k)); L.rounds = LENS[k][0];
+  const pct = k * 50, box = $('#glen'); if (!box) return;
+  $('#glfill').style.width = pct + '%';
+  $('#glthumb').style.left = pct + '%';
+  const tip = $('#gltip'); tip.style.left = pct + '%'; tip.className = 'gltip k' + k; tip.innerHTML = `${LENS[k][1]} <em>(${LENS[k][0]}라운드)</em>`;
+  box.querySelector('input').value = k;
+  box.querySelectorAll('.gll').forEach(el => el.classList.toggle('on', +el.dataset.k === k));
+}
 function renderLobby() {
   RUN++;
   S = null;
@@ -516,11 +628,7 @@ function renderLobby() {
   </div>
 
   <div class="panel">
-    <h3>게임 모드</h3>
-    <div class="tabs">
-      <button class="tab ${ai ? 'on' : ''}" onclick="L.mode='ai';renderLobby()"><b>🤖 AI 대전</b><small>혼자서 즐기는 부동산 투자 대결</small></button>
-      <button class="tab ${!ai ? 'on' : ''}" onclick="L.mode='friend';renderLobby()"><b>👥 친구 대전</b><small>친구와 함께 부동산 경쟁</small></button>
-    </div>
+    ${modeHTML()}
 
     ${ai ? `
     <h3>닉네임</h3>
@@ -537,7 +645,6 @@ function renderLobby() {
     <h3>상대 AI 캐릭터 <span style="font-weight:400">(누르면 AI ${L.aiCount}명 순서대로 교체)</span></h3>
     <div class="chars">${AI_CHARS().map(([k, c]) => charCard(k, c, { on: !!charSlots[k], badge: charSlots[k] ? 'AI ' + charSlots[k].join(',') : '', click: `pickChar('${k}')`, disabled: L.myChar === k })).join('')}</div>
     ` : `
-    <div class="seg" style="margin-top:4px"><button class="${L.fsub === 'online' ? 'on' : ''}" onclick="L.fsub='online';renderLobby()">🌐 온라인 매칭<br><small style="font-weight:400;font-size:11px">링크로 들어온 사람끼리</small></button><button class="${L.fsub === 'local' ? 'on' : ''}" onclick="L.fsub='local';renderLobby()">📱 한 기기에서<br><small style="font-weight:400;font-size:11px">돌려가며 플레이</small></button></div>
     ${L.fsub === 'online' ? onlineLobbyHTML() : `
     <h3>총 플레이 인원</h3>
     <div class="seg">${[2, 3, 4].map(n => `<button class="${L.fCount === n ? 'on' : ''}" onclick="L.fCount=${n};renderLobby()">${n}명</button>`).join('')}</div>
@@ -546,10 +653,7 @@ function renderLobby() {
     <p class="note" style="margin-top:8px">📱 지금은 한 기기를 돌려가며 플레이하는 방식입니다. 턴마다 30초 제한이 있고, 시간이 지나면 매수·건설 포기 등 기본 행동이 자동 처리돼요. 친구 대전은 공정성을 위해 광고 보상이 게임 머니·승패에 영향을 주지 않습니다.</p>
     `}`}
 
-    <h3>게임 길이</h3>
-    <div class="seg">${[[12, '짧게'], [20, '보통'], [30, '길게']].map(([n, t]) => `<button class="${L.rounds === n ? 'on' : ''}" onclick="L.rounds=${n};renderLobby()">${t}<br><small style="font-weight:400;font-size:11px">${n}라운드</small></button>`).join('')}</div>
-
-    <p class="note" style="margin-top:12px">🏦 <b>대출</b> 매입가의 40%까지 · 내 차례마다 대출 잔액의 5% 이자<br>🔒 10라운드마다 한 바퀴는 <b>토지거래허가구역</b>(대출 불가)<br>📢 라운드마다 확률적으로 <b>대출규제·금리상승·취득세 중과·보유세 중과</b> 발표 → 다음 라운드부터 3라운드 적용</p>
+    ${lenHTML()}
     ${!ai && L.fsub === 'online'
       ? `<button class="btn pri" style="margin-top:12px;font-size:17px;padding:15px" onclick="joinOnline()" ${SRV ? '' : 'disabled'}>🌐 온라인 매칭 시작</button>`
       : `<button class="btn pri" style="margin-top:12px;font-size:17px;padding:15px" onclick="startGame()">게임 시작</button>`}
@@ -573,6 +677,7 @@ function renderLobby() {
   <a class="hbanner" href="https://open.kakao.com/o/guoURFbh" target="_blank" rel="noopener" aria-label="버섯들의 비밀의방 카카오톡 오픈채팅"><img src="assets/kakao_banner.jpg" alt="나의 첫 부동산 공부는? 버섯들의 비밀의방"></a>
   <p class="note" style="margin-top:12px;text-align:center">아파트 매입가는 2026년 국토부 실거래가 기반 참고값(전용 84㎡ 기준, 84㎡가 없는 단지는 대표·최소 평형)이에요.<br>통행료·이벤트는 게임용 가상 수치이며 실제 시세 예측이나 투자 정보가 아닙니다. 건설사 로고·사진은 사용하지 않습니다.</p>
   `;
+  setLen(Math.max(0, LENS.findIndex(x => x[0] === L.rounds)));
 }
 async function unlockGony() {
   const ok = await showRewarded('황금 캐릭터 건축학도 고니', true, 20);
@@ -668,7 +773,7 @@ function renderGame() {
 }
 function refresh() { if (!S) return; renderCells(); renderPlayers(); renderCenter(); sync(); }
 function pieceHTML(p, me) {
-  const img = p.char && AV[p.char];
+  const img = AV[p.char || ''];
   return img ? `<i class="tok pc3 ${me ? 'me' : ''} ${p.char === 'gony' ? 'gtok' : ''}" style="--c:${p.color};background-image:url(assets/${img}.jpg)"></i>`
     : `<i class="tok pc3 em ${me ? 'me' : ''}" style="--c:${p.color}">${CHARS[p.char] ? CHARS[p.char].e : '🙂'}</i>`;
 }
@@ -731,9 +836,9 @@ function renderPlayers() {
     setTimeout(() => fl.remove(), 1450);
   });
 }
-const AV = { young: 'glasses', cash: 'oldman', gangnam: 'woman', gony: 'boy' };
+const AV = { '': 'f/new', young: 'f/young', cash: 'f/cash', rebuild: 'f/rebuild', gangnam: 'f/gangnam', gony: 'f/gony' };
 function avatarOf(p) {
-  const k = p.char ? AV[p.char] : null;
+  const k = AV[p.char || ''];
   return k ? `<img class="av" src="assets/${k}.jpg" alt="">` : `<span class="av" style="background:${p.color}22">${CHARS[p.char] ? CHARS[p.char].e : '🙂'}</span>`;
 }
 function renderCenter() {
@@ -1170,7 +1275,7 @@ function say(p, kind, text) {
   const ctr = document.querySelector('.center'); if (!ctr) return;
   ctr.querySelectorAll('.say').forEach(e => e.remove());
   const el = document.createElement('div'); el.className = 'say';
-  const img = p.char && AV[p.char];
+  const img = AV[p.char || ''];
   el.innerHTML = `${img ? `<img src="assets/${img}.jpg" alt="">` : `<span class="se">${CHARS[p.char] ? CHARS[p.char].e : '🙂'}</span>`}<div class="sb" style="--c:${p.color}"><b>${esc(p.name)}</b>${esc(text)}</div>`;
   ctr.appendChild(el);
   setTimeout(() => el.classList.add('out'), 2100);
@@ -1396,6 +1501,7 @@ async function notify(p, title, body, force) {
   if (p.isAI && force) { toast(title, esc(p.name)); await sleep(1300); return; }
   await ask(p, title, body, [{ label: '확인', v: 1, cls: 'dark' }], 1);
 }
+const CINFO = {"위시티일산자이": ["경기 고양시 일산동구 식사동", "2010년", "4,683세대", "식사지구 대표 대단지"], "청라국제도시 아이파크": ["인천 서구 청라동", "2025년(예정)", "1,020실", "주거용 오피스텔(아파텔) · 최고 42층 2개동"], "제주 노형아이파크": ["제주 제주시 노형동", "2001년경", "247세대", "신제주 노형동 생활권"], "송도 더샵퍼스트월드": ["인천 연수구 송도동", "2009년", "1,596세대", "송도 1세대 주상복합 대단지"], "창동주공 3단지": ["서울 도봉구 창동", "1990년", "2,856세대", "재건축 추진 구축 단지"], "미아뉴타운 래미안트리베라": ["서울 강북구 미아동", "2010년", "2,577세대(1·2차)", "미아뉴타운 대표 단지"], "노원 롯데캐슬 시그니처": ["서울 노원구 상계동", "2023년", "1,163세대", "상계6구역 재개발 · 최고 29층"], "평촌 더샵센트럴시티": ["경기 안양시 동안구 관양동", "2016년", "1,459세대", "4호선 평촌역 도보권 · 최고 32층"], "대전 크로바아파트": ["대전 서구 둔산동", "1992년", "1,632세대", "둔산 학군 대장 · 최고 15층 20개동"], "산성역 포레스티아": ["경기 성남시 수정구 신흥동", "2020년", "4,089세대", "8호선 산성역 대단지"], "DMC파크뷰자이": ["서울 서대문구 남가좌동", "2015년", "4,300세대", "가재울뉴타운 대단지"], "광교 중흥S-클래스": ["경기 수원시 영통구 원천동", "2019년", "2,231세대", "광교호수공원 앞 · 최고 49층"], "대구 범어W": ["대구 수성구 범어동", "2023년", "1,340세대", "범어역 초역세권 · 최고 59층"], "철산자이 더 헤리티지": ["경기 광명시 철산동", "2025년", "3,804세대", "철산주공 8·9단지 재건축 · 최고 40층"], "동탄역 롯데캐슬": ["경기 화성시 동탄 오산동", "2021년", "940세대", "동탄역·백화점 직결 주상복합 · 최고 49층"], "과천자이": ["경기 과천시 별양동", "2021년", "2,099세대", "과천주공 6단지 재건축"], "마포래미안푸르지오": ["서울 마포구 아현동", "2014년", "3,885세대", "아현뉴타운 대장 단지"], "고덕그라시움": ["서울 강동구 고덕동", "2019년", "4,932세대", "고덕주공 2단지 재건축"], "파크뷰": ["경기 성남시 분당구 정자동", "2004년", "1,829세대", "분당 대표 주상복합 · 13개동"], "경희궁자이": ["서울 종로구 교남동·홍파동", "2017년", "2,533세대", "돈의문뉴타운 · 도심 직주근접"], "여의도 시범아파트": ["서울 영등포구 여의도동", "1971년", "1,584세대", "여의도 재건축 대표 단지"], "목동신시가지 7단지": ["서울 양천구 목동", "1986년", "2,550세대", "목동 학군 · 재건축 추진"], "흑석 아크로리버하임": ["서울 동작구 흑석동", "2019년", "1,073세대", "흑석뉴타운 한강변 단지"], "해운대 엘시티": ["부산 해운대구 중동", "2019년", "882세대", "해운대 해변 초고층 · 최고 101층"], "잠실엘스": ["서울 송파구 잠실동", "2008년", "5,678세대", "잠실주공 1단지 재건축"], "판교푸르지오그랑블": ["경기 성남시 분당구 백현동", "2011년", "948세대", "판교역 도보권 · 최고 25층 14개동"], "한남더힐": ["서울 용산구 한남동", "2011년", "600세대", "저층 고급 주거 단지"], "서울숲 트리마제": ["서울 성동구 성수동1가", "2017년", "688세대", "서울숲·한강변 초고층 · 최고 47층"], "아크로리버파크": ["서울 서초구 반포동", "2016년", "1,612세대", "반포 한강변 대장 단지"], "래미안 원베일리": ["서울 서초구 반포동", "2023년", "2,990세대", "신반포3차·경남 재건축 · 한강변"]};
 function cellInfo(i) {
   const c = S.cells[i];
   let html;
@@ -1404,13 +1510,15 @@ function cellInfo(i) {
     const mono = o && hasMono(o.id, c.g);
     const rows = LV.map((l, k) => `<tr class="${o && c.level === k ? 'now' : ''}"><td>${l}${k ? ` <small style="color:#8a7f6a">(+${fmt(buildCost(c))})</small>` : ''}</td><td>${fmt(r1(c.p * RENT_MULT[k]))}${mono ? ` → ${fmt(r1(c.p * RENT_MULT[k] * 1.5))}` : ''}</td></tr>`).join('');
     const grp = props().filter(x => x.g === c.g).map(x => `<span style="color:${x.owner != null ? S.players[x.owner].color : '#9a907e'}">${x.sn}</span>`).join(' · ');
-    html = `<div style="height:8px;border-radius:4px;background:${GROUPS[c.g].c};margin-bottom:10px"></div>
-      <h2 style="font-size:19px">${esc(c.n)}</h2>
+    const ci = CINFO[c.n];
+    html = `<div class="cihero"><i class="cibg" style="background-image:url(assets/t/${c.i}.jpg)"></i><img src="assets/t/${c.i}.jpg" alt=""><span class="cig" style="background:${GROUPS[c.g].c}">${GROUPS[c.g].n}</span>${c.tag === 'old' ? '<span class="cit">재건축·구축</span>' : c.tag === 'gn' ? '<span class="cit">강남·한강변</span>' : ''}</div>
+      <h2 style="font-size:19px;margin-top:10px">${esc(c.n)}</h2>
+      ${ci ? `<div class="cinfo"><div><small>📍 위치</small><b>${ci[0]}</b></div><div><small>🗓️ 입주</small><b>${ci[1]}</b></div><div><small>🏢 규모</small><b>${ci[2]}</b></div><div><small>✨ 특징</small><b>${ci[3]}</b></div></div>` : ''}
       <div class="note">${GROUPS[c.g].n} · 매입가 ${fmt(c.p)}${c.tag === 'old' ? ' · 구축' : c.tag === 'gn' ? ' · 강남·한강변' : ''}<br>가격 기준: ${esc(c.ref || '')}</div>
       <div style="margin-top:8px;font-size:13px"><b>소유:</b> ${o ? `<span style="color:${o.color};font-weight:900">${esc(o.name)}</span> · ${LV[c.level]}${mono ? ' · 그룹 독점 🔥' : ''}${c.loan ? ` · 대출 ${fmt(c.loan)}` : ''}` : '없음 (매입 가능)'}</div>
       <table class="rtab"><tr><td><b>단계</b></td><td><b>통행료</b></td></tr>${rows}</table>
       <div class="note">같은 급지: ${grp}<br>같은 급지 3곳을 모두 가지면 통행료 1.5배</div>
-      <div class="note" style="margin-top:6px">※ 매입가는 국토부 실거래가를 참고한 값이고, 통행료·건설비·이벤트는 게임용 가상 수치입니다. 투자 정보가 아닙니다.</div>`;
+      <div class="note" style="margin-top:6px">※ 단지 정보는 공개 자료 기준 참고용이며, 매입가는 국토부 실거래가 참고값입니다. 통행료·건설비·이벤트는 게임용 가상 수치로 투자 정보가 아닙니다. 그림은 일러스트입니다.</div>`;
   } else {
     const desc = {
       start: `통과할 때마다 월급 ${fmt(SALARY)}을 받아요.`,
