@@ -353,6 +353,7 @@ body{background:linear-gradient(180deg,#22397a 0%,#4b67ad 28%,#c9b6c4 60%,#f2d9c
 .center .say .sb::before{content:"";position:absolute;left:-9px;bottom:10px;border:7px solid transparent;border-right-color:var(--c);border-left:0}
 .mrow .av{width:42px!important;height:42px!important;flex:none;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:22px;position:static!important}
 </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous" onerror="this.dataset.failed=1"></script>
 </head>
 <body>
 <div id="app"></div>
@@ -1395,8 +1396,8 @@ function showRewarded(label, lobby, dur = 5) {
   return new Promise(res => {
     if (!lobby && !(S && rewardedLeft())) return res(false);
     const m = $('#modal');
-    if (ADS.client && ADS.blocked) return noAdBox(res);
-    if (ADS.client) return realRewarded(label, lobby, res);
+    if (ADS.h5 && ADS.blocked) return noAdBox(res);
+    if (ADS.h5) return realRewarded(label, lobby, res);
     if (Math.random() < 0.07) { // 광고가 준비되지 않은 경우에도 게임은 계속
       m.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:34px">📭</div><b>지금은 볼 수 있는 광고가 없어요</b><p class="note" style="margin:6px 0 12px">잠시 후 다시 시도해 주세요. 게임은 그대로 진행됩니다.</p><button class="btn dark" id="adx">확인</button></div>`;
       m.classList.add('on'); m.onclick = null;
@@ -1430,8 +1431,8 @@ function showRewarded(label, lobby, dur = 5) {
 }
 function showInterstitial() {
   return new Promise(res => {
-    if (ADS.client && ADS.blocked) return res();
-    if (ADS.client) return realInterstitial(res);
+    if (ADS.h5 && ADS.blocked) return res();
+    if (ADS.h5) return realInterstitial(res);
     const m = $('#modal');
     m.innerHTML = `<div class="adscreen"><div style="display:flex;justify-content:space-between;font-size:12px;opacity:.8"><span><span class="adtag">AD</span>전면 광고 (데모)</span><span id="it">3</span></div>
       <div class="vid" style="height:240px"><b>전면 광고 자리</b>게임 종료 후 1회만 노출</div>
@@ -1820,16 +1821,18 @@ function loadRanking() {
    실제 광고 (Google AdSense · H5 Games Ads)
    서버 환경변수 ADSENSE_CLIENT 가 있으면 자동으로 켜짐, 없으면 데모 광고 유지
    ========================================================= */
-const ADS = { client: '', test: false, bannerSlot: '', ready: false };
+const ADS = { client: '', test: false, h5: false, bannerSlot: '', ready: false };
 function initAds(cfg) {
   if (!cfg || !cfg.client) return;
   Object.assign(ADS, cfg);
-  const sc = document.createElement('script');
+  let sc = document.querySelector('script[src*="adsbygoogle.js"]');
+  if (sc) { if (sc.dataset.failed) ADS.blocked = true; sc.addEventListener('error', () => { ADS.blocked = true; }); }
+  else { sc = document.createElement('script');
   sc.async = true; sc.crossOrigin = 'anonymous';
   sc.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(cfg.client);
   if (cfg.test) sc.setAttribute('data-adbreak-test', 'on');
   sc.onerror = () => { ADS.blocked = true; };
-  document.head.appendChild(sc);
+  document.head.appendChild(sc); }
   window.adsbygoogle = window.adsbygoogle || [];
   window.adBreak = window.adConfig = o => window.adsbygoogle.push(o);
   adConfig({ preloadAdBreaks: 'on', sound: 'on', onReady: () => { ADS.ready = true; } });

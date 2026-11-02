@@ -21,7 +21,8 @@ main 브랜치에 push 하면 자동으로 다시 배포됩니다.
 ## 광고 켜기 (Render → 서비스 → Environment)
 | 키 | 값 | 설명 |
 |---|---|---|
-| `ADSENSE_CLIENT` | `ca-pub-xxxxxxxxxxxxxxxx` | AdSense 게시자 ID. 넣는 순간 데모 광고 → 실제 광고로 전환, `/ads.txt` 자동 생성 |
+| `ADSENSE_CLIENT` | (기본값 ca-pub-2150655592231599) | AdSense 게시자 ID, `/ads.txt` 자동 생성 |
+| `ADSENSE_H5` | `on` | H5 Games Ads 승인 후 켜기 → 보상형·전면 광고가 데모에서 실제 광고로 전환 |
 | `ADSENSE_TEST` | `on` | 테스트 광고(가짜)로 동작 확인. 승인 후 삭제 |
 | `ADSENSE_BANNER_SLOT` | `1234567890` | 배너 광고 단위 ID (로비·게임판·결과 화면 배너) |
 
