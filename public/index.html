@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>부동산 공화국 — 대한민국 아파트 대장단지 부루마블</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#1d2433;--paper:#fffaf0;--bg:#efe6d4;--navy:#1e2741;--accent:#e8553d;--gold:#f2b632}
+body{font-family:"Noto Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent;min-height:100vh}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select{font:inherit}
+#app{max-width:760px;margin:0 auto;padding:10px 10px 24px}
+.logo{font-family:"Black Han Sans",sans-serif;letter-spacing:.5px}
+
+/* ---------- 공통 ---------- */
+.btn{display:block;width:100%;padding:13px 14px;border-radius:12px;font-weight:700;font-size:15px;background:#fff;border:1.5px solid #d9cfbd;text-align:center;transition:transform .08s}
+.btn:active{transform:scale(.98)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.ad{background:#fff8e1;border:1.5px dashed #c99a1b;color:#7a5a00}
+.btn:disabled{opacity:.4;cursor:default}
+.adtag{display:inline-block;font-size:10px;font-weight:900;background:#c99a1b;color:#fff;border-radius:4px;padding:1px 5px;margin-right:6px;vertical-align:1px}
+.banner{margin-top:12px;height:56px;border-radius:10px;border:1.5px dashed #b9ad97;background:repeating-linear-gradient(45deg,#f7f0e2,#f7f0e2 8px,#f2e9d7 8px,#f2e9d7 16px);display:flex;align-items:center;justify-content:center;color:#8a7f6a;font-size:12px;font-weight:700;gap:6px}
+.note{font-size:11.5px;color:#7a705e;line-height:1.55}
+
+/* ---------- 로비 ---------- */
+.hero{background:var(--navy);color:#f6eedd;border-radius:20px;padding:28px 20px 22px;text-align:center;position:relative;overflow:hidden}
+.hero h1{font-size:44px;line-height:1;color:#fff}
+.hero h1 span{color:var(--gold)}
+.hero p{margin-top:8px;font-size:15px;opacity:.85}
+.skyline{position:absolute;left:0;right:0;bottom:0;height:46px;opacity:.18}
+.panel{background:#fff;border-radius:16px;padding:16px;margin-top:12px;border:1px solid #e3d9c6}
+.panel h3{font-size:13px;color:#6b6252;margin:14px 0 8px;font-weight:700}
+.panel h3:first-child{margin-top:0}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tab{padding:14px 10px;border-radius:14px;border:2px solid #e3d9c6;text-align:left;background:#fffdf8}
+.tab b{display:block;font-size:17px}
+.tab small{font-size:12px;color:#7a705e}
+.tab.on{border-color:var(--accent);background:#fff1ec}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:64px;padding:10px 8px;border-radius:10px;border:1.5px solid #e3d9c6;background:#fffdf8;font-weight:700;font-size:14px}
+.seg button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.field{width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid #e3d9c6;background:#fffdf8;font-size:15px}
+.chars{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.char{padding:10px;border-radius:12px;border:1.5px solid #e3d9c6;text-align:left;font-size:13px;background:#fffdf8;position:relative}
+.char b{font-size:14px;display:block}
+.char small{color:#7a705e}
+.char.on{border-color:var(--accent);background:#fff1ec}
+.char .slot{position:absolute;top:6px;right:8px;font-size:11px;font-weight:900;color:var(--accent)}
+.row{display:flex;gap:8px;align-items:center}
+
+/* ---------- 게임 ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.top .logo{font-size:22px}
+.top .logo span{color:var(--accent)}
+.chip{font-size:12px;font-weight:700;background:#fff;border:1px solid #e3d9c6;border-radius:99px;padding:5px 10px}
+.board{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));grid-template-rows:repeat(11,minmax(0,1fr));aspect-ratio:1;gap:2px;background:var(--navy);padding:3px;border-radius:14px;width:100%;box-shadow:0 8px 24px rgba(30,39,65,.25)}
+.cell{background:var(--paper);position:relative;overflow:hidden;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:clamp(6.4px,1.5vw,11px);line-height:1.12;padding:1px;cursor:pointer;word-break:break-all}
+.cell .band{position:absolute;top:0;left:0;right:0;height:17%}
+.cell .nm{font-weight:700;margin-top:16%}
+.cell .pr{opacity:.65;font-size:.92em;margin-top:1px}
+.cell.sp{background:#fbecc4;font-weight:900}
+.cell.sp .ic{font-size:1.9em;line-height:1}
+.cell.sp .nm{margin-top:2px}
+.cell.start{background:var(--accent);color:#fff}
+.cell.owned{background:color-mix(in srgb,var(--oc) 17%,#fffaf0);box-shadow:inset 0 0 0 2px var(--oc)}
+.cell .lv{position:absolute;top:19%;right:1px;font-size:.8em;letter-spacing:-1px}
+.cell.hit{animation:hit .6s}
+@keyframes hit{50%{filter:brightness(1.25);transform:scale(1.06)}}
+.toks{position:absolute;bottom:2px;left:0;right:0;display:flex;justify-content:center;gap:1px;pointer-events:none}
+.tok{width:clamp(7px,2.1vw,15px);height:clamp(7px,2.1vw,15px);border-radius:50%;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.45)}
+.tok.me{animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.3)}}
+.center{grid-area:2/2/11/11;background:radial-gradient(circle at 50% 35%,#34416a,#1b2239);border-radius:8px;color:#f4ecdc;display:flex;flex-direction:column;align-items:center;padding:4% 5%;gap:2.5%;position:relative;overflow:hidden}
+.center .clogo{font-size:clamp(16px,4.6vw,34px);color:#fff}
+.center .clogo span{color:var(--gold)}
+.center .rnd{font-size:clamp(9px,1.9vw,13px);opacity:.75}
+.turn{font-size:clamp(11px,2.4vw,16px);font-weight:900;padding:4px 12px;border-radius:99px;background:rgba(255,255,255,.1)}
+.dice{display:flex;gap:8%;justify-content:center;width:60%}
+.die{width:clamp(34px,10vw,70px);aspect-ratio:1;background:#fff;border-radius:18%;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:12%;box-shadow:0 4px 0 #c8bfae}
+.die i{border-radius:50%;margin:12%}
+.die i.on{background:#1d2433}
+.die.gold{background:linear-gradient(135deg,#ffe08a,#f2b632);box-shadow:0 4px 0 #b9851c}
+.die.roll{animation:shake .12s infinite}
+@keyframes shake{25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+.log{width:100%;flex:1;overflow:hidden;font-size:clamp(8.5px,1.75vw,12.5px);line-height:1.5;display:flex;flex-direction:column;gap:1px;mask-image:linear-gradient(#000 60%,transparent)}
+.log div{opacity:.9}
+.log div:first-child{opacity:1;font-weight:700;color:#ffe9b0}
+.toast{position:absolute;z-index:5;top:30%;left:6%;right:6%;background:#fff;color:var(--ink);border-radius:12px;padding:10px 12px;text-align:center;font-size:clamp(10px,2.2vw,14px);font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.35);opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none}
+.toast.on{opacity:1;transform:none}
+.toast small{display:block;font-weight:400;color:#6b6252;margin-top:2px}
+.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin-top:10px}
+.pc{background:#fff;border-radius:12px;padding:8px 10px;border:2px solid transparent;font-size:12px;position:relative}
+.pc.cur{border-color:var(--pc)}
+.pc.out{opacity:.4;filter:grayscale(1)}
+.pc .nm{font-weight:900;font-size:13.5px;display:flex;align-items:center;gap:6px}
+.pc .dot{width:11px;height:11px;border-radius:50%;flex:none}
+.pc .cash{font-size:16px;font-weight:900;margin-top:2px}
+.pc .sub{color:#7a705e}
+.pc .isl{position:absolute;top:6px;right:8px}
+
+/* ---------- 시트/모달 ---------- */
+.sheet{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;pointer-events:none;z-index:20}
+.sheet .card{pointer-events:auto;width:100%;max-width:520px;background:#fff;border-radius:20px 20px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 30px rgba(0,0,0,.25);transform:translateY(105%);transition:transform .22s ease}
+.sheet.on .card{transform:none}
+.sheet h2{font-size:18px;display:flex;align-items:center;gap:8px}
+.sheet .body{font-size:14px;color:#4b4436;margin:6px 0 14px;line-height:1.55}
+.sheet .btns{display:flex;flex-direction:column;gap:8px}
+.tbar{height:4px;background:#eee;border-radius:9px;margin-top:12px;overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--accent);width:100%}
+.tleft{font-size:11px;color:#8a7f6a;margin-top:4px;text-align:right}
+.mini{display:flex;gap:10px;align-items:center;background:#faf5ea;border-radius:12px;padding:10px;margin-bottom:6px}
+.mini .sw{width:8px;align-self:stretch;border-radius:4px}
+.mini b{font-size:15px}
+.mini small{display:block;color:#7a705e;font-size:12px}
+.modal{position:fixed;inset:0;background:rgba(20,24,38,.6);display:none;align-items:center;justify-content:center;z-index:40;padding:16px}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:18px;padding:18px;width:100%;max-width:400px;position:relative}
+.rtab{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.rtab td{padding:5px 4px;border-bottom:1px solid #f0e8d8}
+.rtab td:last-child{text-align:right;font-weight:700}
+.rtab tr.now td{background:#fff1ec}
+.adscreen{background:#111;color:#fff;border-radius:16px;padding:22px 18px;width:100%;max-width:380px;text-align:center}
+.adscreen .vid{height:170px;border-radius:12px;background:linear-gradient(135deg,#3a4a7a,#8a3a5a);display:flex;align-items:center;justify-content:center;flex-direction:column;margin:12px 0;font-size:13px;opacity:.95}
+.adscreen .vid b{font-size:22px;margin-bottom:4px}
+.prog{height:5px;background:#333;border-radius:9px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--gold);width:0}
+
+/* ---------- 결과 ---------- */
+.res{background:var(--navy);color:#fff;border-radius:20px;padding:24px 18px;text-align:center}
+.res .crown{font-size:52px}
+.res h2{font-size:30px;margin-top:4px}
+.rank{background:#fff;border-radius:14px;padding:12px 14px;margin-top:8px;display:flex;align-items:center;gap:12px}
+.rank .no{font-size:22px;font-weight:900;width:30px;text-align:center}
+.rank .who{flex:1}
+.rank .who b{font-size:15px}
+.rank .who small{display:block;color:#7a705e;font-size:12px}
+.rank .nw{font-weight:900;font-size:16px;text-align:right}
+
+/* ===== 디자인 시안 스킨 ===== */
+.cell,.cell.sp,.cell.start,.cell.owned{background-color:#fff!important;background-size:100% 100%!important;background-repeat:no-repeat!important;background-position:center!important;color:inherit}
+body{background:linear-gradient(180deg,#22397a 0%,#4b67ad 28%,#c9b6c4 60%,#f2d9c5 100%) fixed}
+.top{padding:2px 2px 0}
+.top .brand{height:30px;display:block}
+.chip{background:#fff;border:0;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:7px 14px;font-size:13px}
+.board{grid-template-columns:1.29fr repeat(9,minmax(0,1fr)) 1.29fr;grid-template-rows:1.18fr repeat(9,minmax(0,1fr)) 1.18fr;aspect-ratio:1097/990;gap:3px;padding:6px;border-radius:18px;
+  background:linear-gradient(135deg,#f9e3a3,#d9a441 30%,#fbe9b5 55%,#c88f2c 80%,#f6dc95);box-shadow:0 10px 30px rgba(20,30,70,.45),inset 0 0 0 2px rgba(255,255,255,.5)}
+.cell{background:#fff center/100% 100% no-repeat;border-radius:7px;padding:0;box-shadow:0 1px 3px rgba(80,50,0,.35)}
+.cell>.ov{position:absolute;inset:0;border-radius:7px;pointer-events:none}
+.cell.owned>.ov{box-shadow:inset 0 0 0 3px var(--oc)}
+.cell .flag{position:absolute;top:2px;left:2px;right:2px;justify-content:flex-start!important;gap:2px;height:clamp(9px,2.3vw,17px);border-radius:99px;background:var(--oc);color:#fff;font-size:clamp(6px,1.4vw,10px);font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 3px;box-shadow:0 1px 3px rgba(0,0,0,.4);letter-spacing:-1px}
+.cell .flag b{font-weight:900;color:#fff7d6;margin-left:auto}
+.cell .toks{top:26%;bottom:auto;justify-content:flex-end;right:3px;left:auto;flex-direction:column;gap:1px}
+.cell.hit{animation:hit .6s}
+.center{background:#2a4d9b url(assets/center.jpg) center/100% 100% no-repeat;padding:0;display:block;border-radius:10px}
+.center>*{position:absolute}
+.center .clogo{display:none}
+.center .rnd{left:39%;top:33.6%;width:22%;height:5%;display:flex;align-items:center;justify-content:center;border-radius:99px;background:#253b7a;color:#fff;opacity:1;border:1.5px solid rgba(255,255,255,.55);font-weight:700;font-size:clamp(8px,1.8vw,14px)}
+.center .turn{left:31.5%;top:40%;width:37%;height:6.2%;display:flex;align-items:center;justify-content:center;border-radius:99px;background:#253b7a;color:#fff;border:2px solid rgba(255,255,255,.7);padding:0;font-size:clamp(9px,2.1vw,17px);white-space:nowrap;overflow:hidden}
+.center .dice{left:34.5%;top:46.8%;width:31%;height:15.5%;gap:12%;justify-content:center;align-items:center;background:radial-gradient(#4a6fb4,#3a5ea8);border-radius:14px}
+.center .die{width:auto;height:92%;aspect-ratio:1;border-radius:20%;box-shadow:0 6px 12px rgba(0,0,0,.35),inset 0 -4px 0 rgba(0,0,0,.08)}
+.center .log{left:15%;width:70%;bottom:1.5%;height:4.6%;flex:none;mask-image:none;display:flex;align-items:center;justify-content:center;background:#2b3a5e;border-radius:6px;color:#fff;font-size:clamp(7px,1.6vw,13px);overflow:hidden;white-space:nowrap}
+.center .log div{opacity:1!important;color:#fff!important;font-weight:700}
+.center .log div+div{display:none}
+.center .toast{top:6%;left:14%;right:14%}
+.pc{display:flex;align-items:center;gap:8px;border-radius:16px;padding:10px 12px;box-shadow:0 4px 12px rgba(40,40,90,.15);border:2.5px solid transparent}
+.pc .info{flex:1;min-width:0}
+.pc .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block!important}
+.pc .nm .dot{display:inline-block;vertical-align:1px;margin-right:4px}
+.players{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
+.pc .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 3px #fff,0 2px 8px rgba(0,0,0,.2);background:#f3e9dc;display:flex;align-items:center;justify-content:center;font-size:26px}
+.pc.cur{border-color:var(--pc)}
+.gbanner{display:block;width:100%;border-radius:14px;margin-top:12px;box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.hero{padding:0;background:none}
+.hero{border-radius:20px;overflow:hidden;background:#253b7a}
+.hero img{display:block;width:100%;aspect-ratio:834/258}
+.hero p{position:static;margin:0;padding:10px;color:#fff;font-weight:900;font-size:16px;text-align:center}
+
+/* ===== 3D 주사위 ===== */
+.center .dice{perspective:700px;gap:14%;background:radial-gradient(ellipse at 50% 60%,rgba(80,120,200,.95),rgba(50,85,165,.95));box-shadow:inset 0 0 0 2px rgba(255,255,255,.25),0 0 18px rgba(120,170,255,.35);overflow:visible}
+.die3{position:relative;height:84%;aspect-ratio:1;container-type:size;transform-style:preserve-3d}
+.die3 .tilt{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(-16deg) rotateY(18deg)}
+.die3 .cube{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(0) rotateY(0)}
+.die3 .face{position:absolute;inset:0;border-radius:18%;background:radial-gradient(circle at 30% 25%,#fff,#eef0f4 60%,#d9dde6);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),inset 0 -6cqw 10cqw rgba(0,0,0,.08);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:13%;backface-visibility:hidden}
+.die3 .face.gold{background:radial-gradient(circle at 30% 25%,#fff3c4,#ffd766 55%,#e2a52a)}
+.die3 .face i{border-radius:50%;margin:11%}
+.die3 .face i.on{background:radial-gradient(circle at 35% 30%,#4a5160,#11151d 70%);box-shadow:inset 0 1px 1px rgba(255,255,255,.25)}
+.die3 .f1 i.on{background:radial-gradient(circle at 35% 30%,#ff6b5a,#c3201a 70%);margin:2%}
+.die3 .f1{transform:translateZ(50cqw)}
+.die3 .f6{transform:rotateY(180deg) translateZ(50cqw)}
+.die3 .f2{transform:rotateY(90deg) translateZ(50cqw)}
+.die3 .f5{transform:rotateY(-90deg) translateZ(50cqw)}
+.die3 .f3{transform:rotateX(90deg) translateZ(50cqw)}
+.die3 .f4{transform:rotateX(-90deg) translateZ(50cqw)}
+.die3 .dshadow{position:absolute;left:8%;right:8%;bottom:-16%;height:16%;border-radius:50%;background:radial-gradient(rgba(0,0,0,.45),transparent 70%);transform:translateZ(-60cqw)}
+.die3.toss{animation:tossL 1s cubic-bezier(.3,.7,.4,1) both}
+.die3.tossR{animation:tossR 1s cubic-bezier(.3,.7,.4,1) both}
+@keyframes tossL{0%{transform:translate(-150%,260%) scale(.45)}35%{transform:translate(-50%,-120%) scale(1.25)}62%{transform:translate(0,0) scale(1)}74%{transform:translate(0,-22%) scale(1.03)}86%{transform:translate(0,0) scale(1)}93%{transform:translate(0,-6%)}100%{transform:translate(0,0)}}
+@keyframes tossR{0%{transform:translate(150%,260%) scale(.45)}35%{transform:translate(50%,-130%) scale(1.25)}64%{transform:translate(0,0) scale(1)}76%{transform:translate(0,-18%) scale(1.03)}88%{transform:translate(0,0) scale(1)}94%{transform:translate(0,-5%)}100%{transform:translate(0,0)}}
+.die3.toss .dshadow,.die3.tossR .dshadow{animation:shadowA 1s ease both}
+@keyframes shadowA{0%{opacity:0;transform:translateZ(-60cqw) scale(.3)}35%{opacity:.2;transform:translateZ(-60cqw) scale(.5)}62%{opacity:1;transform:translateZ(-60cqw) scale(1)}100%{opacity:1}}
+.die3.blur .face{filter:blur(.6px)}
+.die3.land .face{box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 0 14px rgba(255,240,160,.9)}
+.die3.dbl .face{box-shadow:0 0 18px 4px rgba(255,205,60,.95)}
+.spark{position:absolute;width:2.2%;aspect-ratio:1;border-radius:50%;pointer-events:none;z-index:6;background:radial-gradient(#fff,#ffd75e 50%,transparent 70%);animation:spark .75s ease-out forwards}
+.spark.star{background:none;width:auto;aspect-ratio:auto;color:#ffe27a;font-size:clamp(10px,2.4vw,20px);text-shadow:0 0 6px #fff}
+@keyframes spark{0%{transform:translate(-50%,-50%) scale(.4);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.2);opacity:0}}
+.dblfx{position:absolute;left:0;right:0;top:44%;text-align:center;z-index:7;pointer-events:none;font-family:"Black Han Sans",sans-serif;font-size:clamp(22px,6vw,52px);color:#ffd84d;-webkit-text-stroke:2px #8a4b00;text-shadow:0 4px 0 #8a4b00,0 0 20px rgba(255,220,90,.9);animation:dblpop 1.1s ease forwards}
+@keyframes dblpop{0%{transform:scale(.2) rotate(-12deg);opacity:0}25%{transform:scale(1.25) rotate(4deg);opacity:1}45%{transform:scale(1)}80%{opacity:1}100%{transform:scale(1.1) translateY(-30%);opacity:0}}
+.center.shake{animation:cshake .32s}
+@keyframes cshake{25%{transform:translate(-1.5%,1%)}50%{transform:translate(1.2%,-1%)}75%{transform:translate(-.6%,.5%)}}
+
+/* ===== 보유 자산 ===== */
+.assets{margin-top:12px;background:rgba(255,255,255,.92);border-radius:18px;padding:12px;box-shadow:0 4px 14px rgba(40,40,90,.15)}
+.assets h3{font-size:15px;margin:0 2px 8px;display:flex;align-items:center;gap:6px}
+.arow{padding:8px 0;border-top:1px solid #f0e6d6}
+.arow:first-of-type{border-top:0}
+.ahead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ahead .av{width:30px;height:30px;font-size:16px;box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.2)}
+.ahead b{font-size:14px}
+.ahead .sum{margin-left:auto;text-align:right;font-size:11px;color:#7a705e;line-height:1.3}
+.ahead .sum strong{display:block;font-size:15px;color:var(--pc)}
+.abar{height:6px;border-radius:9px;background:#f1ebe0;overflow:hidden;display:flex;margin-bottom:8px}
+.abar i{display:block;height:100%}
+.alist{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scroll-snap-type:x mandatory}
+.alist::-webkit-scrollbar{height:5px}.alist::-webkit-scrollbar-thumb{background:#ddd0b8;border-radius:9px}
+.acard{flex:none;width:104px;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(60,40,0,.15);overflow:hidden;scroll-snap-align:start;cursor:pointer;border:2px solid var(--gc);position:relative}
+.acard .img{height:52px;background:center 4%/118% auto no-repeat}
+.acard .lv{position:absolute;top:4px;right:4px;background:rgba(20,28,55,.85);color:#ffe27a;font-size:10px;font-weight:900;border-radius:99px;padding:1px 6px}
+.acard .gr{position:absolute;top:4px;left:4px;background:var(--gc);color:#fff;font-size:9px;font-weight:900;border-radius:99px;padding:1px 5px}
+.acard .bd{padding:5px 7px 7px;font-size:11px;line-height:1.35}
+.acard .bd b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acard .bd .v{color:#1d2433;font-weight:900}
+.acard .bd .r{color:#c0392b;font-weight:700}
+.acard.mono{box-shadow:0 0 0 2px #ffd34d,0 2px 10px rgba(255,190,40,.6)}
+.aempty{font-size:12px;color:#9a907e;padding:6px 2px}
+
+/* ===== 칸 이벤트 연출 ===== */
+.fx{position:absolute;inset:0;z-index:8;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px;animation:fxfade var(--d,1.6s) ease forwards}
+@keyframes fxfade{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
+.fx .dim{position:absolute;inset:0;background:radial-gradient(circle,rgba(10,15,40,.55),rgba(10,15,40,.88))}
+.fx .flash{position:absolute;inset:0;background:#fff;animation:flash .35s ease-out forwards}
+@keyframes flash{0%{opacity:.9}100%{opacity:0}}
+/* 뉴스 */
+.fx .paper{position:relative;width:62%;background:#fbf8f0;border-radius:4px;padding:3% 4% 4%;box-shadow:0 12px 30px rgba(0,0,0,.5);font-family:Georgia,"Noto Serif KR",serif;color:#222;animation:paperspin .75s cubic-bezier(.2,.8,.3,1.1) both}
+@keyframes paperspin{0%{transform:scale(.05) rotate(-900deg)}100%{transform:scale(1) rotate(-3deg)}}
+.fx .paper .mast{display:flex;justify-content:space-between;align-items:center;border-bottom:3px double #222;padding-bottom:2%;font-weight:900;font-size:clamp(11px,2.6vw,22px)}
+.fx .paper .mast small{font-size:.5em;font-weight:400}
+.fx .paper .tag{display:inline-block;background:#d62828;color:#fff;font-family:"Noto Sans KR";font-weight:900;font-size:clamp(8px,1.6vw,13px);padding:1px 8px;margin:3% 0 1%}
+.fx .paper h4{font-size:clamp(14px,3.6vw,30px);line-height:1.2;margin:1% 0;font-family:"Noto Sans KR";font-weight:900}
+.fx .paper .lines i{display:block;height:5px;background:#ddd5c4;margin-top:5px;border-radius:2px}
+.fx .ribbon{position:absolute;left:0;right:0;bottom:16%;background:#d62828;color:#fff;font-weight:900;font-size:clamp(10px,2.4vw,20px);padding:1.2% 0;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.4);animation:ribbon 1.6s linear both}
+@keyframes ribbon{0%{transform:translateX(100%)}100%{transform:translateX(-60%)}}
+/* 청약 */
+.fx .ticket{position:relative;width:46%;aspect-ratio:1.7;border-radius:12px;background:linear-gradient(135deg,#ff8fb8,#ff4f8b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 26px rgba(0,0,0,.45),inset 0 0 0 3px rgba(255,255,255,.5);animation:tflip 1s ease both;transform-style:preserve-3d}
+.fx .ticket::before,.fx .ticket::after{content:"";position:absolute;top:42%;width:9%;aspect-ratio:1;border-radius:50%;background:rgba(20,25,50,.85)}
+.fx .ticket::before{left:-4.5%}.fx .ticket::after{right:-4.5%}
+@keyframes tflip{0%{transform:translateY(120%) rotateY(0) scale(.6)}40%{transform:translateY(0) rotateY(540deg) scale(1.1)}60%{transform:rotateY(720deg) scale(1)}100%{transform:rotateY(720deg)}}
+.fx .ticket b{font-size:clamp(12px,2.8vw,24px)}
+.fx .ticket .ratio{font-family:"Black Han Sans",sans-serif;font-size:clamp(18px,5vw,42px);letter-spacing:1px;text-shadow:0 3px 0 rgba(0,0,0,.2)}
+.fx .stamp{position:absolute;font-family:"Black Han Sans",sans-serif;font-size:clamp(28px,8vw,70px);padding:0 4%;border:6px solid currentColor;border-radius:14px;transform:rotate(-14deg);animation:stamp .45s cubic-bezier(.2,1.6,.4,1) both;animation-delay:var(--sd,1s);background:rgba(255,255,255,.85)}
+.fx .stamp.win{color:#e0a800;text-shadow:0 0 12px rgba(255,220,80,.8)}
+.fx .stamp.lose{color:#6b7280}
+.fx .stamp.red{color:#d62828}
+@keyframes stamp{0%{opacity:0;transform:rotate(-14deg) scale(3)}100%{opacity:1;transform:rotate(-14deg) scale(1)}}
+.confetti{position:absolute;top:-5%;width:1.6%;height:3%;border-radius:2px;animation:conf 1.4s ease-in forwards}
+@keyframes conf{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(1100%) rotate(var(--r))}}
+/* 세금 */
+.fx.tax .dim{background:radial-gradient(circle,rgba(120,0,0,.5),rgba(60,0,0,.88))}
+.fx.tax .stamp{top:56%;left:54%;font-size:clamp(20px,5.5vw,48px);border-width:4px}
+.fx.sub .stamp{top:52%}
+.fx .bill{position:relative;width:48%;background:#fff;border-radius:6px;padding:4% 5%;box-shadow:0 14px 30px rgba(0,0,0,.5);text-align:center;animation:slam .5s cubic-bezier(.3,1.5,.5,1) both;border-top:8px solid #d62828}
+@keyframes slam{0%{transform:translateY(-160%) scale(1.6) rotate(8deg)}100%{transform:translateY(0) scale(1) rotate(-2deg)}}
+.fx .bill small{display:block;color:#888;font-size:clamp(8px,1.6vw,12px)}
+.fx .bill b{display:block;font-size:clamp(12px,2.8vw,22px);margin:2% 0}
+.fx .bill .amt{font-family:"Black Han Sans",sans-serif;color:#d62828;font-size:clamp(20px,6vw,50px)}
+.coin{position:absolute;font-size:clamp(14px,3.4vw,28px);left:50%;top:55%;animation:coin 1s ease-out forwards;animation-delay:var(--cd)}
+@keyframes coin{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}15%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--r)) scale(1)}}
+/* 경매 */
+.fx .gavel{position:relative;font-size:clamp(50px,14vw,120px);transform-origin:80% 80%;animation:gavel .36s ease-in 3}
+@keyframes gavel{0%{transform:rotate(-45deg)}70%{transform:rotate(12deg)}100%{transform:rotate(-45deg)}}
+.fx .bang{position:absolute;font-family:"Black Han Sans",sans-serif;color:#ffd84d;-webkit-text-stroke:2px #6b3a00;font-size:clamp(20px,5vw,44px);opacity:0;animation:bang .3s ease forwards}
+@keyframes bang{0%{opacity:0;transform:scale(.4)}60%{opacity:1;transform:scale(1.3)}100%{opacity:1;transform:scale(1)}}
+/* 무인도 */
+.fx.island .dim{background:linear-gradient(180deg,rgba(80,170,230,.55),rgba(20,90,170,.85))}
+.fx .wave{position:absolute;left:0;right:0;bottom:0;height:26%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='40' viewBox='0 0 200 40'%3E%3Cpath d='M0 20 Q25 0 50 20 T100 20 T150 20 T200 20 V40 H0Z' fill='%23ffffff' fill-opacity='.55'/%3E%3C/svg%3E") repeat-x 0 0/25% 30%,linear-gradient(transparent 25%,rgba(30,120,200,.75) 25%);animation:wave 1.2s linear infinite}
+.fx .wave.w2{height:20%;opacity:.7;animation-duration:.8s;animation-direction:reverse}
+@keyframes wave{to{background-position:25% 0,0 0}}
+.fx .palm{position:relative;margin-top:-10%;font-size:clamp(60px,16vw,140px);animation:palm 1.8s ease both}
+@keyframes palm{0%{transform:translateY(120%) scale(.5)}40%{transform:translateY(-8%) scale(1.1)}60%{transform:translateY(0) scale(1)}80%{transform:rotate(-4deg)}100%{transform:rotate(3deg)}}
+.fx .cap{position:absolute;bottom:30%;left:0;right:0;text-align:center;color:#fff;font-weight:900;font-size:clamp(13px,3vw,26px);text-shadow:0 2px 6px rgba(0,0,0,.6)}
+/* 금액 떠오르기 */
+.pc{position:relative;overflow:visible}
+.cfloat{position:absolute;right:14px;top:6px;font-weight:900;font-size:16px;pointer-events:none;animation:cfloat 1.4s ease-out forwards;text-shadow:0 1px 0 #fff}
+.cfloat.up{color:#1fa365}.cfloat.down{color:#d62828}
+@keyframes cfloat{0%{opacity:0;transform:translateY(10px) scale(.8)}15%{opacity:1;transform:translateY(0) scale(1.15)}100%{opacity:0;transform:translateY(-26px) scale(1)}}
+
+/* ===== 규제 표시 ===== */
+.center .regs{left:2%;right:2%;top:1.5%;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;z-index:4;pointer-events:none}
+.rg{background:rgba(20,30,70,.82);color:#fff;font-size:clamp(7px,1.5vw,11px);font-weight:800;border-radius:99px;padding:2px 8px;border:1px solid rgba(255,255,255,.35)}
+.rg.red{background:rgba(190,30,30,.9);animation:rgpulse 1.6s infinite}
+.rg.warn{background:rgba(230,140,0,.92)}
+@keyframes rgpulse{50%{box-shadow:0 0 10px rgba(255,80,80,.9)}}
+.fx .paper.gov .mast{color:#1d2a5a}
+.fx .siren{position:absolute;inset:0;pointer-events:none;animation:siren .5s steps(2) 3;background:radial-gradient(circle at 0 0,rgba(255,0,0,.45),transparent 45%),radial-gradient(circle at 100% 0,rgba(0,90,255,.45),transparent 45%)}
+@keyframes siren{50%{opacity:0}}
+.fx .thamap{position:relative;width:60%;padding:5% 4%;border-radius:14px;background:repeating-linear-gradient(45deg,#fff 0 12px,#ffe6e6 12px 24px);border:4px solid #d62828;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.5);animation:slam .5s cubic-bezier(.3,1.5,.5,1) both}
+.fx .thamap .lock{font-size:clamp(30px,8vw,64px);animation:lockshake .5s .4s 2}
+@keyframes lockshake{25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
+.fx .thamap b{display:block;font-size:clamp(14px,3.6vw,30px);color:#b71c1c;font-weight:900}
+.fx .thamap small{display:block;font-size:clamp(9px,2vw,15px);color:#444;margin-top:2%}
+
+.res .headline{margin:14px auto 0;max-width:520px;background:linear-gradient(135deg,#fff7d6,#ffe08a);color:#3a2600;border-radius:14px;padding:12px 14px;font-weight:900;font-size:17px;line-height:1.4;box-shadow:0 6px 16px rgba(0,0,0,.25);animation:hlpop .6s cubic-bezier(.2,1.5,.4,1) both .2s}
+.res .headline small{display:block;font-size:11px;font-weight:700;color:#8a6a00;margin-bottom:2px}
+@keyframes hlpop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.rank .oneline{display:block;margin-top:3px;font-size:12px;font-weight:700;color:#c0392b}
+
+.pc .perk{font-size:10.5px;color:#c0392b;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ranking .rk{display:flex;align-items:center;gap:8px;padding:8px 6px;border-bottom:1px solid #f0e6d6;font-size:13px}
+.ranking .rk .no{width:26px;text-align:center;font-weight:900;font-size:15px}
+.ranking .rk .nm{font-weight:900;flex:none;max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ranking .rk .g{flex:1;color:#8a7f6a;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ranking .rk b{color:#e8553d;font-size:15px}
+.ranking .rk.me{background:#fff1ec;border-radius:10px}
+
+.char.goldc{background:linear-gradient(135deg,#fff8dc,#ffe7a0 50%,#fff3c4);border-color:#e0b23a;box-shadow:0 0 0 1px #f5d36b inset,0 2px 10px rgba(224,178,58,.35);overflow:hidden}
+.char.goldc::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);animation:shine 2.6s infinite}
+@keyframes shine{0%{left:-60%}60%,100%{left:130%}}
+.char.goldc.on{border-color:#c98a00;box-shadow:0 0 0 2px #e0a800,0 0 14px rgba(255,200,40,.7)}
+.char.locked b{filter:saturate(.6)}
+.char .unl{display:block;margin-top:6px;font-size:12px;font-weight:900;color:#7a5a00;background:#fff;border:1.5px dashed #c99a1b;border-radius:8px;padding:4px 6px;text-align:center}
+.pc.goldp{background:linear-gradient(135deg,#fffdf2,#fff1c2);box-shadow:0 0 0 2px #e8b830,0 4px 16px rgba(230,180,40,.45)}
+.pc.goldp .perk{color:#8a5a00}
+
+.tok.pc3{width:clamp(14px,3.6vw,28px);height:clamp(14px,3.6vw,28px);border:2px solid var(--c);background:#fff center/cover no-repeat;box-shadow:0 2px 4px rgba(0,0,0,.45),0 0 0 1px #fff;font-style:normal;display:flex;align-items:center;justify-content:center;font-size:clamp(8px,2vw,16px);line-height:1}
+.tok.pc3.em{background:#fff}
+.tok.pc3.me{animation:hop .7s ease-in-out infinite;z-index:3}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-30%) scale(1.12)}}
+.tok.pc3.gtok{border-color:#f2b632;box-shadow:0 0 6px 2px rgba(255,205,60,.9),0 0 0 1px #fff}
+.cell .toks{gap:0}
+.cell .toks .tok+.tok{margin-top:-25%}
+
+.center .say{left:6%;right:6%;bottom:8%;display:flex;align-items:flex-end;gap:6px;z-index:6;pointer-events:none;animation:sayin .35s cubic-bezier(.2,1.4,.4,1) both}
+.center .say.out{animation:sayout .35s ease forwards}
+@keyframes sayin{0%{opacity:0;transform:translateY(20%) scale(.8)}100%{opacity:1;transform:none}}
+@keyframes sayout{to{opacity:0;transform:translateY(-15%)}}
+.center .say img,.center .say .se{width:clamp(28px,7vw,54px);height:clamp(28px,7vw,54px);border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 2px #fff,0 3px 8px rgba(0,0,0,.35);background:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,4vw,30px)}
+.center .say .sb{position:relative;background:#fff;color:#1d2433;border-radius:14px;padding:6px 12px 7px;font-weight:900;font-size:clamp(10px,2.4vw,18px);box-shadow:0 4px 12px rgba(0,0,0,.3);border:2.5px solid var(--c);max-width:80%}
+.center .say .sb b{display:block;font-size:.62em;color:var(--c);margin-bottom:1px}
+.center .say .sb::before{content:"";position:absolute;left:-9px;bottom:10px;border:7px solid transparent;border-right-color:var(--c);border-left:0}
+.mrow .av{width:42px!important;height:42px!important;flex:none;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:22px;position:static!important}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="sheet" id="sheet"></div>
+<div class="modal" id="modal"></div>
+
+<script>
+/* =========================================================
+   부동산 공화국 2.0 — 대한민국 아파트 대장단지 부루마블
+   모든 가격·임대료·이벤트는 게임용 가상 수치입니다.
+   ========================================================= */
+const $ = s => document.querySelector(s);
+let RUN = 0;
+const sleep = ms => { const r = RUN; return new Promise((res, rej) => setTimeout(() => RUN === r ? res() : rej('abort'), ms)); };
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('bgr_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('bgr_' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const r1 = x => Math.round(x * 10) / 10;
+const fmt = x => { x = r1(x); if (Math.abs(x) < 1 && x !== 0) return Math.round(x * 10000).toLocaleString() + '만'; return (Number.isInteger(x) ? x : x.toFixed(1)) + '억'; };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- 데이터 ---------- */
+const START_CASH = 100, SALARY = 8, MAX_REWARDED = 2;
+// 가격대(급지)별 3단지씩 그룹. 3곳을 모두 가지면 독점
+const GROUPS = [
+  { n: '10급지', c: '#a1887f' },
+  { n: '9급지', c: '#4fb7e8' },
+  { n: '8급지', c: '#b26ad0' },
+  { n: '7급지', c: '#ef6a98' },
+  { n: '6급지', c: '#f5a13d' },
+  { n: '5급지', c: '#e05a4f' },
+  { n: '4급지', c: '#e8c22e' },
+  { n: '3급지', c: '#5fb86a' },
+  { n: '2급지', c: '#3949ab' },
+  { n: '1급지', c: '#c9a227' },
+];
+// [type, 이름, 매입가(억, 실거래가 기반), 그룹, 짧은이름, 태그(old=구축, gn=강남·한강변), 가격 기준]
+const RAW = [
+  ['start', '출발'],
+  ['prop', '위시티일산자이', 5, 0, '위시티자이', '', '84㎡ · 2026년 평균'],
+  ['prop', '청라국제도시 아이파크', 6.6, 0, '청라아이파크', '', '주거용 오피스텔 · 청라동 84㎡ 평균으로 대체'],
+  ['news', '부동산 뉴스'],
+  ['prop', '제주 노형아이파크', 7, 0, '노형아이파크', '', '84㎡ · 2026.6'],
+  ['prop', '송도 더샵퍼스트월드', 7.8, 1, '송도더샵', '', '34평 · 2026.8 시세'],
+  ['prop', '창동주공 3단지', 8.5, 1, '창동주공3', 'old', '79㎡ · 2026'],
+  ['sub', '청약 이벤트'],
+  ['prop', '미아뉴타운 래미안트리베라', 11, 1, '미아래미안', '', '84㎡ · 2026.7'],
+  ['prop', '노원 롯데캐슬 시그니처', 12, 2, '노원롯데', '', '84㎡ · 2026.5~7'],
+  ['prop', '평촌 더샵센트럴시티', 14.5, 2, '평촌더샵', '', '84㎡ · 2026.6'],
+  ['auction', '경매 이벤트'],
+  ['prop', '대전 크로바아파트', 14.5, 2, '크로바', 'old', '101㎡(최소 평형) · 2026.9'],
+  ['prop', '산성역 포레스티아', 15.8, 3, '산성포레', '', '84㎡ · 2026.7'],
+  ['prop', 'DMC파크뷰자이', 16.5, 3, 'DMC파크뷰', '', '84㎡ · 2026.7'],
+  ['tax', '세금 납부'],
+  ['prop', '광교 중흥S-클래스', 17, 3, '광교중흥', '', '84㎡ · 2026 시세'],
+  ['prop', '대구 범어W', 17.5, 4, '범어W', '', '84㎡ · 2026.5'],
+  ['prop', '철산자이 더 헤리티지', 18.5, 4, '철산자이', '', '84㎡ 분양권 · 2026'],
+  ['news', '부동산 뉴스'],
+  ['prop', '동탄역 롯데캐슬', 22, 4, '동탄롯데', '', '84㎡ · 2026.6'],
+  ['prop', '과천자이', 23.5, 5, '과천자이', 'gn', '84㎡ · 2025.5'],
+  ['prop', '마포래미안푸르지오', 25, 5, '마래푸', '', '84㎡ · 2026.6'],
+  ['island', '무인도'],
+  ['prop', '고덕그라시움', 25, 5, '고덕그라시움', '', '84㎡ · 2026.6'],
+  ['prop', '파크뷰', 26, 6, '파크뷰', 'old', '84㎡ · 2026.6'],
+  ['prop', '경희궁자이', 27, 6, '경희궁자이', '', '84㎡ · 2026.6'],
+  ['sub', '청약 이벤트'],
+  ['prop', '여의도 시범아파트', 29, 6, '여의도시범', 'old', '79㎡ · 2026.7'],
+  ['prop', '목동신시가지 7단지', 30.5, 7, '목동7단지', 'old', '89㎡ · 2026.10'],
+  ['prop', '흑석 아크로리버하임', 31, 7, '아크로하임', 'gn', '84㎡ · 2026.8 시세'],
+  ['news', '부동산 뉴스'],
+  ['prop', '해운대 엘시티', 31, 7, '엘시티', '', '144㎡(최소 평형) · 2026.5'],
+  ['prop', '잠실엘스', 34, 8, '잠실엘스', 'gn', '84㎡ · 2026.7'],
+  ['prop', '판교푸르지오그랑블', 35.5, 8, '판교그랑블', 'gn', '98㎡(최소 평형) · 2026.4'],
+  ['tax', '세금 납부'],
+  ['prop', '한남더힐', 38.5, 8, '한남더힐', 'gn', '59㎡(최소 평형) · 2026.6'],
+  ['prop', '서울숲 트리마제', 46.5, 9, '트리마제', 'gn', '84㎡ · 2026.7'],
+  ['prop', '아크로리버파크', 55, 9, '아리팍', 'gn', '84㎡ · 2026.5~8'],
+  ['prop', '래미안 원베일리', 60, 9, '원베일리', 'gn', '84㎡ · 2026.5'],
+];
+const SP = { start: ['🏁', '출발'], news: ['📰', '뉴스'], sub: ['🎟️', '청약'], auction: ['🔨', '경매'], tax: ['💸', '세금'], island: ['🏝️', '무인도'] };
+const LV = ['매입', '리모델링', '고층 증축', '랜드마크'];
+const LV_ICON = ['', '▮', '▮▮', '★'];
+const RENT_MULT = [0.12, 0.35, 0.7, 1.1];
+const PCOL = ['#e8553d', '#2f80ed', '#1fa365', '#9b51e0'];
+const CHARS = {
+  young: { n: '영끌 김대리', e: '😤', d: '고가 아파트를 무리해서 매입', perk: '🏦 대출 한도 +20%p (LTV 40→60%)' },
+  cash: { n: '현금왕 박사장', e: '💰', d: '저가 단지부터 차근차근', perk: '💵 출발 월급 +25% (8→10억)' },
+  rebuild: { n: '재건축 이회장', e: '🏚️', d: '구축 아파트 독점 선호', perk: '🏚️ 재건축(구축) 단지 통행료 수입 +10%' },
+  gangnam: { n: '강남불패 최대표', e: '🏙️', d: '강남권 고가 단지 집중', perk: '🏙️ 강남·한강변 단지 통행료 수입 +5%' },
+  gony: { n: '건축학도 고니', e: '👑', d: '황금 캐릭터 · 최강 능력', perk: '👑 모든 통행료 수입 +10% · 월급 +20% · 대출 한도 +10%p', gold: true },
+};
+const AI_KEYS = ['young', 'cash', 'rebuild', 'gangnam'];
+const AI_CHARS = () => AI_KEYS.map(k => [k, CHARS[k]]);
+const gonyOpen = () => store.get('gony', false);
+const DIFF = { easy: ['쉬움', '초보 투자자'], normal: ['보통', '안정형 투자자'], hard: ['어려움', '부동산 고수'] };
+
+/* ---------- 로비 상태 ---------- */
+const L = {
+  mode: 'ai', nick: store.get('nick', ''), aiCount: 2, diff: 'normal', chars: ['young', 'cash', 'gangnam'],
+  rounds: 20, fCount: 2, fNames: store.get('fnames', ['', '', '', '']), myChar: store.get('mychar', ''), fChars: store.get('fchars', ['', '', '', '']), fsub: 'online', oChar: store.get('ochar', ''),
+};
+let goldDice = store.get('gold', false);
+let S = null;
+
+/* =========================================================
+   로비
+   ========================================================= */
+function renderLobby() {
+  RUN++;
+  S = null;
+  closeSheet();
+  const ai = L.mode === 'ai';
+  const charSlots = {};
+  L.chars.slice(0, L.aiCount).forEach((c, i) => charSlots[c] = (charSlots[c] || []).concat(i + 1));
+  $('#app').innerHTML = `
+  <div class="hero">
+    <img src="assets/hero.jpg" alt="부동산 공화국">
+    <p>대한민국 아파트를 독점하라!</p>
+  </div>
+
+  <div class="panel">
+    <h3>게임 모드</h3>
+    <div class="tabs">
+      <button class="tab ${ai ? 'on' : ''}" onclick="L.mode='ai';renderLobby()"><b>🤖 AI 대전</b><small>혼자서 즐기는 부동산 투자 대결</small></button>
+      <button class="tab ${!ai ? 'on' : ''}" onclick="L.mode='friend';renderLobby()"><b>👥 친구 대전</b><small>친구와 함께 부동산 경쟁</small></button>
+    </div>
+
+    ${ai ? `
+    <h3>닉네임</h3>
+    <input class="field" maxlength="8" placeholder="닉네임만 입력하면 바로 시작" value="${esc(L.nick)}" oninput="L.nick=this.value">
+    <h3>내 캐릭터 <span style="font-weight:400">(캐릭터마다 능력이 달라요)</span></h3>
+    <div class="chars">${[['', { n: '새내기 투자자', e: '🙂', d: '기본 캐릭터', perk: '능력 없음 · 순수 실력파' }], ['gony', CHARS.gony], ...AI_CHARS()].map(([k, c]) => {
+      if (k === 'gony' && !gonyOpen()) return `<button class="char goldc locked" onclick="unlockGony()"><span class="slot" style="color:#8a5a00">🔒 잠김</span><b>👑 건축학도 고니</b><small style="color:#8a5a00;font-weight:700">${c.perk}</small><span class="unl"><span class="adtag">AD</span>20초 광고 보고 열기</span></button>`;
+      return `<button class="char ${L.myChar === k ? 'on' : ''} ${c.gold ? 'goldc' : ''}" onclick="L.myChar='${k}';store.set('mychar','${k}');fixAiChars();renderLobby()">${L.myChar === k ? '<span class="slot">나</span>' : ''}<b>${c.e} ${c.n}</b><small style="color:${c.gold ? '#8a5a00' : '#c0392b'};font-weight:700">${c.perk}</small></button>`;
+    }).join('')}</div>
+    <h3>총 플레이 인원</h3>
+    <div class="seg">${[1, 2, 3].map(n => `<button class="${L.aiCount === n ? 'on' : ''}" onclick="L.aiCount=${n};renderLobby()">${n + 1}명</button>`).join('')}</div>
+    <h3>AI 난이도</h3>
+    <div class="seg">${Object.entries(DIFF).map(([k, v]) => `<button class="${L.diff === k ? 'on' : ''}" onclick="L.diff='${k}';renderLobby()">${v[0]}<br><small style="font-weight:400;font-size:11px">${v[1]}</small></button>`).join('')}</div>
+    <h3>상대 AI 캐릭터 <span style="font-weight:400">(누르면 AI ${L.aiCount}명 순서대로 교체)</span></h3>
+    <div class="chars">${AI_CHARS().map(([k, c]) => `<button class="char ${charSlots[k] ? 'on' : ''}" onclick="pickChar('${k}')" ${L.myChar === k ? 'disabled style="opacity:.35"' : ''}>${charSlots[k] ? `<span class="slot">AI ${charSlots[k].join(',')}</span>` : ''}<b>${c.e} ${c.n}</b><small>${c.d}</small><small style="display:block;color:#c0392b;font-weight:700">${c.perk}</small></button>`).join('')}</div>
+    ` : `
+    <div class="seg" style="margin-top:4px"><button class="${L.fsub === 'online' ? 'on' : ''}" onclick="L.fsub='online';renderLobby()">🌐 온라인 매칭<br><small style="font-weight:400;font-size:11px">링크로 들어온 사람끼리</small></button><button class="${L.fsub === 'local' ? 'on' : ''}" onclick="L.fsub='local';renderLobby()">📱 한 기기에서<br><small style="font-weight:400;font-size:11px">돌려가며 플레이</small></button></div>
+    ${L.fsub === 'online' ? onlineLobbyHTML() : `
+    <h3>총 플레이 인원</h3>
+    <div class="seg">${[2, 3, 4].map(n => `<button class="${L.fCount === n ? 'on' : ''}" onclick="L.fCount=${n};renderLobby()">${n}명</button>`).join('')}</div>
+    <h3>참가자 닉네임</h3>
+    <div style="display:grid;gap:6px">${Array.from({ length: L.fCount }, (_, i) => `<div class="row"><span class="dot" style="width:12px;height:12px;border-radius:50%;background:${PCOL[i]};flex:none"></span><input class="field" maxlength="8" placeholder="플레이어 ${i + 1}" value="${esc(L.fNames[i] || '')}" oninput="L.fNames[${i}]=this.value"><select class="field" style="width:46%;font-size:13px" onchange="L.fChars[${i}]=this.value;store.set('fchars',L.fChars)"><option value="">🙂 새내기 투자자 (능력 없음)</option>${AI_CHARS().map(([k, c]) => `<option value="${k}" ${L.fChars[i] === k ? 'selected' : ''}>${c.e} ${c.n.split(' ')[0]} · ${c.perk.replace(/^\S+ /, '')}</option>`).join('')}</select></div>`).join('')}</div>
+    <p class="note" style="margin-top:8px">📱 지금은 한 기기를 돌려가며 플레이하는 방식입니다. 턴마다 30초 제한이 있고, 시간이 지나면 매수·건설 포기 등 기본 행동이 자동 처리돼요. 친구 대전은 공정성을 위해 광고 보상이 게임 머니·승패에 영향을 주지 않습니다.</p>
+    `}`}
+
+    <h3>게임 길이</h3>
+    <div class="seg">${[[12, '짧게'], [20, '보통'], [30, '길게']].map(([n, t]) => `<button class="${L.rounds === n ? 'on' : ''}" onclick="L.rounds=${n};renderLobby()">${t}<br><small style="font-weight:400;font-size:11px">${n}라운드</small></button>`).join('')}</div>
+
+    <p class="note" style="margin-top:12px">🏦 <b>대출</b> 매입가의 40%까지 · 내 차례마다 대출 잔액의 5% 이자<br>🔒 10라운드마다 한 바퀴는 <b>토지거래허가구역</b>(대출 불가)<br>📢 라운드마다 확률적으로 <b>대출규제·금리상승·취득세 중과·보유세 중과</b> 발표 → 다음 라운드부터 3라운드 적용</p>
+    ${!ai && L.fsub === 'online'
+      ? `<button class="btn pri" style="margin-top:12px;font-size:17px;padding:15px" onclick="joinOnline()" ${SRV ? '' : 'disabled'}>🌐 온라인 매칭 시작</button>`
+      : `<button class="btn pri" style="margin-top:12px;font-size:17px;padding:15px" onclick="startGame()">게임 시작</button>`}
+    ${quotaHTML()}
+  </div>
+
+  ${rankingHTML(L.nick)}
+  <div class="panel">
+    <h3>꾸미기</h3>
+    <div class="row">
+      <span style="width:46px;height:46px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;background:${goldDice ? 'linear-gradient(135deg,#ffe08a,#f2b632)' : '#f3efe6'}">🎲</span>
+      <div style="flex:1;font-size:13px"><b>${goldDice ? '골드 주사위 장착 중' : '기본 주사위'}</b><br><span class="note">${goldDice ? 'AI 대전에서 시작 자금·월급 +10% 적용 중 (승패에 약 10% 유리)' : '골드 주사위는 AI 대전에서 승패에 약 10% 유리해요 (시작 자금·월급 +10%)'}<br>친구 대전에서는 공정성을 위해 디자인만 바뀌어요.</span></div>
+    </div>
+    <div style="margin-top:10px">${goldDice
+      ? `<button class="btn" onclick="goldDice=false;store.set('gold',false);store.set('goldOwned',true);renderLobby()">기본 주사위로 바꾸기</button>`
+      : store.get('goldOwned', false)
+        ? `<button class="btn" onclick="goldDice=true;store.set('gold',true);renderLobby()">골드 주사위 장착</button>`
+        : `<button class="btn ad" onclick="lobbyAd()"><span class="adtag">AD</span>광고 보고 골드 주사위 받기 · 승패 10% 유리</button>`}</div>
+  </div>
+
+  <div class="banner"><span class="adtag">AD</span>로비 배너 광고 영역 (데모)</div>
+  <p class="note" style="margin-top:12px;text-align:center">아파트 매입가는 2026년 국토부 실거래가 기반 참고값(전용 84㎡ 기준, 84㎡가 없는 단지는 대표·최소 평형)이에요.<br>통행료·이벤트는 게임용 가상 수치이며 실제 시세 예측이나 투자 정보가 아닙니다. 건설사 로고·사진은 사용하지 않습니다.</p>
+  `;
+}
+async function unlockGony() {
+  const ok = await showRewarded('황금 캐릭터 건축학도 고니', true, 20);
+  if (ok) { store.set('gony', true); L.myChar = 'gony'; store.set('mychar', 'gony'); }
+  renderLobby();
+}
+function fixAiChars() {
+  L.chars = L.chars.map((c, i) => c === L.myChar && i < L.aiCount ? AI_KEYS.find(k => k !== L.myChar && !L.chars.slice(0, L.aiCount).includes(k)) || c : c);
+}
+function pickChar(k) {
+  if (k === L.myChar) return;
+  const cur = L.chars.slice(0, L.aiCount);
+  if (cur.includes(k)) return;
+  L._ci = ((L._ci || 0) % L.aiCount);
+  L.chars[L._ci] = k;
+  L._ci++;
+  renderLobby();
+}
+async function lobbyAd() {
+  const ok = await showRewarded('골드 주사위 (AI 대전 10% 유리)', true);
+  if (ok) { goldDice = true; store.set('gold', true); store.set('goldOwned', true); }
+  renderLobby();
+}
+
+/* =========================================================
+   게임 시작
+   ========================================================= */
+function startGame() {
+  if (playsLeft() <= 0) return noPlaysModal();
+  { const q = quota(); q.used++; store.set('quota', q); }
+  $('#modal').classList.remove('on');
+  RUN++;
+  const players = [];
+  const mk = (id, name, isAI, char) => ({ id, name, isAI, char, pos: 0, cash: START_CASH, bankrupt: false, island: 0, color: PCOL[id], outAt: 0, st: { interest: 0, tax: 0, taxHeavy: 0, acq: 0, rent: 0, rentGot: 0, sold: 0, blocked: 0, loanMax: 0 }, cause: null });
+  if (L.mode === 'ai') {
+    const nick = (L.nick || '').trim() || '나';
+    store.set('nick', L.nick);
+    if (L.myChar === 'gony' && !gonyOpen()) L.myChar = '';
+    fixAiChars();
+    players.push(mk(0, nick, false, L.myChar || undefined));
+    if (goldDice) players[0].cash = r1(START_CASH * 1.1);
+    for (let i = 0; i < L.aiCount; i++) { const c = L.chars[i]; players.push(mk(i + 1, CHARS[c].n, true, c)); }
+  } else {
+    store.set('fnames', L.fNames);
+    for (let i = 0; i < L.fCount; i++) players.push(mk(i, (L.fNames[i] || '').trim() || `플레이어${i + 1}`, false, L.fChars[i] || undefined));
+  }
+  S = {
+    mode: L.mode, diff: L.diff, maxRounds: L.rounds, players,
+    cells: RAW.map((r, i) => ({ i, t: r[0], n: r[1], p: r[2], g: r[3], sn: r[4], tag: r[5], ref: r[6], owner: null, level: 0, inv: 0, loan: 0 })),
+    gid: Date.now(), regs: {}, pending: null, gold: goldDice && L.mode === 'ai', cur: 0, round: 1, extraUsed: false, log: [], rewarded: 0, flags: {}, interShown: false, over: false, outCount: 0,
+  };
+  renderGame();
+  log(`게임 시작! 모든 플레이어 ${fmt(START_CASH)}으로 출발합니다.`);
+  if (S.gold) log(`🎲 골드 주사위 효과: ${esc(S.players[0].name)} 시작 자금 ${fmt(S.players[0].cash)} · 월급 +10%`);
+  setTimeout(playTurn, 600);
+}
+
+/* ---------- 게임 화면 ---------- */
+function cellRC(i) {
+  if (i <= 10) return [11, 11 - i];
+  if (i < 20) return [11 - (i - 10), 1];
+  if (i <= 30) return [1, i - 19];
+  return [i - 29, 11];
+}
+function renderGame() {
+  $('#app').innerHTML = `
+  <div class="top">
+    <img class="brand" src="assets/logo.png" alt="부동산 공화국">
+    <div class="row"><span class="chip">${S.mode === 'ai' ? '🤖 AI 대전 · ' + DIFF[S.diff][0] : S.online ? `🌐 온라인 ${S.room}번 방` : '👥 친구 대전'}</span><button class="chip" onclick="quitGame()">나가기</button></div>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="players" id="players"></div>
+  <div class="assets" id="assets"></div>
+  <img class="gbanner" src="assets/banner.jpg" alt="AD 게임판 하단 배너 광고 영역 (데모)">
+  <p class="note" style="margin-top:8px;text-align:center">칸을 누르면 단지 정보와 가격 기준을 볼 수 있어요 · 매입가는 실거래가 참고값입니다</p>`;
+  const b = $('#board');
+  S.cells.forEach(c => {
+    const d = document.createElement('div');
+    const [r, col] = cellRC(c.i);
+    d.style.gridArea = `${r}/${col}`;
+    d.id = 'c' + c.i;
+    d.style.backgroundImage = `url(assets/t/${c.i}.jpg)`;
+    d.onclick = () => cellInfo(c.i);
+    b.appendChild(d);
+  });
+  const ctr = document.createElement('div');
+  ctr.className = 'center';
+  ctr.innerHTML = `<div class="clogo logo">부동산 <span>공화국</span></div><div class="rnd" id="rnd"></div><div class="turn" id="turn"></div>
+    <div class="regs" id="regs"></div><div class="dice">${dieHTML('d1')}${dieHTML('d2')}</div>
+    <div class="log" id="log"></div><div class="toast" id="toast"></div>`;
+  b.appendChild(ctr);
+  refresh();
+}
+function refresh() { if (!S) return; renderCells(); renderPlayers(); renderCenter(); sync(); }
+function pieceHTML(p, me) {
+  const img = p.char && AV[p.char];
+  return img ? `<i class="tok pc3 ${me ? 'me' : ''} ${p.char === 'gony' ? 'gtok' : ''}" style="--c:${p.color};background-image:url(assets/${img}.jpg)"></i>`
+    : `<i class="tok pc3 em ${me ? 'me' : ''}" style="--c:${p.color}">${CHARS[p.char] ? CHARS[p.char].e : '🙂'}</i>`;
+}
+function renderCells() {
+  sync();
+  const cur = S.players[S.cur];
+  S.cells.forEach(c => {
+    const el = $('#c' + c.i);
+    if (!el) return;
+    const toks = S.players.filter(p => !p.bankrupt && p.pos === c.i).map(p => pieceHTML(p, p === cur)).join('');
+    const o = c.t === 'prop' && c.owner != null ? S.players[c.owner] : null;
+    el.className = 'cell' + (o ? ' owned' : '');
+    el.style.setProperty('--oc', o ? o.color : 'transparent');
+    el.innerHTML = `<div class="ov"></div>${o ? `<span class="flag">${esc(o.name.slice(0, 1))}${LV_ICON[c.level]}<b>${fmt(rent(c.i))}</b></span>` : ''}<div class="toks">${toks}</div>`;
+    el.title = c.t === 'prop' ? `${c.n} ${fmt(c.p)}` : c.n;
+  });
+}
+function renderAssets() {
+  const box = $('#assets'); if (!box) return;
+  const rows = S.players.filter(p => !p.bankrupt).map(p => {
+    const os = owned(p).sort((a, b) => (b.p + b.inv) - (a.p + a.inv));
+    const val = r1(os.reduce((t, c) => t + c.p + c.inv, 0));
+    const income = r1(os.reduce((t, c) => t + rent(c.i), 0));
+    const nw = netWorth(p) || 1;
+    const bar = `<div class="abar"><i style="width:${Math.min(100, val / nw * 100)}%;background:${p.color}"></i><i style="flex:1;background:#d9cfbd"></i></div>`;
+    const cards = os.length ? os.map(c => `<div class="acard ${hasMono(p.id, c.g) ? 'mono' : ''}" style="--gc:${GROUPS[c.g].c}" onclick="cellInfo(${c.i})">
+        <div class="img" style="background-image:url(assets/t/${c.i}.jpg)"></div>
+        <span class="gr">${GROUPS[c.g].n}</span>${c.level ? `<span class="lv">${LV[c.level]}</span>` : ''}
+        <div class="bd"><b>${esc(c.n)}</b><span class="v">${fmt(c.p + c.inv)}</span> 자산<br><span class="r">통행료 ${fmt(rent(c.i))}</span>${c.loan ? `<br><span style="color:#7a705e">대출 ${fmt(c.loan)}</span>` : ''}</div>
+      </div>`).join('') : '<div class="aempty">아직 보유한 단지가 없어요</div>';
+    return `<div class="arow" style="--pc:${p.color}">
+      <div class="ahead">${avatarOf(p)}<b>${esc(p.name)}</b>
+        <div class="sum"><strong>${fmt(val)}</strong>부동산 ${os.length}곳 · 통행료 합 ${fmt(income)}${debtOf(p) ? ` · 대출 ${fmt(debtOf(p))}` : ''}</div></div>
+      ${bar}<div class="alist">${cards}</div></div>`;
+  }).join('');
+  box.innerHTML = `<h3>🏢 보유 자산 <span style="font-weight:400;font-size:12px;color:#8a7f6a">· 막대 = 순자산 중 부동산 비중 · 금테 = 급지 독점</span></h3>${rows}`;
+}
+const lastCash = {};
+function renderPlayers() {
+  renderAssets();
+  $('#players').innerHTML = S.players.map(p => `
+    <div class="pc ${p.id === S.cur ? 'cur' : ''} ${p.bankrupt ? 'out' : ''} ${p.char === 'gony' ? 'goldp' : ''}" style="--pc:${p.color}">
+      ${p.island ? '<span class="isl">🏝️</span>' : ''}<div class="info">
+      <div class="nm" title="${p.char ? CHARS[p.char].perk : ''}"><span class="dot" style="background:${p.color}"></span>${esc(p.name)}${p.isAI ? ' <small style="font-weight:400;color:#8a7f6a">AI</small>' : ''}${S.online && p.id === S.myId ? ' <small style="color:#fff;background:#e8553d;border-radius:6px;padding:0 4px;font-size:10px">나</small>' : ''}</div>${p.char ? `<div class="perk">${CHARS[p.char].perk}</div>` : ''}
+      <div class="cash">${p.bankrupt ? '파산' : fmt(p.cash)}</div>
+      <div class="sub">순자산 ${fmt(netWorth(p))} · 단지 ${owned(p).length}곳${debtOf(p) ? ` · <b style="color:#d62828">대출 ${fmt(debtOf(p))}</b>` : ''}</div></div>
+      ${avatarOf(p)}
+    </div>`).join('');
+  const cards = $('#players').children;
+  S.players.forEach((p, k) => {
+    const key = S.gid + ':' + p.id, prev = lastCash[key];
+    lastCash[key] = p.cash;
+    if (prev == null || p.bankrupt) return;
+    const diff = r1(p.cash - prev);
+    if (Math.abs(diff) < 0.05) return;
+    const fl = document.createElement('span');
+    fl.className = 'cfloat ' + (diff > 0 ? 'up' : 'down');
+    fl.textContent = (diff > 0 ? '+' : '-') + fmt(Math.abs(diff));
+    cards[k] && cards[k].appendChild(fl);
+    setTimeout(() => fl.remove(), 1450);
+  });
+}
+const AV = { young: 'glasses', cash: 'oldman', gangnam: 'woman', gony: 'boy' };
+function avatarOf(p) {
+  const k = p.char ? AV[p.char] : null;
+  return k ? `<img class="av" src="assets/${k}.jpg" alt="">` : `<span class="av" style="background:${p.color}22">${CHARS[p.char] ? CHARS[p.char].e : '🙂'}</span>`;
+}
+function renderCenter() {
+  sync();
+  const p = S.players[S.cur]; if (!p || !$('#rnd')) return;
+  $('#rnd').textContent = `라운드 ${Math.min(S.round, S.maxRounds)} / ${S.maxRounds}`;
+  $('#turn').innerHTML = `<span style="color:${p.color};margin-right:6px">●</span>${esc(p.name)}의 차례${S.online && S.cur === S.myId ? ' <b style="color:#e8553d">(나)</b>' : ''}${S.online && S.wait != null && S.wait !== S.myId ? ' <small style="color:#8a7f6a">· ⏳ 선택 중</small>' : ''}`;
+  $('#log').innerHTML = S.log.slice(0, 1).map(t => `<div>${t}</div>`).join('');
+  const rg = [];
+  if (thaOn()) rg.push('<span class="rg red">🔒 토지거래허가 · 대출 불가</span>');
+  Object.keys(REGS).forEach(k => { if (regOn(k)) rg.push(`<span class="rg red">${REGS[k].ic} ${REGS[k].on} ~${S.regs[k]}R</span>`); });
+  if (S.pending) rg.push(`<span class="rg warn">📢 다음 라운드 ${REGS[S.pending].n}</span>`);
+  if (!rg.length) rg.push(`<span class="rg">🏦 LTV ${Math.round(ltvRate() * 100)}% · 이자 ${Math.round(intRate() * 100)}%</span>`);
+  if ($('#regs')) $('#regs').innerHTML = rg.join('');
+}
+function log(t) { S.log.unshift(t); if (S.log.length > 40) S.log.pop(); renderCenter(); }
+let toastT;
+function toast(t, sub) {
+  if (isHostOn()) bcast('toast', [t, sub]);
+  const el = $('#toast'); if (!el) return;
+  el.innerHTML = t + (sub ? `<small>${sub}</small>` : '');
+  el.classList.add('on'); clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('on'), 1700);
+}
+function flash(i) { if (isHostOn()) bcast('flash', i); const el = $('#c' + i); if (el) { el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); } }
+
+/* ---------- 주사위 ---------- */
+const PIP = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+function pips(n) { return Array.from({ length: 9 }, (_, k) => `<i class="${PIP[n].includes(k) ? 'on' : ''}"></i>`).join(''); }
+const ROT = { 1: [0, 0], 2: [0, -90], 3: [-90, 0], 4: [90, 0], 5: [0, 90], 6: [0, 180] };
+function dieHTML(id) {
+  return `<div class="die3" id="${id}"><div class="dshadow"></div><div class="tilt"><div class="cube">${[1, 2, 3, 4, 5, 6].map(n => `<div class="face f${n} ${goldDice ? 'gold' : ''}">${pips(n)}</div>`).join('')}</div></div></div>`;
+}
+const spin = () => (2 + Math.floor(Math.random() * 2)) * 360 * (Math.random() < .5 ? -1 : 1);
+function sparks(ctr, el) {
+  const cr = ctr.getBoundingClientRect(), r = el.getBoundingClientRect();
+  const cx = (r.left + r.width / 2 - cr.left) / cr.width * 100, cy = (r.top + r.height / 2 - cr.top) / cr.height * 100;
+  for (let k = 0; k < 12; k++) {
+    const sp = document.createElement('span');
+    const star = k % 3 === 0;
+    sp.className = 'spark' + (star ? ' star' : '');
+    if (star) sp.textContent = '✦';
+    const ang = Math.random() * Math.PI * 2, dist = 40 + Math.random() * 60;
+    sp.style.left = cx + '%'; sp.style.top = cy + '%';
+    sp.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+    sp.style.setProperty('--dy', Math.sin(ang) * dist + 'px');
+    ctr.appendChild(sp);
+    setTimeout(() => sp.remove(), 800);
+  }
+}
+async function rollDice(forced) {
+  const els = [$('#d1'), $('#d2')], ctr = document.querySelector('.center');
+  const res = forced || [1 + Math.floor(Math.random() * 6), 1 + Math.floor(Math.random() * 6)];
+  if (isHostOn()) bcast('dice', res);
+  if (!els[0] || !els[1]) return res;
+  els.forEach((el, k) => {
+    const cube = el.querySelector('.cube');
+    cube.style.transition = 'none';
+    cube.style.transform = `rotateX(${Math.random() * 360}deg) rotateY(${Math.random() * 360}deg)`;
+    el.classList.remove('toss', 'tossR', 'land', 'dbl');
+    void el.offsetWidth;
+    el.classList.add(k ? 'tossR' : 'toss', 'blur');
+  });
+  await sleep(20);
+  res.forEach((n, k) => {
+    const cube = els[k].querySelector('.cube');
+    const [x, y] = ROT[n];
+    cube.style.transition = `transform ${k ? 0.95 : 0.9}s cubic-bezier(.12,.62,.22,1)`;
+    cube.style.transform = `rotateX(${x + spin()}deg) rotateY(${y + spin()}deg)`;
+  });
+  await sleep(560);
+  if (ctr) { ctr.classList.remove('shake'); void ctr.offsetWidth; ctr.classList.add('shake'); }
+  els.forEach(el => el.classList.remove('blur'));
+  await sleep(420);
+  els.forEach(el => { el.classList.add('land'); if (ctr) sparks(ctr, el); });
+  if (res[0] === res[1] && ctr) {
+    els.forEach(el => el.classList.add('dbl'));
+    const d = document.createElement('div'); d.className = 'dblfx'; d.textContent = 'DOUBLE!';
+    ctr.appendChild(d); setTimeout(() => d.remove(), 1200);
+  }
+  await sleep(300);
+  els.forEach(el => el.classList.remove('land'));
+  return res;
+}
+
+/* ---------- 계산 ---------- */
+const props = () => S.cells.filter(c => c.t === 'prop');
+const owned = p => props().filter(c => c.owner === p.id);
+const netWorth = p => p.bankrupt ? 0 : r1(p.cash + owned(p).reduce((s, c) => s + c.p + c.inv - c.loan, 0));
+const debtOf = p => r1(owned(p).reduce((s, c) => s + c.loan, 0));
+/* ---------- 대출·규제 ---------- */
+const REGS = {
+  ltv: { n: '대출규제', ic: '🏦', on: 'LTV 40% → 20%', d: '대출 한도가 매입가의 20%로 줄어요.' },
+  rate: { n: '금리상승', ic: '📈', on: '이자 5% → 8%', d: '대출 이자가 턴당 8%로 올라요.' },
+  acq: { n: '취득세 중과', ic: '🧾', on: '취득세 +8%', d: '단지를 살 때 매입가의 8%를 취득세로 더 내요.' },
+  hold: { n: '보유세 중과', ic: '🏠', on: '보유세 4% → 8%', d: '세금 칸 보유세율이 8%로 올라요.' },
+};
+const regOn = k => !!(S.regs[k] && S.regs[k] >= S.round);
+const thaOn = () => S.round % 10 === 0;
+const loanOk = () => !thaOn();
+const ltvRate = () => regOn('ltv') ? 0.2 : 0.4;
+const intRate = () => regOn('rate') ? 0.08 : 0.05;
+const acqRate = () => regOn('acq') ? 0.08 : 0;
+const holdRate = () => regOn('hold') ? 0.08 : 0.04;
+function buyQuote(price, p) {
+  const acq = r1(price * acqRate()), total = r1(price + acq);
+  const loan = loanOk() ? r1(price * (p ? ltvOf(p) : ltvRate())) : 0;
+  return { acq, total, loan, cashWithLoan: r1(total - loan), interest: r1(loan * intRate()) };
+}
+async function roundEvents() {
+  // 예고된 규제 시행
+  if (S.pending) {
+    const k = S.pending; S.pending = null; S.regs[k] = S.round + 2;
+    log(`🚨 ${REGS[k].n} 시행! (${REGS[k].on}, ${S.round}~${S.round + 2}라운드)`);
+    await fx('reg', { title: `${REGS[k].ic} ${REGS[k].n} 시행`, sub: `${REGS[k].on} · 3라운드 동안`, stamp: '시행' });
+  }
+  if (thaOn()) {
+    log(`🔒 ${S.round}라운드: 토지거래허가구역 지정 — 이번 바퀴 대출 불가`);
+    await fx('tha');
+  }
+  // 새 규제 예고 (확률)
+  if (S.round >= 2 && Math.random() < 0.3) {
+    const cand = Object.keys(REGS).filter(k => !regOn(k));
+    if (cand.length) {
+      const k = pick(cand); S.pending = k;
+      log(`📢 정부 발표: 다음 라운드부터 ${REGS[k].n} (${REGS[k].on})`);
+      await fx('reg', { title: `${REGS[k].ic} ${REGS[k].n} 발표`, sub: `다음 라운드부터 ${REGS[k].on}`, stamp: '규제' });
+    }
+  }
+  refresh();
+}
+async function payInterest(p) {
+  const debt = debtOf(p); if (debt <= 0) return;
+  const it = Math.max(0.1, r1(debt * intRate()));
+  log(`💳 ${esc(p.name)}: 대출 ${fmt(debt)} 이자 ${fmt(it)} 납부 (${Math.round(intRate() * 100)}%)`);
+  toast(`💳 ${esc(p.name)} 대출 이자 -${fmt(it)}`, `대출 잔액 ${fmt(debt)} × ${Math.round(intRate() * 100)}%`);
+  if (Math.random() < 0.6) say(p, 'interest');
+  p.cause = { t: 'interest', amt: it, rate: regOn('rate') }; p.st.interest = r1(p.st.interest + it);
+  await pay(p, it, null);
+  if (!p.bankrupt) await sleep(500);
+}
+function repayLoans(p, amount) {
+  let left = r1(Math.min(amount, p.cash, debtOf(p)));
+  const paid = left;
+  owned(p).filter(c => c.loan > 0).sort((a, b) => b.loan - a.loan).forEach(c => {
+    const x = Math.min(c.loan, left); c.loan = r1(c.loan - x); left = r1(left - x);
+  });
+  p.cash = r1(p.cash - paid);
+  if (paid > 0) log(`💳 ${esc(p.name)}: 대출 ${fmt(paid)} 상환 (잔액 ${fmt(debtOf(p))})`);
+  refresh();
+}
+function aiRepay(p) {
+  const debt = debtOf(p); if (!debt || S.diff === 'easy' || p.char === 'young') return;
+  const keep = (S.diff === 'normal' ? 20 : dangerReserve(p)) * (p.char === 'cash' ? 1 : 1.3);
+  const can = r1(p.cash - keep);
+  if (can > 1) repayLoans(p, can);
+}
+const hasMono = (pid, g) => props().filter(c => c.g === g).every(c => c.owner === pid);
+function rent(i) {
+  const c = S.cells[i]; let r = c.p * RENT_MULT[c.level];
+  if (hasMono(c.owner, c.g)) r *= 1.5;
+  const o = c.owner != null ? S.players[c.owner] : null;
+  if (o && o.char === 'rebuild' && c.tag === 'old') r *= 1.1;
+  if (o && o.char === 'gangnam' && c.tag === 'gn') r *= 1.05;
+  if (o && o.char === 'gony') r *= 1.1;
+  return r1(r);
+}
+const salaryOf = p => r1(SALARY * (p.char === 'cash' ? 1.25 : p.char === 'gony' ? 1.2 : 1) * ((S.gold && !p.isAI) ? 1.1 : 1));
+const ltvOf = p => loanOk() ? r1(ltvRate() + (p.char === 'young' ? 0.2 : p.char === 'gony' ? 0.1 : 0)) : 0;
+const buildCost = c => r1(c.p * 0.5);
+const rewardedLeft = () => S.mode === 'ai' && S.rewarded < MAX_REWARDED;
+const alive = () => S.players.filter(p => !p.bankrupt);
+
+/* =========================================================
+   턴 진행
+   ========================================================= */
+async function playTurn() {
+  try {
+    if (!S || S.over) return;
+    if (S.newRound) { S.newRound = false; await roundEvents(); }
+    const p = S.players[S.cur];
+    if (p.bankrupt) return endTurn(p, false);
+    refresh();
+    if (p.isAI) await sleep(650);
+    if (!S.extraUsed) {
+      await payInterest(p);
+      if (p.bankrupt) return endTurn(p, false);
+      if (p.isAI) aiRepay(p);
+    }
+
+    if (p.island > 0) {
+      const d = await rollPhase(p, true);
+      if (d[0] === d[1]) {
+        p.island = 0; log(`${esc(p.name)}: 더블! 무인도 탈출 🎉`); toast('무인도 탈출!');
+        await moveBy(p, d[0] + d[1]); await resolve(p);
+      } else {
+        p.island--; log(`${esc(p.name)}: 무인도에서 대기 (남은 ${p.island}턴)`);
+        await sleep(500);
+      }
+      return endTurn(p, false);
+    }
+
+    const d = await rollPhase(p, false);
+    await moveBy(p, d[0] + d[1]);
+    await resolve(p);
+    const extra = d[0] === d[1] && !p.bankrupt && p.island === 0 && !S.extraUsed;
+    endTurn(p, extra);
+  } catch (e) { if (e !== 'abort') console.error(e); }
+}
+function endTurn(p, extra) {
+  if (!S || S.over) return;
+  refresh();
+  if (alive().length <= 1 || (S.mode === 'ai' && S.players[0].bankrupt)) return finish();
+  if (extra) { S.extraUsed = true; say(p, 'double'); log(`${esc(p.name)}: 더블! 한 번 더 굴립니다.`); return setTimeout(playTurn, 500); }
+  S.extraUsed = false;
+  const old = S.cur;
+  do { S.cur = (S.cur + 1) % S.players.length; } while (S.players[S.cur].bankrupt);
+  if (S.cur <= old) { S.round++; S.newRound = true; }
+  if (S.round > S.maxRounds) return finish();
+  setTimeout(playTurn, 350);
+}
+
+function regLine() {
+  const a = [];
+  if (thaOn()) a.push('🔒 토지거래허가구역: 대출 불가');
+  Object.keys(REGS).forEach(k => { if (regOn(k)) a.push(`${REGS[k].ic} ${REGS[k].n} (${REGS[k].on}, ~${S.regs[k]}R)`); });
+  if (S.pending) a.push(`📢 다음 라운드 ${REGS[S.pending].n} 예정`);
+  return a.length ? `<div style="margin-top:6px;font-size:12px;color:#c0392b;font-weight:700">${a.join('<br>')}</div>` : '';
+}
+async function rollPhase(p, island) {
+  if (!p.isAI) {
+    const btns = [{ label: '🎲 주사위 굴리기', v: 'roll', cls: 'pri' }];
+    const canEm = S.mode === 'ai' && !S.flags.emergency && p.cash <= 12 && rewardedLeft();
+    const debt = debtOf(p);
+    if (debt > 0 && p.cash > 0) btns.push({ label: `💳 대출 상환하기 (잔액 ${fmt(debt)} · 턴당 이자 ${fmt(r1(debt * intRate()))})`, v: 'repay' });
+    if (canEm) btns.push({ label: '<span class="adtag">AD</span>광고 보고 긴급 지원금 5억 받기 (판당 1회)', v: 'em', cls: 'ad' });
+    const v = await ask(p, `${esc(p.name)}님의 차례`, (island ? `🏝️ 무인도에 있어요. 더블이 나오면 바로 탈출! (남은 ${p.island}턴)<br>` : '') + `현금 ${fmt(p.cash)}${debt ? ` · 대출 ${fmt(debt)}` : ''} · 주사위를 굴려 이동하세요.` + regLine(), btns, 'roll');
+    if (v === 'repay') {
+      const half = r1(Math.min(p.cash, debt) / 2);
+      const r = await ask(p, '💳 대출 상환', `대출 잔액 <b>${fmt(debt)}</b> · 현금 ${fmt(p.cash)}<br>상환하면 다음 턴부터 이자가 줄어요.`, [
+        { label: `전액 상환 (${fmt(debt)})`, v: 'all', cls: 'pri', disabled: p.cash < debt },
+        { label: `가능한 만큼 상환 (${fmt(Math.min(p.cash, debt))})`, v: 'max' },
+        { label: `절반만 상환 (${fmt(half)})`, v: 'half', disabled: half < 0.1 },
+        { label: '취소', v: 'no' }], 'no');
+      if (r === 'all' || r === 'max') repayLoans(p, Math.min(p.cash, debt));
+      if (r === 'half') repayLoans(p, half);
+      return rollPhase(p, island);
+    }
+    if (v === 'em') {
+      if (await showRewarded('긴급 지원금 5억')) { S.flags.emergency = true; p.cash += 5; log(`${esc(p.name)}: 긴급 지원금 +5억 (광고 보상)`); refresh(); }
+      return rollPhase(p, island);
+    }
+  }
+  let d = await rollDice();
+  log(`${esc(p.name)}: 🎲 ${d[0]} + ${d[1]} = ${d[0] + d[1]}${d[0] === d[1] ? ' (더블)' : ''}`);
+  // 재굴림은 도착지가 불리할 때만 제안 (AI 대전 전용)
+  if (!p.isAI && !island && S.mode === 'ai' && !S.flags.reroll && rewardedLeft()) {
+    const dest = S.cells[(p.pos + d[0] + d[1]) % 40];
+    const bad = (dest.t === 'prop' && dest.owner != null && dest.owner !== p.id) || dest.t === 'tax';
+    if (bad) {
+      const cost = dest.t === 'tax' ? '세금을 내야 해요.' : `통행료 ${fmt(rent(dest.i))}을 내야 해요.`;
+      const v = await ask(p, `🎲 ${d[0] + d[1]} → ${esc(dest.n)}`, `이대로 가면 ${cost}`, [
+        { label: '그대로 이동', v: 'go', cls: 'pri' },
+        { label: '<span class="adtag">AD</span>광고 보고 주사위 다시 굴리기 (판당 1회)', v: 're', cls: 'ad' }], 'go');
+      if (v === 're' && await showRewarded('주사위 재굴림')) {
+        S.flags.reroll = true; d = await rollDice();
+        log(`${esc(p.name)}: 재굴림 🎲 ${d[0]} + ${d[1]} = ${d[0] + d[1]}`);
+      }
+    }
+  }
+  return d;
+}
+
+async function moveBy(p, n) {
+  for (let k = 0; k < n; k++) {
+    p.pos = (p.pos + 1) % 40;
+    if (p.pos === 0) { const sal = salaryOf(p); p.cash = r1(p.cash + sal); log(`${esc(p.name)}: 출발 통과 월급 +${fmt(sal)}${p.char === 'cash' ? ' (현금왕 +25%)' : p.char === 'gony' ? ' (👑 고니 +20%)' : ''}${S.gold && !p.isAI ? ' (골드 주사위 +10%)' : ''}`); }
+    renderCells(); renderPlayers();
+    await sleep(115);
+  }
+  flash(p.pos);
+}
+async function moveBack(p, n) {
+  for (let k = 0; k < n; k++) { p.pos = (p.pos + 39) % 40; renderCells(); await sleep(140); }
+  flash(p.pos);
+}
+async function moveTo(p, idx) { const n = (idx - p.pos + 40) % 40; await moveBy(p, n); }
+
+async function resolve(p) {
+  const c = S.cells[p.pos];
+  switch (c.t) {
+    case 'prop': return landProp(p, c);
+    case 'news': return drawNews(p);
+    case 'sub': return subscription(p);
+    case 'auction': return auction(p);
+    case 'tax': return payTax(p);
+    case 'island':
+      p.island = 2; log(`${esc(p.name)}: 무인도 도착! 2턴 쉬어갑니다.`); say(p, 'island');
+      await fx('island');
+      return notify(p, '🏝️ 무인도', '2턴 동안 쉬어요. 더블이 나오면 바로 탈출할 수 있어요.');
+    case 'start': log(`${esc(p.name)}: 출발 칸 도착`); return;
+  }
+}
+
+/* ---------- 아파트 칸 ---------- */
+function propCard(c, extra) {
+  const o = c.owner != null ? S.players[c.owner] : null;
+  return `<div class="mini"><span class="sw" style="background:${GROUPS[c.g].c}"></span><div style="flex:1"><b>${esc(c.n)}</b><small>${GROUPS[c.g].n} · 게임가 ${fmt(c.p)}${o ? ` · ${esc(o.name)} 소유 · ${LV[c.level]}` : ''}</small>${extra ? `<small>${extra}</small>` : ''}</div></div>`;
+}
+async function landProp(p, c) {
+  if (c.owner == null) {
+    const mono = props().filter(x => x.g === c.g && x.i !== c.i).every(x => x.owner === p.id);
+    await decideBuy(p, c, c.p, '🏢 매입할까요?', '', '매입', `매입 후 기본 통행료 ${fmt(r1(c.p * RENT_MULT[0]))}${mono ? ' · <b style="color:#e8553d">매입 시 그룹 독점! 통행료 1.5배</b>' : ''}`);
+  } else if (c.owner === p.id) {
+    if (c.level >= 3) { log(`${esc(p.name)}: ${c.sn} 이미 랜드마크`); return; }
+    const cost = buildCost(c);
+    const next = LV[c.level + 1];
+    if (p.isAI) {
+      await sleep(600);
+      if (aiWantBuild(p, c, cost)) doBuild(p, c, cost);
+      else log(`${esc(p.name)}: ${c.sn} 건설 보류`);
+      return;
+    }
+    const btns = [{ label: `${next} 건설 (${fmt(cost)})`, v: 'b', cls: 'pri', disabled: p.cash < cost }];
+    const disc = r1(cost * 0.8);
+    if (S.mode === 'ai' && !S.flags.build && rewardedLeft()) btns.push({ label: `<span class="adtag">AD</span>광고 보고 20% 할인 건설 (${fmt(disc)})`, v: 'ad', cls: 'ad', disabled: p.cash < disc });
+    btns.push({ label: '다음에', v: 'n' });
+    const nextRent = r1(c.p * RENT_MULT[c.level + 1] * (hasMono(p.id, c.g) ? 1.5 : 1));
+    const v = await ask(p, '🏗️ 내 단지에 도착!', propCard(c, `${next} 완료 시 통행료 ${fmt(rent(c.i))} → <b>${fmt(nextRent)}</b>`) + `현금 ${fmt(p.cash)}`, btns, 'n');
+    if (v === 'b') doBuild(p, c, cost);
+    else if (v === 'ad') {
+      if (await showRewarded('건설 20% 할인')) { S.flags.build = true; doBuild(p, c, disc); }
+    }
+  } else {
+    const o = S.players[c.owner];
+    const r = rent(c.i);
+    log(`${esc(p.name)} → ${esc(o.name)}: ${c.sn} 통행료 ${fmt(r)}`);
+    if (p.isAI && !o.isAI) toast(`💰 ${esc(p.name)}이(가) 통행료 ${fmt(r)} 지불`, c.sn);
+    else if (p.isAI) toast(`${esc(p.name)} → ${esc(o.name)} ${fmt(r)}`, c.sn);
+    if (!p.isAI) await notify(p, '💸 통행료 지불', propCard(c) + `<b>${esc(o.name)}</b>에게 통행료 <b>${fmt(r)}</b>을 냅니다.`);
+    else await sleep(900);
+    say(p, 'rent_pay'); setTimeout(() => { try { if (S && !S.over) say(o, 'rent_get'); } catch (e) {} }, 1300);
+    p.cause = { t: 'rent', c: c.sn, o: o.name, amt: r }; p.st.rent = r1(p.st.rent + r); o.st.rentGot = r1(o.st.rentGot + r);
+    await pay(p, r, o);
+  }
+}
+function buy(p, c, price, how, loan = 0, acq = 0) {
+  p.st.acq = r1(p.st.acq + acq);
+  p.cash = r1(p.cash - price - acq + loan); c.owner = p.id; c.level = 0; c.inv = 0; c.loan = r1(loan);
+  p.st.loanMax = Math.max(p.st.loanMax, debtOf(p));
+  log(`${esc(p.name)}: ${c.sn} ${how} (${fmt(price)}${loan ? `, 대출 ${fmt(loan)}` : ''}${acq ? `, 취득세 ${fmt(acq)}` : ''})`);
+  if (hasMono(p.id, c.g)) { log(`🎉 ${esc(p.name)}: ${GROUPS[c.g].n} 독점 달성!`); toast(`🎉 ${esc(p.name)} ${GROUPS[c.g].n} 독점!`, '통행료 1.5배'); }
+  else if (p.isAI) toast(`${esc(p.name)} ${c.sn} ${how}`, fmt(price));
+  say(p, loan ? 'loan' : 'buy');
+  flash(c.i); refresh();
+}
+function doBuild(p, c, cost) {
+  p.cash = r1(p.cash - cost); c.level++; c.inv = r1(c.inv + cost);
+  log(`${esc(p.name)}: ${c.sn} ${LV[c.level]} 완료 (${fmt(cost)})`);
+  say(p, 'build');
+  if (p.isAI) toast(`🏗️ ${esc(p.name)} ${c.sn} ${LV[c.level]}`);
+  flash(c.i); refresh();
+}
+
+/* ---------- 지불·파산 ---------- */
+async function pay(p, amt, to) {
+  amt = r1(amt);
+  if (amt <= 0) return;
+  if (p.cash < amt) await raiseFunds(p, amt);
+  if (p.cash >= amt) { p.cash = r1(p.cash - amt); if (to) to.cash = r1(to.cash + amt); }
+  else {
+    const left = p.cash; if (to) to.cash = r1(to.cash + left); p.cash = 0;
+    await bankrupt(p, to);
+  }
+  refresh();
+}
+async function raiseFunds(p, amt) {
+  const list = owned(p).filter(c => (c.p + c.inv) * 0.6 - c.loan > 0).sort((a, b) => (a.p + a.inv) - (b.p + b.inv));
+  const sold = [];
+  for (const c of list) {
+    if (p.cash >= amt) break;
+    const v = r1((c.p + c.inv) * 0.6 - c.loan); p.st.sold++;
+    p.cash = r1(p.cash + v); sold.push(`${c.sn}(${fmt(v)}${c.loan ? ', 대출 상환 후' : ''})`);
+    c.owner = null; c.level = 0; c.inv = 0; c.loan = 0;
+  }
+  if (sold.length) {
+    log(`${esc(p.name)}: 급매 처분 ${sold.join(', ')}`);
+    refresh();
+    await notify(p, '🏷️ 급매 처분', `현금이 부족해 보유 단지를 매입가+건설비의 60%에 급매했어요. 대출이 있던 단지는 대출을 갚고 남은 돈만 들어와요.<br>${sold.join(', ')}`);
+  }
+}
+async function bankrupt(p, to) {
+  p.bankrupt = true; p.outAt = ++S.outCount; p.outRound = S.round;
+  p.outRegs = Object.keys(REGS).filter(regOn); p.outTha = thaOn(); p.outDebt = debtOf(p);
+  owned(p).forEach(c => { c.owner = null; c.level = 0; c.inv = 0; c.loan = 0; });
+  log(`💥 ${esc(p.name)} 파산!`); say(p, 'bankrupt');
+  refresh();
+  await notify(p, '💥 파산', `${esc(p.name)}님이 파산했습니다. 보유 단지는 모두 시장에 다시 나옵니다.`, true);
+}
+
+/* ---------- 세금 ---------- */
+async function payTax(p) {
+  const assets = owned(p).reduce((s, c) => s + c.p + c.inv, 0);
+  const tax = Math.max(2, r1(assets * holdRate()));
+  if (!p.isAI) {
+    const btns = [{ label: `${fmt(tax)} 납부`, v: 'pay', cls: 'pri' }];
+    if (S.mode === 'ai' && !S.flags.tax && rewardedLeft()) btns.push({ label: '<span class="adtag">AD</span>광고 보고 세금 감면권 사용 (판당 1회)', v: 'ad', cls: 'ad' });
+    const v = await ask(p, '💸 보유세 납부', `보유 자산 ${fmt(assets)}의 ${Math.round(holdRate() * 100)}%${regOn('hold') ? ' <b style="color:#d62828">(보유세 중과)</b>' : ''} (최소 2억)<br>납부할 세금: <b>${fmt(tax)}</b>`, btns, 'pay');
+    if (v === 'ad' && await showRewarded('세금 감면권')) { S.flags.tax = true; log(`${esc(p.name)}: 세금 감면권 사용 (광고 보상)`); await fx('tax', { name: p.name, amount: tax, waived: true }); return; }
+  }
+  await fx('tax', { name: p.name, amount: tax });
+  log(`${esc(p.name)}: 보유세 ${fmt(tax)} 납부`);
+  say(p, 'tax');
+  p.cause = { t: 'tax', amt: tax, heavy: regOn('hold') }; p.st.tax = r1(p.st.tax + tax); if (regOn('hold')) p.st.taxHeavy = r1(p.st.taxHeavy + tax / 2);
+  await pay(p, tax, null);
+}
+
+
+
+/* ---------- 캐릭터 말풍선 ---------- */
+const LINES = {
+  young: { buy: ['영끌 가즈아!', '지금 안 사면 평생 못 산다!', '대출은 미래의 내가 갚는다'], loan: ['LTV 꽉 채워서!', '영혼까지 끌어모았다!'], pass: ['다음엔 꼭 영끌한다…'], rent_pay: ['월급이 통행료로 녹는다…', '카드값 어쩌지'], rent_get: ['이게 바로 파이프라인!', '통행료 감사합니다~'], build: ['리모델링도 대출로!'], tax: ['세금까지…? 영끌 한계다'], interest: ['이자 내려고 출근한다…'], double: ['한 번 더! 운도 영끌!'], bankrupt: ['영끌의 끝은… 파산이었다'], news: ['헐 속보 뭐야?!'], island: ['무인도에서도 대출 되나요?'], win: ['영끌은 옳았다!!'] },
+  cash: { buy: ['현찰 박치기지', '일시불로 계산하지', '빚 없이 산다, 그게 내 철학'], loan: ['…이번만 대출을 써보지'], pass: ['비싸, 안 사'], rent_pay: ['허허, 통행료쯤이야'], rent_get: ['꼬박꼬박 들어오는구먼', '현금 흐름이 최고야'], build: ['현찰로 올려버려'], tax: ['세금도 현금으로 낸다'], interest: ['이자라니, 아깝구먼'], double: ['허허, 운도 따르는구먼'], bankrupt: ['현금왕이… 현금이 없다니'], news: ['흠, 뉴스 좀 볼까'], island: ['쉬면서 통장이나 세지'], win: ['역시 현금이 왕이야'] },
+  rebuild: { buy: ['재건축 각이다!', '구축이 진짜 돈이야', '언젠가 신축 된다'], loan: ['이주비 대출 땡긴다'], pass: ['신축은 내 스타일 아냐'], rent_pay: ['분담금보다는 싸네'], rent_get: ['조합원 혜택 받아라~'], build: ['드디어 재건축 착공!'], tax: ['재건축 부담금도 아니고…'], interest: ['이주비 이자구먼'], double: ['안전진단 통과!'], bankrupt: ['조합 해산… 파산이다'], news: ['재건축 규제 풀리나?'], island: ['무인도도 재건축 되나'], win: ['재건축은 기다림의 미학!'] },
+  gangnam: { buy: ['강남불패! 무조건 강남', '한강뷰는 진리지', '결국 서울, 결국 강남'], loan: ['강남이면 대출도 OK'], pass: ['강남 아니면 안 사'], rent_pay: ['강남 사람도 통행료는 낸다'], rent_get: ['강남 프리미엄이지'], build: ['랜드마크는 강남에!'], tax: ['종부세는 강남의 훈장'], interest: ['이자도 품격 있게'], double: ['역시 강남 기운!'], bankrupt: ['강남불패가… 패했다'], news: ['강남 집값 또 오르겠군'], island: ['여긴 한강뷰가 없네'], win: ['강남불패, 영원하라!'] },
+  gony: { buy: ['구조 좋고 입지 좋고, 매입!', '건축학도의 눈은 정확하지', '이 단지 설계가 예술이야'], loan: ['적정 레버리지 계산 완료'], pass: ['구조가 마음에 안 들어'], rent_pay: ['다음엔 내가 지어서 받는다'], rent_get: ['좋은 건물은 돈을 번다'], build: ['내가 직접 설계했지!'], tax: ['세금도 설계에 넣어뒀어'], interest: ['레버리지는 과학이야'], double: ['황금 기운 받았다!'], bankrupt: ['설계 실수였어…'], news: ['흥미로운 뉴스군'], island: ['무인도에 리조트를 설계해볼까'], win: ['설계대로야. 왕좌는 내 거!'] },
+  '': { buy: ['드디어 내 집 마련!', '이거 사도 되는 거죠?', '첫 매입 성공!'], loan: ['대출 처음 받아봐요'], pass: ['좀 더 모아서 살게요'], rent_pay: ['통행료 아까워 ㅠㅠ'], rent_get: ['오 돈 들어온다!'], build: ['리모델링 해볼까'], tax: ['세금 무섭다…'], interest: ['이자 왜 이렇게 많아'], double: ['더블! 운 좋다!'], bankrupt: ['다음엔 잘할 수 있어…'], news: ['뉴스 떴다!'], island: ['무인도에서 반성 중'], win: ['새내기의 반란!'] },
+};
+function say(p, kind, text) {
+  if (!p || p.bankrupt && kind !== 'bankrupt') return;
+  const pool = (LINES[p.char || ''] || LINES[''])[kind]; if (!text && !pool) return;
+  text = text || pick(pool);
+  if (typeof bcast === 'function' && S && S.online && S.isHost) bcast('say', [p.id, kind, text]);
+  const ctr = document.querySelector('.center'); if (!ctr) return;
+  ctr.querySelectorAll('.say').forEach(e => e.remove());
+  const el = document.createElement('div'); el.className = 'say';
+  const img = p.char && AV[p.char];
+  el.innerHTML = `${img ? `<img src="assets/${img}.jpg" alt="">` : `<span class="se">${CHARS[p.char] ? CHARS[p.char].e : '🙂'}</span>`}<div class="sb" style="--c:${p.color}"><b>${esc(p.name)}</b>${esc(text)}</div>`;
+  ctr.appendChild(el);
+  setTimeout(() => el.classList.add('out'), 2100);
+  setTimeout(() => el.remove(), 2500);
+}
+/* ---------- 칸 이벤트 연출 ---------- */
+async function fx(type, o = {}) {
+  if (isHostOn()) bcast('fx', [type, o]);
+  const ctr = document.querySelector('.center'); if (!ctr) return;
+  const d = { news: 1.7, sub: 2.1, tax: 1.7, auction: 1.4, island: 1.8, reg: 2, tha: 2 }[type] || 1.5;
+  const el = document.createElement('div');
+  el.className = 'fx ' + type; el.style.setProperty('--d', d + 's');
+  let h = '<div class="dim"></div><div class="flash"></div>';
+  if (type === 'news') {
+    h += `<div class="paper"><div class="mast">부동산일보 <small>${new Date().getFullYear()}년 · 가상 뉴스</small></div>
+      <span class="tag">속보</span><h4>${o.title}</h4><div class="lines"><i></i><i style="width:85%"></i><i style="width:70%"></i></div></div>
+      <div class="ribbon">📰 BREAKING NEWS · ${o.title} · BREAKING NEWS · ${o.title}</div>`;
+  } else if (type === 'sub') {
+    h += `<div class="ticket"><b>🎟️ 청약 추첨</b><div class="ratio" data-to="${o.ratio}">0 : 1</div></div>
+      <div class="stamp ${o.win ? 'win' : 'lose'}" style="--sd:1.15s">${o.win ? '당첨!' : '낙첨'}</div>`;
+  } else if (type === 'tax') {
+    h += `<div class="bill"><small>국세청 · 보유세 고지서</small><b>${esc(o.name)}님</b><div class="amt">${o.waived ? '면제' : '-' + fmt(o.amount)}</div></div>
+      <div class="stamp ${o.waived ? 'win' : 'red'}" style="--sd:.55s">${o.waived ? '감면' : '납부'}</div>`;
+    if (!o.waived) for (let k = 0; k < 10; k++) {
+      const a = -Math.PI / 2 + (Math.random() - .5) * 2.2, dist = 120 + Math.random() * 120;
+      h += `<span class="coin" style="--dx:${Math.cos(a) * dist}px;--dy:${Math.sin(a) * dist}px;--r:${Math.random() * 720 - 360}deg;--cd:${.45 + k * .05}s">🪙</span>`;
+    }
+  } else if (type === 'auction') {
+    h += `<div class="gavel">🔨</div>` + ['땅!', '땅!', '땅!'].map((t, k) => `<span class="bang" style="animation-delay:${.25 + k * .36}s;top:${18 + k * 8}%;left:${k === 1 ? 66 : 14 + k * 4}%">${t}</span>`).join('');
+  } else if (type === 'reg') {
+    h += `<div class="paper gov"><div class="mast">🏛️ 정부 부동산 대책 <small>긴급 브리핑 · 가상</small></div>
+      <span class="tag">${o.stamp === '시행' ? '오늘부터 시행' : '속보'}</span><h4>${o.title}</h4><p style="margin:2% 0 0;font-family:'Noto Sans KR';font-weight:700;color:#c0392b;font-size:clamp(10px,2.2vw,17px)">${o.sub}</p></div>
+      <div class="stamp red" style="--sd:.7s;top:auto;bottom:10%;left:auto;right:10%;font-size:clamp(20px,5vw,44px)">${o.stamp}</div><div class="siren"></div>`;
+  } else if (type === 'tha') {
+    h += `<div class="thamap"><div class="lock">🔒</div><b>토지거래허가구역 지정</b><small>${S.round}라운드 한 바퀴 동안 대출이 나오지 않아요</small></div>
+      <div class="stamp red" style="--sd:.6s;top:auto;bottom:8%;font-size:clamp(20px,5.5vw,48px)">대출 불가</div><div class="siren"></div>`;
+  } else if (type === 'island') {
+    h += `<div class="wave"></div><div class="wave w2"></div><div class="palm">🏝️</div><div class="cap">무인도 도착! 2턴 휴식</div>`;
+  }
+  el.innerHTML = h;
+  ctr.appendChild(el);
+  if (type === 'sub') {
+    const r = el.querySelector('.ratio'), to = +r.dataset.to, t0 = Date.now();
+    const iv = setInterval(() => { const k = Math.min(1, (Date.now() - t0) / 1000); r.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))) + ' : 1'; if (k >= 1) clearInterval(iv); }, 40);
+    if (o.win) setTimeout(() => { for (let k = 0; k < 26; k++) { const c = document.createElement('i'); c.className = 'confetti'; c.style.left = Math.random() * 100 + '%'; c.style.background = pick(['#ffd84d', '#ff4f8b', '#4fb7e8', '#5fb86a', '#fff']); c.style.setProperty('--r', Math.random() * 900 + 'deg'); c.style.animationDelay = Math.random() * .3 + 's'; el.appendChild(c); } }, 1150);
+  }
+  if (type === 'tax' || type === 'auction') { setTimeout(() => { ctr.classList.remove('shake'); void ctr.offsetWidth; ctr.classList.add('shake'); }, type === 'tax' ? 420 : 300); }
+  setTimeout(() => el.remove(), d * 1000 + 50);
+  await sleep(d * 1000 - 150);
+}
+/* ---------- 부동산 뉴스 (모두 가상 이벤트) ---------- */
+const NEWS = [
+  { t: '기준금리 인하 (가상 뉴스)', d: '대출 이자 부담이 줄었어요. <b>+5억</b>', f: async p => gain(p, 5) },
+  { t: '기준금리 인상 (가상 뉴스)', d: '이자 부담이 늘었어요. <b>-5억</b>', f: async p => pay(p, 5, null) },
+  { t: '광역급행철도 개통 호재 (가상)', d: '보유 단지 1곳당 <b>+1억</b>', f: async p => gain(p, 1 * owned(p).length) },
+  { t: '장기수선충당금 정산', d: '건설 1단계당 <b>1억</b>을 냅니다.', f: async p => pay(p, 1 * owned(p).reduce((s, c) => s + c.level, 0), null) },
+  { t: '이사 철 시작', d: '출발 칸으로 이동해 월급을 받아요.', f: async p => moveTo(p, 0) },
+  { t: '규제지역 지정 발표 (가상)', d: '무인도로 바로 이동합니다. (월급 없음)', f: async p => { p.pos = 23; p.island = 2; refresh(); flash(23); } },
+  { t: '전세 계약 만기', d: '다른 플레이어에게 <b>3억씩</b> 받아요.', f: async p => { for (const o of alive()) if (o !== p) await pay(o, 3, p); } },
+  { t: '집들이 초대', d: '다른 플레이어에게 <b>1억씩</b> 축하금을 냅니다.', f: async p => { for (const o of alive()) if (o !== p && !p.bankrupt) await pay(p, 1, o); } },
+  { t: '리모델링 지원금', d: '보유 단지 중 가장 비싼 곳을 무료로 1단계 업그레이드!', f: async p => { const c = owned(p).filter(c => c.level < 3).sort((a, b) => b.p - a.p)[0]; if (c) { c.level++; log(`${esc(p.name)}: ${c.sn} 무료 ${LV[c.level]}`); flash(c.i); refresh(); } else log(`${esc(p.name)}: 업그레이드할 단지 없음`); } },
+  { t: '복권 당첨', d: '<b>+12억</b>', f: async p => gain(p, 12) },
+  { t: '급매물 탐방', d: '3칸 뒤로 이동합니다.', f: async p => { await moveBack(p, 3); await resolve(p); } },
+  { t: '대장단지 임장', d: '잠실엘스로 이동합니다.', f: async p => { await moveTo(p, 33); await resolve(p); } },
+  { t: '중개수수료 환급', d: '<b>+2억</b>', f: async p => gain(p, 2) },
+  { t: '인테리어 공사', d: '<b>-2억</b>', f: async p => pay(p, 2, null) },
+];
+function gain(p, x) { x = r1(x); p.cash = r1(p.cash + x); log(`${esc(p.name)}: +${fmt(x)}`); refresh(); }
+async function drawNews(p) {
+  const n = pick(NEWS);
+  log(`📰 ${esc(p.name)}: ${n.t}`);
+  await fx('news', { title: n.t });
+  await notify(p, '📰 ' + n.t, n.d);
+  p.cause = { t: 'news', title: n.t }; say(p, 'news');
+  await n.f(p);
+}
+
+/* ---------- 청약 / 경매 ---------- */
+async function subscription(p) {
+  const free = props().filter(c => c.owner == null);
+  if (!free.length) { log('🎟️ 분양할 단지가 없습니다'); return notify(p, '🎟️ 청약 이벤트', '모든 단지가 분양 완료되었어요.'); }
+  const ratio = 5 + Math.floor(Math.random() * 300);
+  const win = Math.random() <= 0.45;
+  await fx('sub', { ratio, win });
+  if (!win) {
+    log(`🎟️ ${esc(p.name)}: 청약 탈락 (${ratio}:1)`);
+    return notify(p, '🎟️ 청약 결과', `경쟁률 ${ratio}:1 … 아쉽게도 <b>낙첨</b>되었어요.`);
+  }
+  const c = pick(free), price = r1(c.p * 0.7);
+  log(`🎟️ ${esc(p.name)}: 청약 당첨! ${c.sn}`);
+  await offer(p, c, price, '🎟️ 청약 당첨!', `경쟁률 ${ratio}:1을 뚫고 당첨! 분양가 30% 할인으로 매입할 수 있어요.`, '청약 매입');
+}
+async function auction(p) {
+  const free = props().filter(c => c.owner == null);
+  if (!free.length) { log('🔨 경매 물건이 없습니다'); return notify(p, '🔨 경매 이벤트', '이번 회차는 경매 물건이 없어요.'); }
+  await fx('auction');
+  const c = pick(free), rate = pick([60, 65, 70, 75, 80, 85]), price = r1(c.p * rate / 100);
+  log(`🔨 ${esc(p.name)}: 경매 물건 ${c.sn} (${rate}%)`);
+  await offer(p, c, price, '🔨 경매 물건 등장', `감정가의 <b>${rate}%</b>에 낙찰받을 수 있어요.`, '경매 낙찰');
+}
+async function offer(p, c, price, title, body, how) {
+  if (p.isAI) toast(title, `${esc(p.name)} · ${c.sn}`);
+  await decideBuy(p, c, price, title, body, how, `매입가 <s>${fmt(c.p)}</s> → <b>${fmt(price)}</b>`);
+}
+async function decideBuy(p, c, price, title, body, how, extra) {
+  const q = buyQuote(price, p);
+  if (p.cash < q.cashWithLoan) {
+    if (p.cash >= r1(q.total - price * (0.4 + (p.char === 'young' ? 0.2 : p.char === 'gony' ? 0.1 : 0))) && (thaOn() || regOn('ltv'))) p.st.blocked++;
+    log(`${esc(p.name)}: ${c.sn} 매입 자금 부족`);
+    return notify(p, title.includes('매입할까요') ? '자금 부족' : title, body + propCard(c) + `필요 현금 ${fmt(q.cashWithLoan)}${q.loan ? ` (대출 ${fmt(q.loan)} 포함)` : ''} · 보유 현금 ${fmt(p.cash)}${thaOn() ? '<br>🔒 토지거래허가구역 라운드라 대출이 안 나와요.' : ''}`);
+  }
+  let v;
+  if (p.isAI) { v = aiBuyChoice(p, c, price, q); await sleep(700); }
+  else {
+    const info = [];
+    if (q.acq) info.push(`🧾 취득세 중과 ${fmt(q.acq)} 추가`);
+    if (thaOn()) info.push('🔒 토지거래허가구역: 이번 바퀴 대출 불가');
+    else info.push(`🏦 대출 한도 매입가의 ${Math.round(ltvOf(p) * 100)}%${p.char === 'young' ? ' (영끌 +20%p)' : p.char === 'gony' ? ' (👑 고니 +10%p)' : ''} · 턴당 이자 ${Math.round(intRate() * 100)}%`);
+    const btns = [{ label: `현금으로 매입 (${fmt(q.total)})`, v: 'cash', cls: 'pri', disabled: p.cash < q.total }];
+    if (q.loan > 0) btns.push({ label: `대출 끼고 매입 · 현금 ${fmt(q.cashWithLoan)} + 대출 ${fmt(q.loan)} (턴당 이자 ${fmt(q.interest)})`, v: 'loan', cls: 'pri' });
+    btns.push({ label: '패스', v: 'no' });
+    v = await ask(p, title, body + propCard(c, extra) + `현금 ${fmt(p.cash)}<div style="font-size:12px;color:#6b6252;margin-top:4px">${info.join('<br>')}</div>`, btns, 'no');
+  }
+  if (v === 'cash') buy(p, c, price, how, 0, q.acq);
+  else if (v === 'loan') buy(p, c, price, how, q.loan, q.acq);
+  else { log(`${esc(p.name)}: ${c.sn} ${title.includes('매입할까요') ? '매입 패스' : '포기'}`); if (Math.random() < 0.5) say(p, 'pass'); }
+}
+function aiBuyChoice(p, c, price, q) {
+  if (p.cash >= q.total && aiWantBuy(p, c, price, q.total) && !(p.char === 'young' && q.loan > 0 && Math.random() < 0.5)) return 'cash';
+  if (!q.loan || p.cash < q.cashWithLoan) return 'no';
+  if (S.diff === 'easy') return Math.random() < (p.char === 'young' ? 0.9 : 0.45) ? 'loan' : 'no';
+  if (p.char === 'cash' && !completesGroup(p, c)) return 'no';
+  const extra = (debtOf(p) + q.loan) * intRate() * (S.diff === 'hard' ? 4 : 3);
+  return aiWantBuy(p, c, price, q.cashWithLoan, extra) ? 'loan' : 'no';
+}
+
+/* =========================================================
+   규칙 기반 AI
+   ========================================================= */
+function dangerReserve(p) {
+  let m = 0;
+  props().forEach(c => { if (c.owner != null && c.owner !== p.id) m = Math.max(m, rent(c.i)); });
+  return Math.max(12, m * 0.9);
+}
+const completesGroup = (p, c) => props().filter(x => x.g === c.g && x.i !== c.i).every(x => x.owner === p.id);
+const blocksOpp = (p, c) => { const others = props().filter(x => x.g === c.g && x.i !== c.i); const o = others[0] && others[0].owner; return o != null && o !== p.id && others.every(x => x.owner === o); };
+function charMod(p, c, price) {
+  const ch = p.char, gang = c.tag === 'gn', old = c.tag === 'old';
+  let m = 1;
+  if (ch === 'young') m *= price >= 25 ? 0.2 : 0.5;
+  if (ch === 'cash') m *= price <= 15 ? 0.7 : 1.6;
+  if (ch === 'rebuild') m *= old ? 0.3 : 1.1;
+  if (ch === 'gangnam') m *= gang ? 0.3 : (price < 20 ? 1.5 : 1);
+  return m;
+}
+function aiWantBuy(p, c, price, cost = price, extraReserve = 0) {
+  if (p.cash < cost) return false;
+  if (S.diff === 'easy') {
+    let prob = 0.8;
+    if (p.char === 'cash' && price > 25) prob = 0.55;
+    if ((p.char === 'gangnam' && c.tag === 'gn') || (p.char === 'rebuild' && c.tag === 'old') || p.char === 'young') prob = 0.95;
+    return Math.random() < prob;
+  }
+  let reserve = S.diff === 'normal' ? 15 : dangerReserve(p);
+  if (S.diff === 'hard') {
+    if (completesGroup(p, c)) reserve *= 0.25;
+    else if (blocksOpp(p, c)) reserve *= 0.5;
+    if (price < c.p) reserve *= 0.7; // 할인 매물 선호
+  }
+  reserve = reserve * charMod(p, c, price) + extraReserve;
+  return p.cash - cost >= reserve;
+}
+function aiWantBuild(p, c, cost) {
+  if (p.cash < cost) return false;
+  if (S.diff === 'easy') return Math.random() < 0.5;
+  let reserve = S.diff === 'normal' ? 20 : dangerReserve(p) + 5;
+  if (S.diff === 'hard' && hasMono(p.id, c.g)) reserve *= 0.5;
+  if (p.char === 'young') reserve *= 0.4;
+  if (p.char === 'cash') reserve *= 1.3;
+  if (p.char === 'gangnam' && c.tag === 'gn') reserve *= 0.5;
+  if (p.char === 'rebuild' && c.tag === 'old') reserve *= 0.4;
+  return p.cash - cost >= reserve;
+}
+
+/* =========================================================
+   UI: 선택 시트 / 알림 / 단지 정보
+   ========================================================= */
+let sheetDone = null;
+function closeSheet() { const sh = $('#sheet'); sh.classList.remove('on'); sh.innerHTML = ''; sheetDone = null; }
+function ask(p, title, body, buttons, defVal) {
+  if (isHostOn() && p && p.cid && p.cid !== NET.cid) return remoteAsk(p, title, body, buttons, defVal);
+  if (isHostOn()) { S.wait = p ? p.id : null; sync(); }
+  return new Promise(res => {
+    const sh = $('#sheet');
+    const timed = S && S.mode === 'friend';
+    let timer = null;
+    const done = v => { clearInterval(timer); if (isHostOn()) { S.wait = null; sync(); } sh.classList.remove('on'); setTimeout(() => { if (sheetDone === done) sh.innerHTML = ''; }, 230); sheetDone = null; res(v); };
+    sheetDone = done;
+    sh.innerHTML = `<div class="card">
+      <h2>${p ? `<span style="width:12px;height:12px;border-radius:50%;background:${p.color};display:inline-block"></span>` : ''}${title}</h2>
+      ${timed && p ? `<div style="font-size:12px;color:${p.color};font-weight:900;margin-top:2px">${esc(p.name)}님 차례</div>` : ''}
+      <div class="body">${body}</div>
+      <div class="btns">${buttons.map((b, k) => `<button class="btn ${b.cls || ''}" data-k="${k}" ${b.disabled ? 'disabled' : ''}>${b.label}</button>`).join('')}</div>
+      ${timed ? '<div class="tbar"><i id="tb"></i></div><div class="tleft" id="tl">30초</div>' : ''}
+    </div>`;
+    sh.querySelectorAll('button[data-k]').forEach(el => el.onclick = () => done(buttons[+el.dataset.k].v));
+    requestAnimationFrame(() => sh.classList.add('on'));
+    if (timed) {
+      const t0 = Date.now(), r = RUN;
+      timer = setInterval(() => {
+        if (RUN !== r) return clearInterval(timer);
+        const left = 30 - (Date.now() - t0) / 1000;
+        const tb = $('#tb'), tl = $('#tl');
+        if (tb) tb.style.width = Math.max(0, left / 30 * 100) + '%';
+        if (tl) tl.textContent = Math.ceil(Math.max(0, left)) + '초 · 시간 초과 시 자동 처리';
+        if (left <= 0) done(defVal);
+      }, 200);
+    }
+  });
+}
+async function notify(p, title, body, force) {
+  if (p.isAI && !force) { toast(title.replace(/<[^>]+>/g, ''), `${esc(p.name)}`); await sleep(1100); return; }
+  if (p.isAI && force) { toast(title, esc(p.name)); await sleep(1300); return; }
+  await ask(p, title, body, [{ label: '확인', v: 1, cls: 'dark' }], 1);
+}
+function cellInfo(i) {
+  const c = S.cells[i];
+  let html;
+  if (c.t === 'prop') {
+    const o = c.owner != null ? S.players[c.owner] : null;
+    const mono = o && hasMono(o.id, c.g);
+    const rows = LV.map((l, k) => `<tr class="${o && c.level === k ? 'now' : ''}"><td>${l}${k ? ` <small style="color:#8a7f6a">(+${fmt(buildCost(c))})</small>` : ''}</td><td>${fmt(r1(c.p * RENT_MULT[k]))}${mono ? ` → ${fmt(r1(c.p * RENT_MULT[k] * 1.5))}` : ''}</td></tr>`).join('');
+    const grp = props().filter(x => x.g === c.g).map(x => `<span style="color:${x.owner != null ? S.players[x.owner].color : '#9a907e'}">${x.sn}</span>`).join(' · ');
+    html = `<div style="height:8px;border-radius:4px;background:${GROUPS[c.g].c};margin-bottom:10px"></div>
+      <h2 style="font-size:19px">${esc(c.n)}</h2>
+      <div class="note">${GROUPS[c.g].n} · 매입가 ${fmt(c.p)}${c.tag === 'old' ? ' · 구축' : c.tag === 'gn' ? ' · 강남·한강변' : ''}<br>가격 기준: ${esc(c.ref || '')}</div>
+      <div style="margin-top:8px;font-size:13px"><b>소유:</b> ${o ? `<span style="color:${o.color};font-weight:900">${esc(o.name)}</span> · ${LV[c.level]}${mono ? ' · 그룹 독점 🔥' : ''}${c.loan ? ` · 대출 ${fmt(c.loan)}` : ''}` : '없음 (매입 가능)'}</div>
+      <table class="rtab"><tr><td><b>단계</b></td><td><b>통행료</b></td></tr>${rows}</table>
+      <div class="note">같은 급지: ${grp}<br>같은 급지 3곳을 모두 가지면 통행료 1.5배</div>
+      <div class="note" style="margin-top:6px">※ 매입가는 국토부 실거래가를 참고한 값이고, 통행료·건설비·이벤트는 게임용 가상 수치입니다. 투자 정보가 아닙니다.</div>`;
+  } else {
+    const desc = {
+      start: `통과할 때마다 월급 ${fmt(SALARY)}을 받아요.`,
+      news: '가상의 부동산 뉴스 카드를 뽑아요. 호재도 악재도 있어요.',
+      sub: '청약에 도전! 당첨되면 남은 단지 하나를 30% 할인가에 살 수 있어요.',
+      auction: '경매 물건이 나와요. 감정가의 60~85%에 낙찰받을 수 있어요.',
+      tax: '보유 자산(매입가+건설비)의 4%를 보유세로 내요. 최소 2억.',
+      island: '2턴 쉬어요. 더블이 나오면 바로 탈출!',
+    }[c.t];
+    html = `<h2 style="font-size:19px">${SP[c.t][0]} ${c.n}</h2><p style="margin-top:8px;font-size:14px;line-height:1.6">${desc}</p>`;
+  }
+  const m = $('#modal');
+  m.innerHTML = `<div class="box">${html}<button class="btn dark" style="margin-top:12px" onclick="$('#modal').classList.remove('on')">닫기</button></div>`;
+  m.onclick = e => { if (e.target === m) m.classList.remove('on'); };
+  m.classList.add('on');
+}
+
+/* =========================================================
+   광고 (데모) — 실제 서비스에서는 광고 SDK의 시청 완료 콜백으로 대체
+   ========================================================= */
+function showRewarded(label, lobby, dur = 5) {
+  return new Promise(res => {
+    if (!lobby && !(S && rewardedLeft())) return res(false);
+    const m = $('#modal');
+    if (Math.random() < 0.07) { // 광고가 준비되지 않은 경우에도 게임은 계속
+      m.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:34px">📭</div><b>지금은 볼 수 있는 광고가 없어요</b><p class="note" style="margin:6px 0 12px">잠시 후 다시 시도해 주세요. 게임은 그대로 진행됩니다.</p><button class="btn dark" id="adx">확인</button></div>`;
+      m.classList.add('on'); m.onclick = null;
+      $('#adx').onclick = () => { m.classList.remove('on'); res(false); };
+      return;
+    }
+    const DUR = dur;
+    m.innerHTML = `<div class="adscreen">
+      <div style="display:flex;justify-content:space-between;font-size:12px;opacity:.8"><span><span class="adtag">AD</span>보상형 광고 (데모)</span><span id="adt">${DUR}초</span></div>
+      <div class="vid"><b>광고 영상 자리</b>실제 출시 시 광고 SDK 영상이 재생돼요</div>
+      <div class="prog"><i id="adp"></i></div>
+      <p style="font-size:13px;margin:12px 0">끝까지 시청하면 <b style="color:#f2b632">${label}</b> 지급</p>
+      <button class="btn" style="background:#333;border-color:#444;color:#ddd" id="adx">닫기 (보상 없음)</button>
+    </div>`;
+    m.classList.add('on'); m.onclick = null;
+    const t0 = Date.now();
+    const iv = setInterval(() => {
+      const t = (Date.now() - t0) / 1000;
+      const adp = $('#adp'), adt = $('#adt');
+      if (adp) adp.style.width = Math.min(100, t / DUR * 100) + '%';
+      if (adt) adt.textContent = Math.max(0, Math.ceil(DUR - t)) + '초';
+      if (t >= DUR) {
+        clearInterval(iv);
+        if (!lobby && S) S.rewarded++;
+        m.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:38px">🎁</div><b style="font-size:17px">${label} 지급 완료!</b>${!lobby && S ? `<p class="note" style="margin:6px 0 0">이번 판 남은 보상형 광고 ${MAX_REWARDED - S.rewarded}회</p>` : ''}<button class="btn pri" style="margin-top:12px" id="adok">받기</button></div>`;
+        $('#adok').onclick = () => { m.classList.remove('on'); res(true); };
+      }
+    }, 100);
+    $('#adx').onclick = () => { clearInterval(iv); m.classList.remove('on'); res(false); };
+  });
+}
+function showInterstitial() {
+  return new Promise(res => {
+    const m = $('#modal');
+    m.innerHTML = `<div class="adscreen"><div style="display:flex;justify-content:space-between;font-size:12px;opacity:.8"><span><span class="adtag">AD</span>전면 광고 (데모)</span><span id="it">3</span></div>
+      <div class="vid" style="height:240px"><b>전면 광고 자리</b>게임 종료 후 1회만 노출</div>
+      <button class="btn" style="background:#333;border-color:#444;color:#ddd" id="ix" disabled>잠시 후 닫을 수 있어요</button></div>`;
+    m.classList.add('on'); m.onclick = null;
+    let n = 3;
+    const iv = setInterval(() => {
+      n--; const it = $('#it'); if (it) it.textContent = n;
+      if (n <= 0) { clearInterval(iv); const b = $('#ix'); b.disabled = false; b.textContent = '닫기 ✕'; b.onclick = () => { m.classList.remove('on'); res(); }; }
+    }, 1000);
+  });
+}
+
+
+
+/* ---------- 주간 랭킹 (이 기기) ---------- */
+function weekKey(d = new Date()) {
+  const m = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const dow = (m.getDay() + 6) % 7; m.setDate(m.getDate() - dow);
+  return `${m.getFullYear()}-${m.getMonth() + 1}-${m.getDate()}`;
+}
+function weekLabel() { const [y, mo, da] = weekKey().split('-').map(Number); const a = new Date(y, mo - 1, da), b = new Date(y, mo - 1, da + 6); return `${a.getMonth() + 1}/${a.getDate()}(월) ~ ${b.getMonth() + 1}/${b.getDate()}(일)`; }
+function rankData() { const r = store.get('weekrank', null); return r && r.w === weekKey() ? r : { w: weekKey(), p: {} }; }
+function recordRanking(rank) {
+  if (SRV) {
+    const list = S.players.filter(p => !p.isAI || p.cid).map(p => ({ nick: p.name, nw: Math.max(0, netWorth(p)), win: rank[0] === p, ch: p.char || '' }));
+    fetch('api/result', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ list }) }).catch(() => {}).finally(() => setTimeout(loadRanking, 300));
+    return;
+  }
+  const r = rankData();
+  S.players.filter(p => !p.isAI).forEach(p => {
+    const nw = Math.max(0, netWorth(p)), key = p.name;
+    const e = r.p[key] || { total: 0, games: 0, best: 0, wins: 0, ch: '' };
+    e.total = r1(e.total + nw); e.games++; e.best = Math.max(e.best, nw); if (rank[0] === p) e.wins++; e.ch = p.char || '';
+    r.p[key] = e;
+  });
+  store.set('weekrank', r);
+}
+function rankingHTML(hi) {
+  if (SRV) { RANK_HI = hi; setTimeout(loadRanking, 0); return `<div class="panel ranking" id="rankp">${srvRankInner(hi)}</div>`; }
+  const r = rankData(), list = Object.entries(r.p).sort((a, b) => b[1].total - a[1].total).slice(0, 10);
+  const medal = ['🥇', '🥈', '🥉'];
+  return `<div class="panel ranking"><h3>🏆 주간 누적 랭킹 <span style="font-weight:400">${weekLabel()}</span></h3>
+    ${list.length ? list.map(([n, e], k) => `<div class="rk ${n === hi ? 'me' : ''}"><span class="no">${medal[k] || k + 1}</span><span class="nm">${e.ch && CHARS[e.ch] ? CHARS[e.ch].e + ' ' : ''}${esc(n)}</span><span class="g">${e.games}판 · ${e.wins}승 · 최고 ${fmt(e.best)}</span><b>${fmt(e.total)}</b></div>`).join('')
+      : '<p class="note">이번 주 기록이 아직 없어요. 한 판 끝내면 순자산이 누적돼요!</p>'}
+    <p class="note" style="margin-top:6px">게임이 끝날 때 순자산이 닉네임별로 누적돼요. 매주 월요일 초기화 · 지금은 이 기기의 기록만 모여요.</p></div>`;
+}
+/* ---------- 한 줄 요약 ---------- */
+function headline(p, rank) {
+  const st = p.st, c = p.cause || {};
+  const regs = (p.outRegs || []).map(k => REGS[k].n);
+  if (p.bankrupt) {
+    if (c.t === 'interest') return c.rate ? `📈 금리상승 직격탄! 이자 ${fmt(c.amt)} 못 내고 파산 — 영끌의 최후` : (p.outTha || regs.includes('대출규제')) ? `🏦 대출규제로 돈줄이 막혀 이자 ${fmt(c.amt)}에 파산` : `💳 대출 이자 ${fmt(c.amt)} 감당 못 해 파산 — 빚으로 산 집의 최후`;
+    if (c.t === 'tax') return c.heavy ? `🏠 보유세 중과 폭탄 ${fmt(c.amt)} 맞고 파산` : `💸 보유세 ${fmt(c.amt)} 고지서 한 장에 파산`;
+    if (c.t === 'rent') return `🏢 ${c.o}의 ${c.c} 통행료 ${fmt(c.amt)} 한 방에 파산${p.outDebt ? ' (대출 ' + fmt(p.outDebt) + ' 남은 채로)' : ''}`;
+    if (c.t === 'news') return `📰 '${c.title}' 뉴스 한 줄에 무너져 파산`;
+    return regs.length ? `🚨 ${regs.join('·')} 규제 속에 결국 파산` : '💥 자금난 끝에 파산';
+  }
+  const mono = GROUPS.map((g, gi) => gi).filter(gi => hasMono(p.id, gi));
+  const top = owned(p).sort((a, b) => b.p - a.p)[0];
+  if (rank === 0) {
+    if (p.char === 'gony') return `👑 황금 고니 강림! 순자산 ${fmt(netWorth(p))}로 부동산 왕좌 등극`;
+    if (mono.length) return `👑 ${GROUPS[mono[mono.length - 1]].n} 독점으로 부동산 재벌 등극${top ? ` — 대표 자산 ${top.sn}` : ''}`;
+    if (!st.loanMax) return `💰 대출 한 푼 없이 현금으로 이긴 진짜 현금왕`;
+    if (st.rentGot > 0) return `🏆 통행료로만 ${fmt(st.rentGot)} 벌어들인 임대왕${top ? ` (${top.sn})` : ''}`;
+    return `🏆 끝까지 버틴 자가 이겼다 — 순자산 ${fmt(netWorth(p))}`;
+  }
+  const loss = [
+    { v: st.interest, t: `💳 이자로만 ${fmt(st.interest)} 날림 — 대출이 발목 잡았다` },
+    { v: st.taxHeavy * 2, t: `🏠 보유세 중과로 세금 ${fmt(st.tax)} — 정부 정책에 당했다` },
+    { v: st.acq * 1.5, t: `🧾 취득세 중과로 ${fmt(st.acq)} 더 내고 출발부터 꼬였다` },
+    { v: st.blocked * 15, t: `🔒 토지거래허가·대출규제에 막혀 살 기회를 ${st.blocked}번 놓쳤다` },
+    { v: st.rent, t: `🏢 남의 단지 통행료로 ${fmt(st.rent)} 상납했다` },
+    { v: st.tax, t: `💸 세금으로 ${fmt(st.tax)} 냈다 — 세금 앞에 장사 없다` },
+    { v: st.sold * 10, t: `🏷️ 급매로 단지 ${st.sold}곳을 헐값에 넘겼다` },
+  ].sort((a, b) => b.v - a.v)[0];
+  return loss.v > 0 ? loss.t : `😐 존재감 없이 끝났다 — 다음 판엔 과감하게!`;
+}
+
+/* ---------- 하루 판수 · 공유 보너스 ---------- */
+let SHARE_URL = 'https://claude.ai/artifact/VY7fF24oAEpycNAxj9Ypwt';
+const FREE_PER_DAY = 3, MAX_SHARE_BONUS = 2;
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+function quota() { let q = store.get('quota', null); if (!q || q.d !== today()) q = { d: today(), used: 0, bonus: 0 }; return q; }
+const playsLeft = () => { const q = quota(); return FREE_PER_DAY + q.bonus - q.used; };
+function quotaHTML(noBtn) {
+  const q = quota(), total = FREE_PER_DAY + q.bonus, left = total - q.used;
+  const dots = Array.from({ length: total }, (_, k) => `<i style="display:inline-block;width:12px;height:12px;border-radius:50%;margin:0 2px;background:${k < left ? '#e8553d' : '#e3d9c6'}"></i>`).join('');
+  return `<div style="text-align:center;margin-top:10px;font-size:13px"><b>오늘 남은 판</b> ${dots} <b style="color:#e8553d">${Math.max(0, left)}</b> / ${total}</div>
+    ${noBtn ? '' : q.bonus < MAX_SHARE_BONUS ? `<button class="btn" style="margin-top:8px;background:#fee500;border-color:#e6cf00;color:#3a1d1d" onclick="shareForPlay()">🔗 친구에게 링크 공유하고 한 판 더 받기 (오늘 ${q.bonus}/${MAX_SHARE_BONUS})</button>` : '<p class="note" style="text-align:center;margin-top:6px">오늘 공유 보너스를 모두 받았어요. 내일 다시 3판이 충전돼요!</p>'}`;
+}
+async function copyText(t) { try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } }
+function shareForPlay(extra) {
+  const text = (extra ? extra + '\n' : '') + `🏙️ 부동산 공화국 — 대한민국 아파트를 독점하라!\n원베일리·아리팍·잠실엘스 사고팔기, 나랑 한 판 붙자 👉 ${SHARE_URL}`;
+  copyText(text).then(ok => {
+    const q = quota(); let got = false;
+    if (q.bonus < MAX_SHARE_BONUS) { q.bonus++; store.set('quota', q); got = true; }
+    const m = $('#modal');
+    m.innerHTML = `<div class="box"><div style="font-size:36px;text-align:center">${got ? '🎁' : '🔗'}</div>
+      <h2 style="font-size:18px;text-align:center">${ok ? '링크가 복사됐어요!' : '아래 내용을 복사해 주세요'}</h2>
+      <p class="note" style="text-align:center;margin:6px 0">카카오톡 친구에게 붙여넣기 해 주세요.${got ? '<br><b style="color:#e8553d">한 판이 추가됐어요!</b>' : ''}</p>
+      <textarea readonly style="width:100%;height:96px;font-size:12px;border-radius:10px;border:1px solid #e3d9c6;padding:8px" onclick="this.select()">${esc(text)}</textarea>
+      <button class="btn dark" style="margin-top:10px" id="shx">확인</button></div>`;
+    m.onclick = null; m.classList.add('on');
+    $('#shx').onclick = () => { m.classList.remove('on'); if (!S || S.over) { if (document.querySelector('.res')) { const qb = document.getElementById('qbox'); if (qb) qb.innerHTML = quotaHTML(true); } else renderLobby(); } };
+  });
+}
+function noPlaysModal() {
+  const m = $('#modal');
+  m.innerHTML = `<div class="box" style="text-align:center"><div style="font-size:40px">⏰</div><h2 style="font-size:18px">오늘의 3판을 모두 플레이했어요</h2>
+    <p class="note" style="margin:6px 0 4px">내일 다시 충전되거나, 친구에게 공유하면 한 판을 더 받을 수 있어요.</p>
+    <div id="qbox">${quotaHTML()}</div><button class="btn" style="margin-top:8px" onclick="$('#modal').classList.remove('on')">닫기</button></div>`;
+  m.onclick = null; m.classList.add('on');
+}
+/* =========================================================
+   종료 / 결과
+   ========================================================= */
+function finish() {
+  if (!S || S.over) return;
+  S.over = true; RUN++;
+  closeSheet();
+  const rank = [...S.players].sort((a, b) => {
+    if (a.bankrupt !== b.bankrupt) return a.bankrupt ? 1 : -1;
+    if (a.bankrupt) return b.outAt - a.outAt;
+    return netWorth(b) - netWorth(a);
+  });
+  const win = rank[0];
+  const humanWin = !win.isAI;
+  if (S.online && S.isHost) { flushSync(); bcast('fin', {}); }
+  const me = S.online ? (S.players[S.myId] || win) : S.mode === 'ai' ? S.players[0] : win;
+  const myRank = rank.indexOf(me);
+  const myLine = headline(me, myRank);
+  S.shareLine = `[부동산 공화국] ${esc(me.name)} ${myRank + 1}위 — ${myLine}`;
+  if (!S.online || S.isHost) recordRanking(rank);
+  const reason = alive().length <= 1 ? '마지막 생존자' : (S.mode === 'ai' && S.players[0].bankrupt ? '플레이어 파산' : `${S.maxRounds}라운드 종료 · 순자산 기준`);
+  $('#app').innerHTML = `
+  <div class="res">
+    <div class="crown">${humanWin ? '🏆' : '🏚️'}</div>
+    <div style="opacity:.75;font-size:13px">${reason}</div>
+    <h2 class="logo">${esc(win.name)} 승리!</h2>
+    <div class="headline"><small>${esc(me.name)}의 한 줄 요약</small>${myLine}</div>
+  </div>
+  ${rank.map((p, k) => {
+    const os = owned(p);
+    const lm = os.filter(c => c.level === 3).length;
+    const monos = GROUPS.map((g, gi) => gi).filter(gi => !p.bankrupt && hasMono(p.id, gi)).map(gi => GROUPS[gi].n);
+    return `<div class="rank" style="border-left:6px solid ${p.color}">
+      <div class="no">${['🥇', '🥈', '🥉', '4'][k]}</div>
+      <div class="who"><b>${esc(p.name)}</b>${p.isAI ? ' <small style="display:inline">AI</small>' : ''}<small>${p.bankrupt ? `${p.outRound}라운드 파산` : `현금 ${fmt(p.cash)} · 단지 ${os.length}곳 · 랜드마크 ${lm}곳`}${monos.length ? ` · 독점: ${monos.join(', ')}` : ''}${p.st.interest ? ` · 이자 ${fmt(p.st.interest)}` : ''}</small><span class="oneline">${headline(p, k)}</span></div>
+      <div class="nw">${p.bankrupt ? '-' : fmt(netWorth(p))}<br><small style="font-weight:400;color:#8a7f6a;font-size:11px">순자산</small></div>
+    </div>`;
+  }).join('')}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+    <button class="btn pri" onclick="afterGame('again')">${S.online ? '🌐 다시 매칭' : '🔁 재대결'}</button>
+    <button class="btn" onclick="afterGame('lobby')">로비로</button>
+  </div>
+  <button class="btn" style="margin-top:8px;background:#fee500;border-color:#e6cf00;color:#3a1d1d" onclick="shareForPlay(S.shareLine)">📣 결과 자랑하고 한 판 더 받기</button>
+  <div id="qbox">${quotaHTML(true)}</div>
+  ${rankingHTML(me.name)}
+  <div class="banner"><span class="adtag">AD</span>결과 화면 배너 광고 영역 (데모)</div>
+  <p class="note" style="margin-top:10px;text-align:center">매입가는 실거래가 참고값이며, 게임 속 수익은 실제 부동산 투자 정보가 아닙니다.</p>`;
+  window.scrollTo(0, 0);
+}
+async function afterGame(where) {
+  if (where === 'again' && playsLeft() <= 0) return noPlaysModal();
+  if (S && !S.interShown) { S.interShown = true; await showInterstitial(); }
+  const wasOnline = S && S.online;
+  if (wasOnline) netLeave();
+  if (where === 'again') wasOnline ? joinOnline() : startGame(); else renderLobby();
+}
+function quitGame() {
+  const m = $('#modal');
+  m.innerHTML = `<div class="box"><h2 style="font-size:18px">게임을 나갈까요?</h2><p class="note" style="margin:6px 0 14px;font-size:13px">진행 중인 게임은 저장되지 않아요.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn" id="qn">계속하기</button><button class="btn pri" id="qy">나가기</button></div></div>`;
+  m.onclick = null; m.classList.add('on');
+  $('#qn').onclick = () => m.classList.remove('on');
+  $('#qy').onclick = () => { m.classList.remove('on'); RUN++; if (S) { if (S.online) netLeave(); S.over = true; } renderLobby(); window.scrollTo(0, 0); };
+}
+
+/* =========================================================
+   온라인 대전 (서버 연결 시에만 동작)
+   - 접속 순서대로 4명씩 방 배정, 방장(첫 입장자)이 게임 엔진을 돌리고 나머지는 화면을 동기화
+   ========================================================= */
+let SRV = false, RANK_HI = '', RANK_CACHE = null;
+const NET = { cid: Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4), es: null, q: [], busy: false, state: 'idle', roster: null, startAt: 0, cdT: null };
+const isHostOn = () => !!(S && S.online && S.isHost && !S.over);
+function bootServer() {
+  fetch('api/ping', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => {
+    if (!j || !j.ok) return;
+    SRV = true; SHARE_URL = location.origin + location.pathname;
+    if (!S && !NET.roster) renderLobby();
+  }).catch(() => {});
+}
+/* ----- 전송 ----- */
+function netSend(t, d) { NET.q.push({ t, d }); if (!NET.busy) setTimeout(netFlush, 15); }
+async function netFlush() {
+  if (NET.busy || !NET.q.length) return;
+  NET.busy = true;
+  const msgs = NET.q.splice(0, 200);
+  try { await fetch('api/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cid: NET.cid, msgs }) }); } catch (e) {}
+  NET.busy = false;
+  if (NET.q.length) netFlush();
+}
+const bcast = (ev, data) => netSend('relay', { to: 'all', ev, data });
+const toCid = (cid, ev, data) => netSend('relay', { to: cid, ev, data });
+const toHost = (ev, data) => netSend('relay', { ev, data });
+function netConnect() {
+  return new Promise(res => {
+    if (NET.es && NET.es.readyState !== 2) return res();
+    const es = new EventSource('events?cid=' + NET.cid);
+    NET.es = es;
+    es.addEventListener('hello', () => res(), { once: true });
+    const on = (ev, f) => es.addEventListener(ev, e => { let d = null; try { d = JSON.parse(e.data); } catch (x) {} try { f(d); } catch (x) { console.error(x); } });
+    on('roster', d => { if (NET.state !== 'matching') return; NET.roster = d; NET.startAt = d.startIn != null ? Date.now() + d.startIn : 0; renderMatch(); });
+    on('start', onlineStart);
+    on('hostLeft', () => { if (NET.state !== 'playing' || !S || S.over) return; NET.state = 'idle'; RUN++; S.over = true; closeSheet(); onlineModal('🚪 방장이 나갔어요', '방장의 연결이 끊겨 게임이 종료됐어요.<br>다시 매칭해서 새 방에 들어갈 수 있어요.'); });
+    on('away', d => hostSeat(d.cid, p => { if (!p.gone) { p.isAI = true; p.away = true; log(`📴 ${esc(p.name)} 연결 끊김 — 잠시 AI가 대신 플레이`); if (PEND && PEND.p === p) answerAsk(PEND.id, PEND.defVal); } }));
+    on('back', d => hostSeat(d.cid, p => { if (p.away && !p.gone) { p.isAI = false; p.away = false; log(`📶 ${esc(p.name)} 다시 접속`); } }));
+    on('left', d => hostSeat(d.cid, p => { p.isAI = true; p.gone = true; p.away = false; log(`🚪 ${esc(p.name)} 퇴장 — AI가 이어서 플레이`); if (PEND && PEND.p === p) answerAsk(PEND.id, PEND.defVal); }));
+    // 방장 → 참가자 화면 동기화
+    on('st', d => { if (NET.state === 'playing' && !(S && S.isHost)) applySnap(d); });
+    on('dice', d => { if (viewer()) rollDice(d); });
+    on('fx', d => { if (viewer()) void fx(d[0], d[1]); });
+    on('toast', d => { if (viewer()) toast(d[0], d[1]); });
+    on('flash', d => { if (viewer()) flash(d); });
+    on('say', d => { if (viewer() && S.players[d[0]]) say(S.players[d[0]], d[1], d[2]); });
+    on('ask', d => { if (!viewer()) return; MYASK = d.id; ask(S.players[S.myId], d.title, d.body, d.buttons, d.defVal).then(v => { if (MYASK === d.id) { MYASK = null; toHost('ans', { id: d.id, v }); } }); });
+    on('cancelAsk', d => { if (viewer() && MYASK === d.id) { MYASK = null; if (sheetDone) sheetDone(d.defVal); } });
+    on('fin', () => { if (viewer()) finish(); });
+    on('ans', d => { if (S && S.isHost && PEND && PEND.id === d.id && PEND.p.cid === d.from) answerAsk(d.id, d.v); });
+  });
+}
+const viewer = () => NET.state === 'playing' && S && S.online && !S.isHost && !S.over;
+function hostSeat(cid, f) { if (!isHostOn()) return; const p = S.players.find(x => x.cid === cid); if (p) { f(p); refresh(); } }
+function netLeave() { if (NET.state !== 'idle') netSend('leave', {}); NET.state = 'idle'; NET.roster = null; clearInterval(NET.cdT); }
+
+/* ----- 매칭 ----- */
+async function joinOnline() {
+  if (!SRV) return;
+  if (playsLeft() <= 0) return noPlaysModal();
+  $('#modal').classList.remove('on');
+  const nick = (L.nick || '').trim() || '투자자' + Math.floor(Math.random() * 900 + 100);
+  L.nick = nick; store.set('nick', nick);
+  S = null; RUN++; closeSheet();
+  NET.state = 'matching'; NET.roster = null;
+  renderMatch();
+  await netConnect();
+  netSend('join', { nick, char: L.oChar || '' });
+}
+function cancelMatch() { netLeave(); renderLobby(); }
+function onlineLobbyHTML() {
+  const list = [['', { n: '새내기 투자자', e: '🙂', perk: '능력 없음 · 순수 실력파' }], ...AI_CHARS()];
+  return `
+    <h3>닉네임</h3>
+    <input class="field" maxlength="8" placeholder="방에서 보일 닉네임" value="${esc(L.nick)}" oninput="L.nick=this.value">
+    <h3>내 캐릭터 <span style="font-weight:400">(캐릭터마다 능력이 달라요)</span></h3>
+    <div class="chars">${list.map(([k, c]) => `<button class="char ${L.oChar === k ? 'on' : ''}" onclick="L.oChar='${k}';store.set('ochar','${k}');renderLobby()">${L.oChar === k ? '<span class="slot">나</span>' : ''}<b>${c.e} ${c.n}</b><small style="color:#c0392b;font-weight:700">${c.perk}</small></button>`).join('')}</div>
+    <p class="note" style="margin-top:8px">🌐 이 링크로 들어온 사람끼리 <b>접속한 순서대로 4명씩 방</b>이 만들어져요 (1번방, 2번방…). 2명 이상 모이면 30초 뒤 자동 시작, 4명이 차면 바로 시작해요.<br>⏱️ 턴마다 30초 제한 · 연결이 끊긴 사람은 AI가 대신 플레이해요.<br>👑 황금 캐릭터 고니는 공정성을 위해 친구 대전에서 쓸 수 없어요.${SRV ? '' : '<br><b style="color:#d62828">이 링크에서는 온라인 서버에 연결할 수 없어요. 정식 게임 링크에서 이용해 주세요.</b>'}</p>`;
+}
+function renderMatch() {
+  const r = NET.roster;
+  const me = r && r.players.find(p => p.cid === NET.cid);
+  const host = r && r.host === NET.cid;
+  const n = r ? r.players.length : 0;
+  $('#app').innerHTML = `
+  <div class="hero"><img src="assets/hero.jpg" alt="부동산 공화국"><p>온라인 매칭</p></div>
+  <div class="panel" style="text-align:center">
+    ${r ? `<div style="font-size:30px;font-weight:900;font-family:'Black Han Sans',sans-serif;color:#e8553d">🏠 ${r.room}번 방</div>
+      <div style="font-size:14px;margin-top:4px"><b>${n}</b> / 4명 입장${me ? '' : ''}</div>
+      <div id="mcd" style="font-size:13px;color:#8a7f6a;margin-top:4px"></div>`
+      : `<div style="font-size:15px;font-weight:700;padding:10px">서버에 접속하는 중…</div>`}
+    <div style="display:grid;gap:8px;margin-top:12px;text-align:left">${Array.from({ length: 4 }, (_, k) => {
+      const p = r && r.players[k];
+      if (!p) return `<div class="row" style="padding:10px;border:2px dashed #e3d9c6;border-radius:12px;color:#b0a58f"><span style="width:38px;height:38px;border-radius:50%;background:#f3efe6;display:flex;align-items:center;justify-content:center">?</span>빈 자리 · 기다리는 중…</div>`;
+      const fake = { char: p.char || undefined, color: PCOL[k] };
+      const c = p.char ? CHARS[p.char] : null;
+      return `<div class="row mrow" style="padding:8px 10px;border:2px solid ${PCOL[k]};border-radius:12px;background:${PCOL[k]}11">${avatarOf(fake)}<div style="flex:1;min-width:0"><b>${esc(p.nick || '')}</b>${p.cid === NET.cid ? ' <small style="color:#fff;background:#e8553d;border-radius:6px;padding:0 5px">나</small>' : ''}${r.host === p.cid ? ' <small style="color:#8a5a00">👑 방장</small>' : ''}<div style="font-size:11px;color:#c0392b;font-weight:700">${c ? c.e + ' ' + c.n + ' · ' + c.perk : '🙂 새내기 투자자 · 능력 없음'}</div></div></div>`;
+    }).join('')}</div>
+    ${host ? `<button class="btn pri" style="margin-top:12px" onclick="netSend('start',{})" ${n >= 2 ? '' : 'disabled'}>${n >= 2 ? `▶ 지금 시작 (${n}명)` : '2명부터 시작할 수 있어요'}</button>` : r ? '<p class="note" style="margin-top:10px">방장이 시작하거나 4명이 모이면 게임이 시작돼요.</p>' : ''}
+    <button class="btn" style="margin-top:8px;background:#fee500;border-color:#e6cf00;color:#3a1d1d" onclick="inviteLink()">🔗 친구 초대 링크 복사</button>
+    <button class="btn" style="margin-top:8px" onclick="cancelMatch()">매칭 취소</button>
+    <p class="note" style="margin-top:8px">게임 길이: ${host || !r ? `${L.rounds}라운드 (방장 설정)` : '방장 설정을 따라요'}</p>
+  </div>`;
+  clearInterval(NET.cdT);
+  const tick = () => { const el = $('#mcd'); if (!el) return clearInterval(NET.cdT); el.textContent = NET.startAt ? `⏳ ${Math.max(0, Math.ceil((NET.startAt - Date.now()) / 1000))}초 뒤 자동 시작` : n < 2 ? '다른 플레이어를 기다리는 중…' : ''; };
+  tick(); NET.cdT = setInterval(tick, 250);
+}
+function inviteLink() {
+  copyText(`🏙️ 부동산 공화국 온라인 대전! 지금 들어오면 같은 방에서 붙을 수 있어 👉 ${SHARE_URL}`).then(ok => toastLobby(ok ? '초대 링크를 복사했어요!' : SHARE_URL));
+}
+function toastLobby(t) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:99';
+  el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 1800);
+}
+function onlineModal(title, body) {
+  const m = $('#modal');
+  m.innerHTML = `<div class="box" style="text-align:center"><h2 style="font-size:18px">${title}</h2><p class="note" style="margin:8px 0 14px;font-size:13px">${body}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn" id="omx">로비로</button><button class="btn pri" id="omy">다시 매칭</button></div></div>`;
+  m.onclick = null; m.classList.add('on');
+  $('#omx').onclick = () => { m.classList.remove('on'); netLeave(); renderLobby(); };
+  $('#omy').onclick = () => { m.classList.remove('on'); netLeave(); joinOnline(); };
+}
+
+/* ----- 게임 시작 ----- */
+function onlineStart(info) {
+  if (NET.state !== 'matching') return;
+  clearInterval(NET.cdT);
+  NET.state = 'playing';
+  { const q = quota(); q.used++; store.set('quota', q); }
+  const seat = info.players.findIndex(p => p.cid === NET.cid);
+  RUN++; closeSheet(); $('#modal').classList.remove('on');
+  if (info.host !== NET.cid) {
+    S = null; NET.mySeat = seat; NET.room = info.room;
+    $('#app').innerHTML = `<div class="panel" style="text-align:center;margin-top:40px"><div style="font-size:40px">🎲</div><b>${info.room}번 방 게임 준비 중…</b><p class="note">방장이 게임판을 만들고 있어요.</p></div>`;
+    return;
+  }
+  const players = info.players.map((pl, i) => ({ id: i, name: pl.nick || `플레이어${i + 1}`, isAI: false, cid: pl.cid, char: CHAR_OK_ON(pl.char), pos: 0, cash: START_CASH, bankrupt: false, island: 0, color: PCOL[i], outAt: 0, st: { interest: 0, tax: 0, taxHeavy: 0, acq: 0, rent: 0, rentGot: 0, sold: 0, blocked: 0, loanMax: 0 }, cause: null }));
+  S = {
+    online: true, isHost: true, myId: seat, room: info.room,
+    mode: 'friend', diff: 'normal', maxRounds: L.rounds, players,
+    cells: RAW.map((r, i) => ({ i, t: r[0], n: r[1], p: r[2], g: r[3], sn: r[4], tag: r[5], ref: r[6], owner: null, level: 0, inv: 0, loan: 0 })),
+    gid: Date.now(), regs: {}, pending: null, gold: false, cur: 0, round: 1, extraUsed: false, log: [], rewarded: 0, flags: {}, interShown: false, over: false, outCount: 0, wait: null,
+  };
+  renderGame();
+  log(`🌐 ${info.room}번 방 온라인 대전 시작! 모두 ${fmt(START_CASH)}으로 출발합니다.`);
+  flushSync();
+  setTimeout(playTurn, 1200);
+}
+const CHAR_OK_ON = c => ['young', 'cash', 'rebuild', 'gangnam'].includes(c) ? c : undefined;
+
+/* ----- 상태 동기화 ----- */
+let syncT = null;
+function snap() {
+  return { gid: S.gid, room: S.room, players: S.players, cur: S.cur, round: S.round, maxRounds: S.maxRounds, regs: S.regs, pending: S.pending, log: S.log.slice(0, 3), wait: S.wait, extraUsed: S.extraUsed, cells: S.cells.map(c => [c.owner, c.level, c.inv, c.loan]) };
+}
+function sync() { if (!isHostOn() || syncT) return; syncT = setTimeout(() => { syncT = null; if (S && S.online && S.isHost) bcast('st', snap()); }, 90); }
+function flushSync() { clearTimeout(syncT); syncT = null; if (S && S.online && S.isHost) bcast('st', snap()); }
+function applySnap(d) {
+  let fresh = false;
+  if (!S || S.gid !== d.gid) {
+    fresh = true;
+    S = {
+      online: true, isHost: false, myId: NET.mySeat, room: d.room, mode: 'friend', diff: 'normal', gold: false,
+      cells: RAW.map((r, i) => ({ i, t: r[0], n: r[1], p: r[2], g: r[3], sn: r[4], tag: r[5], ref: r[6], owner: null, level: 0, inv: 0, loan: 0 })),
+      flags: {}, rewarded: 0, interShown: false, over: false, outCount: 0,
+    };
+  }
+  if (S.over) return;
+  Object.assign(S, { players: d.players, cur: d.cur, round: d.round, maxRounds: d.maxRounds, regs: d.regs, pending: d.pending, log: d.log, wait: d.wait, extraUsed: d.extraUsed });
+  d.cells.forEach((a, i) => { const c = S.cells[i]; c.owner = a[0]; c.level = a[1]; c.inv = a[2]; c.loan = a[3]; });
+  if (fresh || !$('#board')) renderGame(); else refresh();
+}
+
+/* ----- 원격 선택 (방장 → 해당 플레이어) ----- */
+let PEND = null, ASKSEQ = 0, MYASK = null;
+function remoteAsk(p, title, body, buttons, defVal) {
+  return new Promise(res => {
+    const id = ++ASKSEQ;
+    const btns = buttons.map(b => ({ label: b.label, v: b.v, cls: b.cls, disabled: !!b.disabled }));
+    S.wait = p.id; sync();
+    const timer = setTimeout(() => { toCid(p.cid, 'cancelAsk', { id, defVal }); answerAsk(id, defVal); }, 34000);
+    PEND = { id, p, defVal, res: v => { clearTimeout(timer); res(v); }, ok: btns.filter(b => !b.disabled).map(b => b.v) };
+    toCid(p.cid, 'ask', { id, title, body, buttons: btns, defVal });
+  });
+}
+function answerAsk(id, v) {
+  if (!PEND || PEND.id !== id) return;
+  const pd = PEND; PEND = null;
+  if (S) { S.wait = null; sync(); }
+  pd.res(pd.ok.includes(v) ? v : pd.defVal);
+}
+function srvRankInner(hi) {
+  const r = RANK_CACHE, medal = ['🥇', '🥈', '🥉'];
+  const list = r ? r.list.slice(0, 10) : [];
+  return `<h3>🏆 전체 주간 누적 랭킹 <span style="font-weight:400">${weekLabel()}</span></h3>
+    ${!r ? '<p class="note">랭킹 불러오는 중…</p>' : list.length ? list.map((e, k) => `<div class="rk ${e.nick === hi ? 'me' : ''}"><span class="no">${medal[k] || k + 1}</span><span class="nm">${e.ch && CHARS[e.ch] ? CHARS[e.ch].e + ' ' : ''}${esc(e.nick)}</span><span class="g">${e.games}판 · ${e.wins}승 · 최고 ${fmt(e.best)}</span><b>${fmt(e.total)}</b></div>`).join('')
+      : '<p class="note">이번 주 기록이 아직 없어요. 한 판 끝내면 순자산이 누적돼요!</p>'}
+    <p class="note" style="margin-top:6px">모든 플레이어의 게임 종료 순자산이 닉네임별로 누적돼요 · 매주 월요일 초기화</p>`;
+}
+function loadRanking() {
+  fetch('api/ranking', { cache: 'no-store' }).then(r => r.json()).then(j => { RANK_CACHE = j; const el = $('#rankp'); if (el) el.innerHTML = srvRankInner(RANK_HI); }).catch(() => {});
+}
+
+renderLobby();
+bootServer();
+</script>
+</body>
+</html>
