@@ -352,6 +352,32 @@ body{background:linear-gradient(180deg,#22397a 0%,#4b67ad 28%,#c9b6c4 60%,#f2d9c
 .center .say .sb b{display:block;font-size:.62em;color:var(--c);margin-bottom:1px}
 .center .say .sb::before{content:"";position:absolute;left:-9px;bottom:10px;border:7px solid transparent;border-right-color:var(--c);border-left:0}
 .mrow .av{width:42px!important;height:42px!important;flex:none;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:22px;position:static!important}
+
+/* 캐릭터 카드 (일러스트) */
+.ccard{position:relative;aspect-ratio:1.72;border-radius:14px;overflow:hidden;padding:0;border:2px solid #e8dfcf;background:#eee no-repeat right center/cover;text-align:left;box-shadow:0 2px 8px rgba(60,40,10,.12);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.ccard::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,250,245,.7),rgba(255,250,245,.25) 45%,rgba(255,255,255,0) 70%)}
+.ccard:active{transform:scale(.98)}
+.ccard.on{border-color:#e8553d;box-shadow:0 0 0 3px rgba(232,85,61,.35),0 4px 12px rgba(232,85,61,.25)}
+.ccard[disabled]{opacity:.38;filter:grayscale(.6)}
+.ccard .cl{position:absolute;left:6px;bottom:6px;right:28%;display:flex;flex-direction:column;align-items:flex-start;gap:4px;z-index:1}
+.ccard .cn{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.96);border-radius:11px;padding:3px 8px 3px 5px;font-size:13px;font-weight:900;color:#2a2116;box-shadow:0 1px 4px rgba(0,0,0,.15);white-space:nowrap;max-width:100%}
+.ccard .cn .ce{font-size:15px;line-height:1}
+.ccard .cn .me{background:#d62828;color:#fff;border-radius:7px;padding:1px 6px;font-size:11px;margin-right:1px}
+.ccard .cp{background:rgba(255,255,255,.9);border-radius:9px;padding:3px 7px;font-size:10.5px;font-weight:800;color:#c0392b;line-height:1.35;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.ccard .cp small{display:block;color:#7a705e;font-weight:600;font-size:10px}
+.ccard .lock{position:absolute;top:6px;right:6px;z-index:1;background:linear-gradient(135deg,#d9a520,#a87400);color:#fff;font-size:11px;font-weight:900;border-radius:9px;padding:3px 8px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.ccard.goldc{border-color:#e0b23a;box-shadow:0 0 0 1px #f5d36b inset,0 2px 12px rgba(224,178,58,.45)}
+.ccard.goldc::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);animation:shine 2.6s infinite;pointer-events:none}
+.ccard.goldc.on{border-color:#c98a00;box-shadow:0 0 0 3px #e0a800,0 0 16px rgba(255,200,40,.7)}
+.ccard.goldc .cl{right:6px}
+.ccard.goldc .cn{background:linear-gradient(135deg,#fffaf0,#fff1c8)}
+.ccard.goldc .cp{background:linear-gradient(135deg,rgba(255,248,220,.97),rgba(255,231,160,.95));color:#5a3d00}
+.ccard .crown{position:absolute;left:4px;bottom:100%;font-size:18px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
+.ccard .cn{position:relative}
+.ccard .unl{display:inline-block;margin-top:3px;background:#fff;border:1.5px dashed #c99a1b;border-radius:7px;padding:1px 6px;color:#7a5a00;font-size:10.5px;font-weight:900}
+.ccard .unl.top{position:absolute;top:6px;left:6px;z-index:1;margin:0;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+@media(min-width:560px){.ccard .cn{font-size:15px}.ccard .cp{font-size:12px}}
+@media(max-width:559px){.ccard{aspect-ratio:1.38}.ccard .cl{right:6px;left:5px;bottom:5px;gap:3px}.ccard .cn{font-size:12px;padding:2px 7px 2px 4px}.ccard .cn .ce{font-size:13px}.ccard .cp{font-size:9.5px;padding:2px 6px}.ccard .crown{font-size:15px}.ccard .unl.top{font-size:9.5px;padding:1px 4px}.ccard .lock{font-size:10px;padding:2px 6px}}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous" onerror="this.dataset.failed=1"></script>
 </head>
@@ -448,6 +474,16 @@ const CHARS = {
   gony: { n: '건축학도 고니', e: '👑', d: '황금 캐릭터 · 최강 능력', perk: '👑 모든 통행료 수입 +10% · 월급 +20% · 대출 한도 +10%p', gold: true },
 };
 const AI_KEYS = ['young', 'cash', 'rebuild', 'gangnam'];
+const CIMG = { '': 'new', young: 'young', cash: 'cash', rebuild: 'rebuild', gangnam: 'gangnam', gony: 'gony' };
+const NEWBIE = { n: '새내기 투자자', e: '🙂', d: '기본 캐릭터', perk: '능력 없음 · 순수 실력파' };
+function charCard(k, c, o = {}) {
+  const perk = k ? c.perk.replace(/^\S+\s/, '') : c.perk;
+  const icon = c.perk.match(/^\S+/)[0];
+  return `<button class="ccard ${o.on ? 'on' : ''} ${c.gold ? 'goldc' : ''}" style="background-image:url(assets/ch/${CIMG[k]}.jpg)" onclick="${o.click}" ${o.disabled ? 'disabled' : ''}>
+    ${o.locked ? '<span class="lock">🔒 잠김</span><span class="unl top"><span class="adtag">AD</span>광고 보고 열기</span>' : ''}
+    <div class="cl"><div class="cn">${c.gold ? '<span class="crown">👑</span>' : ''}${o.badge ? `<span class="me">${o.badge}</span>` : ''}${c.gold ? '' : `<span class="ce">${c.e}</span>`}${c.n}</div>
+    <div class="cp">${k ? icon + ' ' : ''}${perk}${o.extra || ''}</div></div></button>`;
+}
 const AI_CHARS = () => AI_KEYS.map(k => [k, CHARS[k]]);
 const gonyOpen = () => store.get('gony', false);
 const DIFF = { easy: ['쉬움', '초보 투자자'], normal: ['보통', '안정형 투자자'], hard: ['어려움', '부동산 고수'] };
@@ -487,16 +523,16 @@ function renderLobby() {
     <h3>닉네임</h3>
     <input class="field" maxlength="8" placeholder="닉네임만 입력하면 바로 시작" value="${esc(L.nick)}" oninput="L.nick=this.value">
     <h3>내 캐릭터 <span style="font-weight:400">(캐릭터마다 능력이 달라요)</span></h3>
-    <div class="chars">${[['', { n: '새내기 투자자', e: '🙂', d: '기본 캐릭터', perk: '능력 없음 · 순수 실력파' }], ['gony', CHARS.gony], ...AI_CHARS()].map(([k, c]) => {
-      if (k === 'gony' && !gonyOpen()) return `<button class="char goldc locked" onclick="unlockGony()"><span class="slot" style="color:#8a5a00">🔒 잠김</span><b>👑 건축학도 고니</b><small style="color:#8a5a00;font-weight:700">${c.perk}</small><span class="unl"><span class="adtag">AD</span>20초 광고 보고 열기</span></button>`;
-      return `<button class="char ${L.myChar === k ? 'on' : ''} ${c.gold ? 'goldc' : ''}" onclick="L.myChar='${k}';store.set('mychar','${k}');fixAiChars();renderLobby()">${L.myChar === k ? '<span class="slot">나</span>' : ''}<b>${c.e} ${c.n}</b><small style="color:${c.gold ? '#8a5a00' : '#c0392b'};font-weight:700">${c.perk}</small></button>`;
+    <div class="chars">${[['', NEWBIE], ['gony', CHARS.gony], ...AI_CHARS()].map(([k, c]) => {
+      if (k === 'gony' && !gonyOpen()) return charCard(k, c, { locked: true, click: 'unlockGony()' });
+      return charCard(k, c, { on: L.myChar === k, badge: L.myChar === k ? '나' : '', click: `L.myChar='${k}';store.set('mychar','${k}');fixAiChars();renderLobby()` });
     }).join('')}</div>
     <h3>총 플레이 인원</h3>
     <div class="seg">${[1, 2, 3].map(n => `<button class="${L.aiCount === n ? 'on' : ''}" onclick="L.aiCount=${n};renderLobby()">${n + 1}명</button>`).join('')}</div>
     <h3>AI 난이도</h3>
     <div class="seg">${Object.entries(DIFF).map(([k, v]) => `<button class="${L.diff === k ? 'on' : ''}" onclick="L.diff='${k}';renderLobby()">${v[0]}<br><small style="font-weight:400;font-size:11px">${v[1]}</small></button>`).join('')}</div>
     <h3>상대 AI 캐릭터 <span style="font-weight:400">(누르면 AI ${L.aiCount}명 순서대로 교체)</span></h3>
-    <div class="chars">${AI_CHARS().map(([k, c]) => `<button class="char ${charSlots[k] ? 'on' : ''}" onclick="pickChar('${k}')" ${L.myChar === k ? 'disabled style="opacity:.35"' : ''}>${charSlots[k] ? `<span class="slot">AI ${charSlots[k].join(',')}</span>` : ''}<b>${c.e} ${c.n}</b><small>${c.d}</small><small style="display:block;color:#c0392b;font-weight:700">${c.perk}</small></button>`).join('')}</div>
+    <div class="chars">${AI_CHARS().map(([k, c]) => charCard(k, c, { on: !!charSlots[k], badge: charSlots[k] ? 'AI ' + charSlots[k].join(',') : '', click: `pickChar('${k}')`, disabled: L.myChar === k })).join('')}</div>
     ` : `
     <div class="seg" style="margin-top:4px"><button class="${L.fsub === 'online' ? 'on' : ''}" onclick="L.fsub='online';renderLobby()">🌐 온라인 매칭<br><small style="font-weight:400;font-size:11px">링크로 들어온 사람끼리</small></button><button class="${L.fsub === 'local' ? 'on' : ''}" onclick="L.fsub='local';renderLobby()">📱 한 기기에서<br><small style="font-weight:400;font-size:11px">돌려가며 플레이</small></button></div>
     ${L.fsub === 'online' ? onlineLobbyHTML() : `
@@ -1684,12 +1720,12 @@ async function joinOnline() {
 }
 function cancelMatch() { netLeave(); renderLobby(); }
 function onlineLobbyHTML() {
-  const list = [['', { n: '새내기 투자자', e: '🙂', perk: '능력 없음 · 순수 실력파' }], ...AI_CHARS()];
+  const list = [['', NEWBIE], ...AI_CHARS()];
   return `
     <h3>닉네임</h3>
     <input class="field" maxlength="8" placeholder="방에서 보일 닉네임" value="${esc(L.nick)}" oninput="L.nick=this.value">
     <h3>내 캐릭터 <span style="font-weight:400">(캐릭터마다 능력이 달라요)</span></h3>
-    <div class="chars">${list.map(([k, c]) => `<button class="char ${L.oChar === k ? 'on' : ''}" onclick="L.oChar='${k}';store.set('ochar','${k}');renderLobby()">${L.oChar === k ? '<span class="slot">나</span>' : ''}<b>${c.e} ${c.n}</b><small style="color:#c0392b;font-weight:700">${c.perk}</small></button>`).join('')}</div>
+    <div class="chars">${list.map(([k, c]) => charCard(k, c, { on: L.oChar === k, badge: L.oChar === k ? '나' : '', click: `L.oChar='${k}';store.set('ochar','${k}');renderLobby()` })).join('')}</div>
     <p class="note" style="margin-top:8px">🌐 이 링크로 들어온 사람끼리 <b>접속한 순서대로 4명씩 방</b>이 만들어져요 (1번방, 2번방…). 2명 이상 모이면 30초 뒤 자동 시작, 4명이 차면 바로 시작해요.<br>⏱️ 턴마다 30초 제한 · 연결이 끊긴 사람은 AI가 대신 플레이해요.<br>👑 황금 캐릭터 고니는 공정성을 위해 친구 대전에서 쓸 수 없어요.${SRV ? '' : '<br><b style="color:#d62828">이 링크에서는 온라인 서버에 연결할 수 없어요. 정식 게임 링크에서 이용해 주세요.</b>'}</p>`;
 }
 function renderMatch() {
