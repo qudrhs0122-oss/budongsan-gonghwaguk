@@ -150,7 +150,8 @@ function handleMsg(c, m) {
 }
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://x');
+  let url;
+  try { url = new URL(req.url.replace(/^\/+/, '/'), 'http://x'); } catch (e) { res.writeHead(400); return res.end(); }
   const p = url.pathname;
 
   // 실시간 받기 (SSE)
@@ -208,7 +209,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 정적 파일
-  let fp = path.normalize(path.join(PUBLIC, decodeURIComponent(p === '/' ? '/index.html' : p)));
+  let rel; try { rel = decodeURIComponent(p === '/' ? '/index.html' : p); } catch (e) { res.writeHead(400); return res.end(); }
+  let fp = path.normalize(path.join(PUBLIC, rel));
   if (!fp.startsWith(PUBLIC)) { res.writeHead(403); return res.end(); }
   fs.stat(fp, (err, st) => {
     if (err || !st.isFile()) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Not found'); }
@@ -218,4 +220,5 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
+process.on('uncaughtException', e => console.error('uncaught', e));
 server.listen(PORT, () => console.log(`부동산 공화국 서버 실행 중: http://localhost:${PORT}`));

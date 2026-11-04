@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>부동산 공화국 — 대한민국 아파트 대장단지 부루마블</title>
+<meta name="description" content="실제 아파트 대장단지 30곳과 실거래가로 즐기는 무료 부루마블 웹게임. 대출·금리·토지거래허가·규제 이벤트, AI 대전과 온라인 친구 대전, 주간 랭킹.">
+<link rel="canonical" href="https://aptgame.kr/">
+<meta property="og:title" content="부동산 공화국 — 대한민국 아파트 부루마블"><meta property="og:description" content="원베일리·아리팍·잠실엘스를 사고팔아 부동산 재벌이 되어보세요. AI 대전·온라인 친구 대전 무료."><meta property="og:image" content="https://aptgame.kr/assets/hero.jpg"><meta property="og:url" content="https://aptgame.kr/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
@@ -453,11 +456,31 @@ body{background:linear-gradient(180deg,#22397a 0%,#4b67ad 28%,#c9b6c4 60%,#f2d9c
 .gmsub.anim{animation:gmdrop .28s ease-out}
 .gmsubh{font-size:12.5px;font-weight:900;color:#a3121b;margin:0 0 8px 4px}
 @keyframes gmdrop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.sitefoot{max-width:760px;margin:18px auto 30px;padding:16px 18px;background:rgba(255,255,255,.85);border-radius:18px;font-size:13.5px;line-height:1.7;color:#4a4436}
+.sitefoot h2{font-size:17px;margin:0 0 6px;color:#1f2547}
+.sitefoot ul{padding-left:18px;margin:6px 0}
+.sitefoot nav{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.sitefoot nav a{background:#f5efe4;border-radius:10px;padding:5px 10px;text-decoration:none;color:#3a2e1e;font-weight:700}
+.sitefoot .small{font-size:11.5px;color:#8a7f6a}
+body.ingame .sitefoot{display:none}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous" onerror="this.dataset.failed=1"></script>
 </head>
 <body>
-<div id="app"></div>
+<div id="app"><noscript>부동산 공화국은 자바스크립트가 필요한 웹게임입니다.</noscript></div>
+<section class="sitefoot">
+  <h2>부동산 공화국 — 대한민국 아파트 부루마블</h2>
+  <p>부동산 공화국은 래미안 원베일리, 아크로리버파크, 잠실엘스, 마포래미안푸르지오, 해운대 엘시티 등 서울·수도권·지방 대표 아파트 30곳을 사고팔며 순자산을 겨루는 무료 웹 보드게임입니다. 단지 매입가는 국토교통부 실거래가를 참고한 전용 84㎡ 기준 가격이고, 가격이 낮은 단지부터 높은 단지 순서로 게임판을 한 바퀴 돕니다.</p>
+  <p>주사위를 굴려 단지를 사고, 같은 급지 3곳을 모아 통행료를 1.5배로 올리고, 리모델링·고층 증축·랜드마크로 건물을 키우세요. 매입가의 40%까지 대출을 받을 수 있지만 차례마다 5% 이자가 나가고, 10라운드마다 찾아오는 토지거래허가구역과 대출규제·금리상승·취득세 중과·보유세 중과 같은 정부 발표가 판을 뒤흔듭니다.</p>
+  <ul>
+    <li><b>AI 대전</b> — 난이도와 상대 캐릭터를 골라 혼자 즐기기</li>
+    <li><b>온라인 친구 대전</b> — 같은 링크로 들어온 사람끼리 4명씩 실시간 대결</li>
+    <li><b>캐릭터 6종</b> — 영끌 김대리, 현금왕 박사장, 재건축 이회장, 강남불패 최대표, 새내기 투자자, 황금 캐릭터 건축학도 고니</li>
+    <li><b>주간 랭킹</b> — 게임이 끝날 때의 순자산이 닉네임별로 일주일간 누적</li>
+  </ul>
+  <nav><a href="/guide.html">📖 게임 방법</a><a href="/apartments.html">🏢 단지 도감</a><a href="/glossary.html">📚 부동산 용어 사전</a><a href="/about.html">ℹ️ 소개</a><a href="/privacy.html">개인정보처리방침</a></nav>
+  <p class="small">게임 속 통행료·이벤트·수익은 가상 수치이며 투자 권유나 시세 예측이 아닙니다. 단지 그림은 일러스트입니다. © 2026 부동산 공화국 (aptgame.kr)</p>
+</section>
 <div class="sheet" id="sheet"></div>
 <div class="modal" id="modal"></div>
 
@@ -622,6 +645,7 @@ function setLen(k) {
   box.querySelectorAll('.gll').forEach(el => el.classList.toggle('on', +el.dataset.k === k));
 }
 function renderLobby() {
+  document.body.classList.remove('ingame');
   RUN++;
   S = null;
   closeSheet();
@@ -750,6 +774,7 @@ function cellRC(i) {
   return [i - 29, 11];
 }
 function renderGame() {
+  document.body.classList.add('ingame');
   $('#app').innerHTML = `
   <div class="top">
     <img class="brand" src="assets/logo.png" alt="부동산 공화국">
@@ -1707,6 +1732,7 @@ function finish() {
   if (!S || S.over) return;
   S.over = true; RUN++;
   closeSheet();
+  document.body.classList.remove('ingame');
   const rank = [...S.players].sort((a, b) => {
     if (a.bankrupt !== b.bankrupt) return a.bankrupt ? 1 : -1;
     if (a.bankrupt) return b.outAt - a.outAt;
@@ -1847,6 +1873,7 @@ function onlineLobbyHTML() {
     <p class="note" style="margin-top:8px">🌐 이 링크로 들어온 사람끼리 <b>접속한 순서대로 4명씩 방</b>이 만들어져요 (1번방, 2번방…). 2명 이상 모이면 30초 뒤 자동 시작, 4명이 차면 바로 시작해요.<br>⏱️ 턴마다 30초 제한 · 연결이 끊긴 사람은 AI가 대신 플레이해요.<br>👑 황금 캐릭터 고니는 공정성을 위해 친구 대전에서 쓸 수 없어요.${SRV ? '' : '<br><b style="color:#d62828">이 링크에서는 온라인 서버에 연결할 수 없어요. 정식 게임 링크에서 이용해 주세요.</b>'}</p>`;
 }
 function renderMatch() {
+  document.body.classList.add("ingame");
   const r = NET.roster;
   const me = r && r.players.find(p => p.cid === NET.cid);
   const host = r && r.host === NET.cid;
