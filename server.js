@@ -8,6 +8,36 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const https = require('https');
+// 재건축 조합장 키우기: GitHub Pages(johapjang-game 저장소)를 실시간으로 가져와 /johapjang/ 에서 보여줌
+const JH_ORIGIN = process.env.JOHAPJANG_ORIGIN || 'https://qudrhs0122-oss.github.io/johapjang-game';
+const JH_OG = '<meta property="og:type" content="website"><meta property="og:site_name" content="aptgame.kr"><meta property="og:title" content="재건축 조합장 키우기 | 부동산공화국"><meta property="og:description" content="10년 뒤 입주할 수 있을까, 아니면 먼저 해임당할까? 선택형 재건축 경영 시뮬레이션"><meta property="og:url" content="https://aptgame.kr/johapjang/"><meta property="og:image" content="https://aptgame.kr/assets/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://aptgame.kr/johapjang/"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous"></script>';
+function proxyJohapjang(rest, res, fallback) {
+  const url = JH_ORIGIN + '/' + rest + (rest === '' ? '' : '');
+  const lib = url.startsWith('https:') ? https : http;
+  let done = false;
+  const fail = () => { if (!done) { done = true; fallback(); } };
+  const rq = lib.get(url, { headers: { 'User-Agent': 'aptgame-proxy' }, timeout: 8000 }, up => {
+    if (up.statusCode !== 200) { up.resume(); return fail(); }
+    done = true;
+    const ct = up.headers['content-type'] || 'application/octet-stream';
+    const isHtml = rest === '' || rest.endsWith('.html');
+    if (!isHtml) {
+      res.writeHead(200, { 'Content-Type': ct, 'Cache-Control': 'public, max-age=300' });
+      return up.pipe(res);
+    }
+    let b = ''; up.setEncoding('utf8');
+    up.on('data', d => { b += d; });
+    up.on('end', () => {
+      b = b.replace(/<meta (property="og:[^"]+"|name="twitter:[^"]+") content="[^"]*">\s*/g, '');
+      b = b.replace('</title>', '</title>' + JH_OG);
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' });
+      res.end(b);
+    });
+  });
+  rq.on('timeout', () => { rq.destroy(); fail(); });
+  rq.on('error', fail);
+}
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC = path.join(__dirname, 'public');
@@ -150,6 +180,18 @@ function handleMsg(c, m) {
   }
 }
 
+function serveStatic(p, res) {
+  let rel; try { rel = decodeURIComponent(p === '/' ? '/index.html' : p); } catch (e) { res.writeHead(400); return res.end(); }
+  let fp = path.normalize(path.join(PUBLIC, rel));
+  if (!fp.startsWith(PUBLIC)) { res.writeHead(403); return res.end(); }
+  fs.stat(fp, (err, st) => {
+    if (err || !st.isFile()) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Not found'); }
+    const ext = path.extname(fp).toLowerCase();
+    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600' });
+    fs.createReadStream(fp).pipe(res);
+  });
+}
+
 const server = http.createServer(async (req, res) => {
   let url;
   try { url = new URL(req.url.replace(/^\/+/, '/'), 'http://x'); } catch (e) { res.writeHead(400); return res.end(); }
@@ -215,17 +257,14 @@ const server = http.createServer(async (req, res) => {
     p = '/game.html';
   }
   if (p === '/johapjang') { res.writeHead(301, { Location: '/johapjang/' }); return res.end(); }
+  if (p.startsWith('/johapjang/') && !p.includes('..')) {
+    const rest = p.slice('/johapjang/'.length).replace(/^index\.html$/, '');
+    const local = p.endsWith('/') ? p + 'index.html' : p;
+    return proxyJohapjang(rest, res, () => serveStatic(local, res));
+  }
   if (p.endsWith('/') && p !== '/') p += 'index.html';
   // 정적 파일
-  let rel; try { rel = decodeURIComponent(p === '/' ? '/index.html' : p); } catch (e) { res.writeHead(400); return res.end(); }
-  let fp = path.normalize(path.join(PUBLIC, rel));
-  if (!fp.startsWith(PUBLIC)) { res.writeHead(403); return res.end(); }
-  fs.stat(fp, (err, st) => {
-    if (err || !st.isFile()) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Not found'); }
-    const ext = path.extname(fp).toLowerCase();
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600' });
-    fs.createReadStream(fp).pipe(res);
-  });
+  serveStatic(p, res);
 });
 
 process.on('uncaughtException', e => console.error('uncaught', e));
