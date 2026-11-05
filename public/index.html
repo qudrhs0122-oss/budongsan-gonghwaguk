@@ -8,8 +8,25 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#2a2116;line-height:1.7;background:radial-gradient(120% 80% at 50% 0%,#dfe8ff 0%,#f4efe6 55%,#f7f2ea 100%);min-height:100vh}
-.wrap{max-width:900px;margin:0 auto;padding:22px 16px 30px}
+body{margin:0;background-color:#2b2440;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#2a2116;line-height:1.7;background:#f4efe6;min-height:100vh;overflow-x:hidden}
+.wrap{max-width:1100px;margin:0 auto;padding:0 0 30px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.heroband{position:relative;width:100vw;margin-left:calc(50% - 50vw);overflow:hidden;background:#2b2440}
+.heroband::before{content:"";position:absolute;inset:-30px;background:url(/assets/landing.jpg) center/cover;filter:blur(24px) brightness(.8)}
+.hero-d{position:relative;line-height:0;max-width:1100px;margin:0 auto;box-shadow:0 0 40px rgba(0,0,0,.35)}
+.hero-d img{width:100%;height:auto;display:block}
+.hs{position:absolute;border-radius:3%;transition:box-shadow .2s,transform .2s}
+.hs:hover{box-shadow:0 0 0 4px rgba(255,214,120,.9),0 0 40px rgba(255,200,80,.6)}
+.hs.jh{left:3.7%;top:36.1%;width:45.5%;height:58.5%}
+.hs.bm{left:51%;top:36.1%;width:45.6%;height:58.5%}
+.hero-m{display:none;background:linear-gradient(180deg,#2b2440,#3b2f52 85%,#f4efe6);padding-bottom:4px}
+.hero-m img{width:100%;height:auto;display:block}
+.hero-m .mc{display:block;margin:6px 10px 12px;border-radius:18px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.hero-m .mc:active{transform:scale(.98)}
+.intro{margin-top:22px}
+.intro,.adbox,footer{margin-left:16px;margin-right:16px}
+@media(max-width:700px){.heroband{display:none}}
+@media(max-width:700px){.hero-d{display:none}.hero-m{display:block}}
 .top{text-align:center;margin:10px 0 18px}
 .top .dom{display:inline-block;background:#1f2547;color:#fff;font-weight:900;font-size:13px;letter-spacing:.5px;padding:4px 12px;border-radius:20px}
 .top h1{margin:10px 0 4px;font-size:30px;line-height:1.25;letter-spacing:-1px;color:#1f2547}
@@ -46,32 +63,17 @@ footer a{color:#8a7f6a}
 @media(max-width:640px){.games{grid-template-columns:1fr}.top h1{font-size:25px}}
 </style></head>
 <body><div class="wrap">
-  <header class="top">
-    <span class="dom">aptgame.kr</span>
-    <h1>부동산으로 노는 <em>게임 놀이터</em></h1>
-    <p>하고 싶은 게임을 골라 주세요. 가입 없이 바로 시작!</p>
-  </header>
-
-  <section class="games">
-    <a class="g bm" href="/bluemarble">
-      <div class="art" style="background-image:url(/assets/hero.jpg)"><span class="badge">🎲 보드게임</span></div>
-      <div class="body">
-        <h2>부동산 공화국<small>대한민국 아파트 부루마블</small></h2>
-        <p>원베일리·아리팍·잠실엘스 같은 대장단지 30곳을 사고팔아 순자산 1위를 노려요. 대출, 금리, 토지거래허가 이벤트가 판을 뒤집어요.</p>
-        <div class="tags"><span>AI 대전</span><span>온라인 친구 대전</span><span>주간 랭킹</span></div>
-        <span class="play">부동산 공화국 하기 →</span>
-      </div>
-    </a>
-    <a class="g jh" href="/johapjang/">
-      <div class="art"><span class="badge">🏗️ 경영 시뮬</span><img class="i1" src="/johapjang/img/bandae.webp" alt=""><img class="i2" src="/johapjang/img/player_f.webp" alt=""><img class="i3" src="/johapjang/img/player_m.webp" alt=""><span class="sign">재건축은 처음이라</span></div>
-      <div class="body">
-        <h2>재건축 조합장 키우기<small>선택형 재건축 경영 시뮬레이션</small></h2>
-        <p>낡은 아파트의 초보 조합장이 되어 동의서 걷기부터 시공사 선정, 관리처분, 입주까지! 분담금과 비대위 사이에서 살아남으세요.</p>
-        <div class="tags"><span>스토리 선택</span><span>퀴즈 보상</span><span>멀티 엔딩</span></div>
-        <span class="play">조합장 키우기 하기 →</span>
-      </div>
-    </a>
-  </section>
+  <h1 class="sr">aptgame.kr 대한민국 부동산 게임즈 — 재건축 조합장 키우기 · 대한민국 부동산 부루마블</h1>
+  <div class="heroband"><div class="hero-d">
+    <img src="/assets/landing.jpg" alt="대한민국 부동산 게임즈: 재건축 조합장 키우기와 대한민국 부동산 부루마블">
+    <a class="hs jh" href="/johapjang/" aria-label="재건축 조합장 키우기 게임 시작하기"></a>
+    <a class="hs bm" href="/bluemarble" aria-label="대한민국 부동산 부루마블 게임 시작하기"></a>
+  </div></div>
+  <div class="hero-m">
+    <img class="mt" src="/assets/landing_top.jpg" alt="대한민국 부동산 게임즈">
+    <a class="mc" href="/johapjang/"><img src="/assets/landing_jh.jpg" alt="재건축 조합장 키우기 — 게임 시작하기"></a>
+    <a class="mc" href="/bluemarble"><img src="/assets/landing_bm.jpg" alt="대한민국 부동산 부루마블 — 게임 시작하기"></a>
+  </div>
 
   <section class="intro">
     <h2>aptgame.kr은 어떤 곳인가요?</h2>
