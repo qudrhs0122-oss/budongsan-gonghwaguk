@@ -14,6 +14,7 @@ const PUBLIC = path.join(__dirname, 'public');
 const RANK_FILE = path.join(__dirname, 'ranking.json');
 const ROOM_SIZE = 4;
 const DEFAULT_PUB = 'ca-pub-2150655592231599'; // 애드센스 게시자 ID
+const DEFAULT_BANNER_SLOT = '4104692035';      // 애드센스 '게임 배너' 광고 단위
 const AUTO_START_MS = 30000;      // 2명 이상 모이면 30초 뒤 시작
 const RECONNECT_MS = 60000;       // 게임 중 연결 끊김 허용 시간
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp' };
@@ -189,7 +190,7 @@ const server = http.createServer(async (req, res) => {
   // 광고 설정 (Render 환경변수로 관리 — 코드 수정 없이 켜고 끌 수 있음)
   if (p === '/api/config') {
     const client = (process.env.ADSENSE_CLIENT || DEFAULT_PUB).trim();
-    return json(res, 200, { ads: { client: /^ca-pub-\d{10,20}$/.test(client) ? client : '', test: process.env.ADSENSE_TEST === 'on', h5: process.env.ADSENSE_H5 === 'on', bannerSlot: (process.env.ADSENSE_BANNER_SLOT || '').replace(/\D/g, '') } });
+    return json(res, 200, { ads: { client: /^ca-pub-\d{10,20}$/.test(client) ? client : '', test: process.env.ADSENSE_TEST === 'on', h5: process.env.ADSENSE_H5 === 'on', bannerSlot: (process.env.ADSENSE_BANNER_SLOT || DEFAULT_BANNER_SLOT).replace(/\D/g, '') } });
   }
   if (p === '/ads.txt') {
     const pub = (process.env.ADSENSE_CLIENT || DEFAULT_PUB).replace(/^ca-/, '').trim();

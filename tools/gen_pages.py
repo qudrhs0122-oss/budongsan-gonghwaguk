@@ -30,13 +30,14 @@ def page(fn, title, desc, body):
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous"></script>
 </head><body>
 <header class="top"><a class="brand" href="/"><img src="/assets/logo.png" alt="부동산 공화국"></a><nav>{nav}</nav></header>
-<main class="doc">{body}</main>
+<main class="doc">{body}{"" if fn == "privacy.html" else AD}</main>
 <footer class="foot"><nav>{nav}<a href="/privacy.html">개인정보처리방침</a></nav>
 <p>부동산 공화국은 실제 아파트 시세를 소재로 한 무료 웹 보드게임입니다. 게임 속 통행료·이벤트·수익은 가상 수치이며 투자 권유나 시세 예측이 아닙니다.<br>매입가는 국토교통부 실거래가 공개자료를 참고한 값이며, 단지 그림은 일러스트입니다. 건설사 로고와 실제 사진은 사용하지 않습니다.</p>
 <p>최종 업데이트 {TODAY} · © 2026 부동산 공화국 (aptgame.kr)</p></footer>
 </body></html>'''
     open(f'{ROOT}/{fn}', 'w', encoding='utf-8').write(out)
 
+AD = '<div class="adbox"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2150655592231599" data-ad-slot="4104692035" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>'
 CTA = '<p class="cta"><a href="/" class="btn">🎲 지금 바로 한 판 하기</a></p>'
 
 # ---------------- 게임 방법 ----------------
