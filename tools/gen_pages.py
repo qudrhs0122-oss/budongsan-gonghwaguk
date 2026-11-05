@@ -25,7 +25,7 @@ def page(fn, title, desc, body):
 <title>{e(title)} | 부동산 공화국</title>
 <meta name="description" content="{e(desc)}">
 <link rel="canonical" href="{SITE}/{fn}">
-<meta property="og:title" content="{e(title)} | 부동산 공화국"><meta property="og:description" content="{e(desc)}"><meta property="og:type" content="article"><meta property="og:url" content="{SITE}/{fn}">
+<meta property="og:type" content="article"><meta property="og:site_name" content="aptgame.kr"><meta property="og:title" content="{e(title)} | 부동산공화국"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{SITE}/{fn}"><meta property="og:image" content="https://aptgame.kr/assets/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="/page.css">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous"></script>
 </head><body>
