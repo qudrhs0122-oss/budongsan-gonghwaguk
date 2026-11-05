@@ -153,7 +153,7 @@ function handleMsg(c, m) {
 const server = http.createServer(async (req, res) => {
   let url;
   try { url = new URL(req.url.replace(/^\/+/, '/'), 'http://x'); } catch (e) { res.writeHead(400); return res.end(); }
-  const p = url.pathname;
+  let p = url.pathname;
 
   // 실시간 받기 (SSE)
   if (p === '/events') {
@@ -209,6 +209,13 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { ok: addResults(b.list, ip) });
   }
 
+  // 게임 주소
+  if (p === '/bluemarble' || p === '/bluemarble/') {
+    if (p.endsWith('/')) { res.writeHead(301, { Location: '/bluemarble' }); return res.end(); }
+    p = '/game.html';
+  }
+  if (p === '/johapjang') { res.writeHead(301, { Location: '/johapjang/' }); return res.end(); }
+  if (p.endsWith('/') && p !== '/') p += 'index.html';
   // 정적 파일
   let rel; try { rel = decodeURIComponent(p === '/' ? '/index.html' : p); } catch (e) { res.writeHead(400); return res.end(); }
   let fp = path.normalize(path.join(PUBLIC, rel));

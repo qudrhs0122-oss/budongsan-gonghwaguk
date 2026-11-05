@@ -2,7 +2,7 @@
 # 부동산 공화국 콘텐츠 페이지 생성기 (애드센스 '게시자 콘텐츠' 보강용)
 import re, json, html, os
 ROOT = '/home/claude/budongsan-gonghwaguk/public'
-src = open(f'{ROOT}/index.html', encoding='utf-8').read()
+src = open(f'{ROOT}/game.html', encoding='utf-8').read()
 RAW = re.findall(r"\['prop', '([^']+)', ([\d.]+), (\d), '([^']+)', '(\w*)', '([^']+)'\]", src)
 CINFO = json.loads(re.search(r"const CINFO = (\{.*?\});", src).group(1))
 GROUPS = re.findall(r"\{ n: '(\d+급지)', c: '(#[0-9a-f]+)' \}", src)
@@ -15,10 +15,10 @@ SITE = 'https://aptgame.kr'
 TODAY = '2026-11-04'
 e = html.escape
 
-NAV = [('index.html', '🎲 게임하기'), ('guide.html', '게임 방법'), ('apartments.html', '단지 도감'), ('glossary.html', '부동산 용어'), ('about.html', '소개')]
+NAV = [('index.html', '🏠 게임 고르기'), ('bluemarble', '🎲 부동산 공화국'), ('guide.html', '게임 방법'), ('apartments.html', '단지 도감'), ('glossary.html', '부동산 용어'), ('about.html', '소개')]
 
 def page(fn, title, desc, body):
-    nav = ''.join(f'<a href="/{h if h != "index.html" else ""}" class="{"on" if h == fn else ""}">{t}</a>' for h, t in NAV)
+    nav = ''.join(f'<a href="/{h if h != "index.html" else ""}" class="{"on" if h == fn else ""}">{t}</a>' for h, t in NAV) + '<a href="/johapjang/">🏗️ 조합장 키우기</a>'
     out = f'''<!DOCTYPE html>
 <html lang="ko"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -38,7 +38,7 @@ def page(fn, title, desc, body):
     open(f'{ROOT}/{fn}', 'w', encoding='utf-8').write(out)
 
 AD = '<div class="adbox"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2150655592231599" data-ad-slot="4104692035" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>'
-CTA = '<p class="cta"><a href="/" class="btn">🎲 지금 바로 한 판 하기</a></p>'
+CTA = '<p class="cta"><a href="/bluemarble" class="btn">🎲 지금 바로 한 판 하기</a></p>'
 
 # ---------------- 게임 방법 ----------------
 guide = f'''
@@ -235,6 +235,6 @@ page('privacy.html', '개인정보처리방침', '부동산 공화국 개인정�
 
 # ---------------- robots / sitemap ----------------
 open(f'{ROOT}/robots.txt', 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n')
-urls = ['', 'guide.html', 'apartments.html', 'glossary.html', 'about.html', 'privacy.html']
+urls = ['', 'bluemarble', 'johapjang/', 'guide.html', 'apartments.html', 'glossary.html', 'about.html', 'privacy.html']
 open(f'{ROOT}/sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'<url><loc>{SITE}/{u}</loc><lastmod>{TODAY}</lastmod></url>\n' for u in urls) + '</urlset>\n')
 print('pages ok', len(RAW), 'apts')

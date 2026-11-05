@@ -6,7 +6,7 @@ a{color:#c0392b}
 .top nav,.foot nav{display:flex;gap:4px;flex-wrap:wrap}
 .top nav a,.foot nav a{padding:5px 10px;border-radius:10px;text-decoration:none;color:#3a3f5c;font-size:14px;font-weight:700}
 .top nav a.on{background:#1f2547;color:#fff}
-.top nav a:first-child{background:#e8553d;color:#fff}
+.top nav a:nth-child(2){background:#e8553d;color:#fff}
 .doc{max-width:860px;margin:18px auto;padding:22px 18px 30px;background:#fff;border-radius:20px;box-shadow:0 4px 18px rgba(60,40,10,.08)}
 h1{font-size:27px;line-height:1.35;margin:4px 0 10px;color:#1f2547;letter-spacing:-.5px}
 h2{font-size:21px;margin:30px 0 8px;color:#1f2547;padding-bottom:6px;border-bottom:2px solid #f0e6d6}
