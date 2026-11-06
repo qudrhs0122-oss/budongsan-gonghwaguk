@@ -282,8 +282,8 @@ body:has(.cxpage){background:linear-gradient(180deg,#dfe2f3 0,#efe6ee 300px,#f3e
 .act.on{border-color:#e2b04d!important;background:linear-gradient(180deg,#fff6df,#fdebc2)!important;box-shadow:0 0 0 2px #f2c94c66,0 4px 12px rgba(200,150,40,.25)!important}.act.on .chk{transform:scale(1)}
 .act:active{transform:scale(.96)}
 /* 단지 카드 */
-.cxhead .laurel{position:absolute;left:4px;top:14px;width:72px;opacity:.95}.cxhead h2,.cxhead p{position:relative;margin-left:62px!important}
-.cxtw{display:flex;align-items:center;gap:10px}.cxbld{width:78px;flex:none;border-right:1px solid #0000001a;padding-right:8px}
+.cxhead{aspect-ratio:auto!important;min-height:200px}.cxhead .laurel{position:absolute;left:4px;top:14px;width:72px;opacity:.95}.cxhead h2,.cxhead p{position:relative;margin-left:66px!important}.cxhead p{max-width:62%!important}
+.cxtw{display:flex;align-items:center;gap:10px}.cxbld{width:78px;max-height:70px;object-fit:contain;flex:none;border-right:1px solid #0000001a;padding-right:8px}
 .cxnw{flex:1;min-width:0}.cxnw .cxn{display:inline}.cxnw .cxs{float:right;margin-top:4px}.cxnw .cxmeta{clear:both;margin-top:2px}
 .cxpage .cxnums div{text-align:center;box-shadow:0 2px 6px rgba(120,80,40,.08)}.cxpage .cxnums span{display:flex;align-items:center;justify-content:center;gap:3px}.cxpage .cxnums span img{width:22px;height:20px;object-fit:contain}
 .cxpage .cxnums i{border-top:1px solid #0000000f;padding-top:4px;margin-top:2px}
@@ -1736,7 +1736,7 @@ renderEnding=function(){ const done=!FAILS[S.ending||""]&&S.ending!=="resign";
 
 // ===================== UI 2.1 — 일러스트 HUD·카드 + 클릭/페이지 전환 효과 =====================
 const ACT_IMG={town:"a_mic",study:"a_book",nego:"a_hand",budget:"a_doc",admin:"a_folder",meet:"a_thumb",press:"a_tv",family:"a_home"};
-const CX_IMG={daechi:"bld1",jamsil:"bld2",apgu:"bld1",yeouido:"bld2",mokdong:"bld1",sanggye:"bld1"};
+const CX_IMG={daechi:"bld1",jamsil:"bld2",apgu:"b_apgu",yeouido:"b_yeouido",mokdong:"b_mokdong",sanggye:"b_sanggye"};
 const ui=n=>`img/ui/${n}.webp`;
 hud=function(){
   const e=econ(S), rise=(e.dues-S.dues0)/S.dues0*100, c=CHAPTERS[chNo()], rt=S.mode==="real";
@@ -1748,6 +1748,7 @@ hud=function(){
    <div class="er2"><div class="s">비례율 · 사업성</div><div class="v"><span id="ratioV">${e.ratio.toFixed(1)}%</span> <span id="viaV" class="pill2 g ${viability()[1]}">${viability()[0]}</span></div></div></div>
    <div class="fin-tick">🏛️ 금융비용 <b id="finV">${(S.finance*CX(S).cs).toFixed(2)}억</b>${rt?` <span class="up">▲ 하루 +${(perDay()*CX(S).cs).toFixed(3)}억</span>`:` <span class="small">분기마다 정산</span>`}<span class="s" style="float:right">탭하면 재무 ›</span></div></div>`;
 };
+function tagIc(x){for(const [r,i] of [[/위험|무산/,"⚠️"],[/지옥|난이도/,"🔥"],[/학원|학군|교육/,"🎓"],[/부촌/,"💎"],[/상징|랜드/,"👑"],[/고령/,"👴"],[/오래된|\(19/,"🕰️"],[/주차|녹물|단수/,"🚿"],[/기획/,"📐"],[/평형|대지지분/,"📏"],[/1호|타자|최초/,"🥇"],[/공사비|분담금|평당|원대/,"💰"],[/한강|강변/,"〰️"],[/층|타워/,"🏙️"],[/이주|세대|가구|전세/,"👥"],[/상가|권리/,"🏪"]]) if(r.test(x)) return i; return "📍";}
 function decorate(){
   const app=$("#app"); if(!app) return;
   // 일정 카드: 아이콘 타일 + 체크
@@ -1761,7 +1762,7 @@ function decorate(){
     const t=cd.querySelector(".cxtop"), m=cd.querySelector(".cxmeta"); const w=document.createElement("div"); w.className="cxtw"; t.after(w);
     const n=t.querySelector(".cxn"), s=t.querySelector(".cxs"); const tn=document.createElement("div"); tn.className="cxnw"; tn.append(n,s); w.append(t.querySelector(".cxbld"),tn); t.remove(); if(m) tn.append(m);
     cd.querySelectorAll(".cxnums > div").forEach((d,i)=>d.querySelector("span").insertAdjacentHTML("afterbegin",`<img src="${ui(["i_house","i_coin","i_chart"][i])}" alt="">`));
-    cd.querySelectorAll(".cxtags span").forEach(s=>{const x=s.textContent; s.insertAdjacentHTML("afterbegin",`<em>${/상징|신|랜드/.test(x)&&!/층/.test(x)?"👑":/학원|학군|교육/.test(x)?"🎓":/한강|강|리버/.test(x)?"〰️":/층|타워|초고층/.test(x)?"🏙️":/이주|세대|가구|전세/.test(x)?"👥":/상가|권리/.test(x)?"🏪":"📍"}</em>`);});
+    cd.querySelectorAll(".cxtags span").forEach(s=>{const x=s.textContent; s.insertAdjacentHTML("afterbegin",`<em>${tagIc(x)}</em>`);});
     const nt=cd.querySelector(".cxnote"); if(nt) nt.insertAdjacentHTML("afterbegin",`<img src="${ui("clip")}" alt=""><i></i>`);
   });
   // 선택지 순차 등장
