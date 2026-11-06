@@ -13,7 +13,8 @@ const https = require('https');
 const JH_ORIGIN = process.env.JOHAPJANG_ORIGIN || 'https://qudrhs0122-oss.github.io/johapjang-game';
 const JH_OG = '<meta property="og:type" content="website"><meta property="og:site_name" content="aptgame.kr"><meta property="og:title" content="재건축 조합장 키우기 | 부동산공화국"><meta property="og:description" content="10년 뒤 입주할 수 있을까, 아니면 먼저 해임당할까? 선택형 재건축 경영 시뮬레이션"><meta property="og:url" content="https://aptgame.kr/johapjang/"><meta property="og:image" content="https://aptgame.kr/assets/og2.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://aptgame.kr/johapjang/"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous"></script>';
 function proxyJohapjang(rest, res, fallback) {
-  const url = JH_ORIGIN + '/' + rest + (rest === '' ? '' : '');
+  // 깃허브 페이지 CDN 캐시(최대 10분)를 피하려고 30초 단위 버전 쿼리를 붙임 → 수정 후 30초 안에 반영
+  const url = JH_ORIGIN + '/' + rest + '?v=' + Math.floor(Date.now() / 30000);
   const lib = url.startsWith('https:') ? https : http;
   let done = false;
   const fail = () => { if (!done) { done = true; fallback(); } };
