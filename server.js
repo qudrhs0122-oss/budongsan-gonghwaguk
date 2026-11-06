@@ -119,6 +119,22 @@ function leaveRoom(cid, reason) {
   }
 }
 
+/* ---------------- 광고 통계 (일별 노출·제안·시청 횟수) ---------------- */
+const STAT_FILE = path.join(__dirname, 'stats.json');
+let stats = {}; try { stats = JSON.parse(fs.readFileSync(STAT_FILE, 'utf8')) || {}; } catch (e) {}
+let statT = null;
+function dayKey() { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }
+function addStat(g, ev, k) {
+  if (!/^[a-z]{2,20}$/.test(g) || !/^[a-z_]{2,30}$/.test(ev)) return false;
+  const d = dayKey(), key = k && /^[a-z0-9_]{1,30}$/.test(k) ? ev + ':' + k : ev;
+  const day = (stats[d] = stats[d] || {}); const gg = (day[g] = day[g] || {});
+  if (Object.keys(gg).length > 300) return false;
+  gg[key] = (gg[key] || 0) + 1;
+  const keys = Object.keys(stats).sort(); while (keys.length > 120) delete stats[keys.shift()];
+  clearTimeout(statT); statT = setTimeout(() => fs.writeFile(STAT_FILE, JSON.stringify(stats), () => {}), 2000);
+  return true;
+}
+
 /* ---------------- 랭킹 ---------------- */
 function weekKey(d = new Date()) {
   const k = new Date(d.getTime() + 9 * 3600 * 1000); // 한국 시간 기준
@@ -235,6 +251,11 @@ const server = http.createServer(async (req, res) => {
     const client = (process.env.ADSENSE_CLIENT || DEFAULT_PUB).trim();
     return json(res, 200, { ads: { client: /^ca-pub-\d{10,20}$/.test(client) ? client : '', test: process.env.ADSENSE_TEST === 'on', h5: process.env.ADSENSE_H5 === 'on', bannerSlot: (process.env.ADSENSE_BANNER_SLOT || DEFAULT_BANNER_SLOT).replace(/\D/g, '') } });
   }
+  if (p === '/api/stat' && req.method === 'POST') {
+    const b = await body(req);
+    return json(res, 200, { ok: addStat(String(b.g || ''), String(b.ev || ''), String(b.k || '')) });
+  }
+  if (p === '/api/stats') return json(res, 200, stats);
   if (p === '/ads.txt') {
     const pub = (process.env.ADSENSE_CLIENT || DEFAULT_PUB).replace(/^ca-/, '').trim();
     res.writeHead(pub ? 200 : 404, { 'Content-Type': 'text/plain; charset=utf-8' });
