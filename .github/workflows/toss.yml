@@ -1,0 +1,31 @@
+name: 토스 미니앱 빌드 (aptgame 전체)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['public/**', 'toss/**', '.github/workflows/toss.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: toss } }
+    env:
+      AIT_API_KEY: ${{ secrets.AIT_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install
+      - run: npm run build
+      - run: ls -la; find dist -maxdepth 2 | head -30
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: toss-latest
+          name: 토스 미니앱 번들 (aptgame 전체, 최신)
+          body: 앱인토스 콘솔 > 앱 출시 에 올릴 johapjang.ait 입니다 (첫 화면 + 부동산 공화국 + 조합장 키우기). 커밋 ${{ github.sha }}
+          files: toss/johapjang.ait
+          make_latest: true
+      - name: 앱인토스 콘솔 업로드 (AIT_API_KEY 시크릿이 있을 때만)
+        if: ${{ env.AIT_API_KEY != '' }}
+        run: npx ait deploy --api-key "$AIT_API_KEY" -m "${{ github.sha }}"

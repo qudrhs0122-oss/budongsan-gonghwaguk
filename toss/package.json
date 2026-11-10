@@ -1,0 +1,11 @@
+{
+  "name": "aptgame-toss",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node prep.mjs && vite build && ait build",
+    "deploy": "ait deploy"
+  },
+  "dependencies": { "@apps-in-toss/web-framework": "^3" },
+  "devDependencies": { "vite": "^6" }
+}

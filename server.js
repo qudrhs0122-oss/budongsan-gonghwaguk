@@ -214,6 +214,16 @@ const server = http.createServer(async (req, res) => {
   try { url = new URL(req.url.replace(/^\/+/, '/'), 'http://x'); } catch (e) { res.writeHead(400); return res.end(); }
   let p = url.pathname;
 
+  // 토스 미니앱(앱인토스)에서 온라인 대전·랭킹 API 호출 허용
+  const origin = req.headers.origin || '';
+  if (/^https:\/\/[a-z0-9-]+\.(private-)?(web|apps)\.tossmini\.com$/.test(origin) && (p.startsWith('/api/') || p === '/events')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
+  }
+
   // 실시간 받기 (SSE)
   if (p === '/events') {
     const cid = (url.searchParams.get('cid') || '').replace(/[^a-z0-9]/gi, '').slice(0, 32) || crypto.randomBytes(8).toString('hex');
