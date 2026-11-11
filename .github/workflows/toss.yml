@@ -1,9 +1,9 @@
-name: 토스 미니앱 빌드 (aptgame 전체)
+name: 토스 미니앱 빌드 (조합장 키우기 단독)
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['public/**', 'toss/**', '.github/workflows/toss.yml']
+    paths: ['public/johapjang/**', 'toss/**', '.github/workflows/toss.yml']
 permissions:
   contents: write
 jobs:
@@ -22,8 +22,8 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: toss-latest
-          name: 토스 미니앱 번들 (aptgame 전체, 최신)
-          body: 앱인토스 콘솔 > 앱 출시 에 올릴 johapjang.ait 입니다 (첫 화면 + 부동산 공화국 + 조합장 키우기). 커밋 ${{ github.sha }}
+          name: 토스 미니앱 번들 (조합장 키우기 단독, 최신)
+          body: 앱인토스 콘솔 > 앱 출시 에 올릴 johapjang.ait 입니다 (재건축 조합장 키우기 단독 — 부동산 공화국 제외). 커밋 ${{ github.sha }}
           files: toss/johapjang.ait
           make_latest: true
       - name: 앱인토스 콘솔 업로드 (AIT_API_KEY 시크릿이 있을 때만)

@@ -1,33 +1,19 @@
-// aptgame.kr 전체(첫 화면 + 부동산 공화국 + 재건축 조합장 키우기 + 안내 페이지)를 토스 미니앱용으로 stage/ 에 복사합니다.
+// 토스 미니앱 번들: '재건축 조합장 키우기' 단독 (부동산 공화국/부루마블은 웹보드 게임으로 분류되므로 넣지 않음)
+// public/johapjang 을 stage/ 루트에 복사합니다. 첫 화면 = 조합장 키우기.
 import fs from 'node:fs'; import path from 'node:path';
-const pub = path.resolve('../public'), out = path.resolve('stage'), API = 'https://aptgame.kr/';
+const src = path.resolve('../public/johapjang'), out = path.resolve('stage');
 fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
-fs.cpSync(path.join(pub, 'assets'), path.join(out, 'assets'), { recursive: true });
-fs.cpSync(path.join(pub, 'johapjang', 'img'), path.join(out, 'johapjang', 'img'), { recursive: true });
-fs.copyFileSync(path.join(pub, 'page.css'), path.join(out, 'page.css'));
-const PAGES = { 'index.html': 'index.html', 'game.html': 'bluemarble.html', 'johapjang/index.html': 'johapjang/index.html',
-  'guide.html': 'guide.html', 'apartments.html': 'apartments.html', 'glossary.html': 'glossary.html', 'about.html': 'about.html', 'privacy.html': 'privacy.html' };
-for (const [src, dst] of Object.entries(PAGES)) {
-  let h = fs.readFileSync(path.join(pub, src), 'utf8');
-  const up = dst.includes('/') ? '../' : '';
-  // 애드센스 제거 (토스에서는 토스 광고 사용)
-  h = h.replace(/<script[^>]*googlesyndication[^>]*><\/script>/g, '')
-       .replace(/<div class="adbox">[\s\S]*?<\/div>/g, '')
-       .replace(/<ins class="adsbygoogle"[\s\S]*?<\/ins>\s*(<script>\s*\(adsbygoogle[\s\S]*?<\/script>)?/g, '');
-  // 사이트 내부 절대경로 → 번들 안 상대경로
-  h = h.replace(/(href|src)="\/bluemarble"/g, `$1="${up}bluemarble.html"`)
-       .replace(/(href|src)="\/johapjang\/?"/g, `$1="${up}johapjang/index.html"`)
-       .replace(/(href)="\/"/g, `$1="${up}index.html"`)
-       .replace(/(href|src)="\/(?!\/)/g, `$1="${up}`)
-       .replace(/url\(\/assets/g, `url(${up}assets`)
-       .replace(/https:\/\/aptgame\.kr\/(bluemarble)?"/g, `${up}index.html"`);
-  if (src === 'game.html') {
-    // 온라인 대전·랭킹 API는 aptgame.kr 서버로
-    h = h.replace(/fetch\('api\//g, `fetch('${API}api/`).replace(/new EventSource\('events/g, `new EventSource('${API}events`)
-         .replace('.then(c => initAds(c.ads))', '.then(c => void c)');
-  }
-  h = h.replace('</body>', `<script src="${up}toss-bridge.js"></script>\n</body>`);
-  fs.mkdirSync(path.dirname(path.join(out, dst)), { recursive: true });
-  fs.writeFileSync(path.join(out, dst), h);
-}
-console.log('prep done:', Object.values(PAGES).join(', '));
+fs.cpSync(path.join(src, 'img'), path.join(out, 'img'), { recursive: true });
+let h = fs.readFileSync(path.join(src, 'index.html'), 'utf8');
+// 원스토어 H5 SDK 제거 (토스에서는 불필요)
+h = h.replace(/<script type="module">(?:(?!<\/script>)[\s\S])*?onestore-h5-sdk[\s\S]*?<\/script>\s*/, '');
+// 애드센스 설정 조회 제거 (토스에서는 토스 광고 브리지 사용)
+h = h.replace('fetch("/api/config",{cache:"no-store"})', 'Promise.resolve(null)');
+// 통계는 aptgame.kr 서버로
+h = h.replace('sendBeacon("/api/stat"', 'sendBeacon("https://aptgame.kr/api/stat"');
+// 사이트 링크(부동산 공화국 등) 제거 → 미니앱 밖으로 나가지 않도록
+h = h.replace(/href="\/(bluemarble)?"/g, 'href="#"').replace(/href="https:\/\/aptgame\.kr\/?(bluemarble)?"/g, 'href="#"');
+h = h.replace('</body>', '<script src="toss-bridge.js"></script>\n</body>');
+fs.writeFileSync(path.join(out, 'index.html'), h);
+if (/bluemarble|부동산 공화국/.test(h)) console.warn('주의: 부동산 공화국 관련 문자열이 남아 있습니다');
+console.log('prep done: 조합장 키우기 단독', (h.length / 1024).toFixed(0) + 'KB');
