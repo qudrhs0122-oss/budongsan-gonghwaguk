@@ -11,6 +11,8 @@ h = h.replace(/<script type="module">(?:(?!<\/script>)[\s\S])*?onestore-h5-sdk[\
 h = h.replace('fetch("/api/config",{cache:"no-store"})', 'Promise.resolve(null)');
 // 통계는 aptgame.kr 서버로
 h = h.replace('sendBeacon("/api/stat"', 'sendBeacon("https://aptgame.kr/api/stat"');
+// PWA 서비스워커·매니페스트 제거 (토스 웹뷰에서는 불필요)
+h = h.replace(/<script>if\("serviceWorker"[\s\S]*?<\/script>\s*/, '').replace(/<link rel="manifest"[^>]*>\s*/, '');
 // 사이트 링크(부동산 공화국 등) 제거 → 미니앱 밖으로 나가지 않도록
 h = h.replace(/href="\/(bluemarble)?"/g, 'href="#"').replace(/href="https:\/\/aptgame\.kr\/?(bluemarble)?"/g, 'href="#"');
 h = h.replace('</body>', '<script src="toss-bridge.js"></script>\n</body>');

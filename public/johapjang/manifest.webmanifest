@@ -1,0 +1,24 @@
+{
+  "id": "/johapjang-game/",
+  "name": "조합장 키우기 — 재건축은 처음이라",
+  "short_name": "조합장 키우기",
+  "description": "재건축 아파트 조합장이 되어 입주까지 사업을 이끄는 육성 시뮬레이션 게임",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#281814",
+  "theme_color": "#281814",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {"src": "img/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "img/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "screenshots": [
+    {"src": "store/onestore/shot1.jpg", "sizes": "731x1300", "type": "image/jpeg", "form_factor": "narrow"},
+    {"src": "store/onestore/shot2.jpg", "sizes": "731x1300", "type": "image/jpeg", "form_factor": "narrow"},
+    {"src": "store/onestore/shot3.jpg", "sizes": "731x1300", "type": "image/jpeg", "form_factor": "narrow"}
+  ]
+}

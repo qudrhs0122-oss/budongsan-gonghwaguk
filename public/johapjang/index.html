@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#281814">
+<link rel="apple-touch-icon" href="img/icon-192.png">
 <title>조합장 키우기 — 재건축은 처음이라</title><style>
 :root{--bg:#efe9df;--card:#fffdf9;--ink:#26221d;--sub:#776c60;--line:#e2d9cb;--red:#c4472f;--green:#2f8a55;--gold:#d39b1f;--blue:#35659c;--chat:#dfe8f1}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -1918,4 +1921,5 @@ function liveTick(){
 function toast(t){const d=document.createElement("div"); d.className="toast"; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),3200);}
 setInterval(liveTick,200);
 </script>
+<script>if("serviceWorker" in navigator&&location.protocol==="https:"&&!/tossmini|apps-in-toss/.test(location.host)){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
 </body></html>
