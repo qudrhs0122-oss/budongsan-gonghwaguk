@@ -3,7 +3,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>aptgame.kr — 부동산으로 노는 게임 놀이터</title>
 <meta property="og:type" content="website"><meta property="og:site_name" content="aptgame.kr"><meta property="og:title" content="대한민국 부동산공화국 · 아파트 살아남기"><meta property="og:description" content="재건축 조합장 키우기 · 대한민국 부동산 부루마블 — 가입 없이 바로 하는 무료 부동산 게임"><meta property="og:url" content="https://aptgame.kr/"><meta property="og:image" content="https://aptgame.kr/assets/og2.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://aptgame.kr/assets/og2.jpg">
-<meta name="description" content="대한민국 아파트 부루마블 '부동산 공화국'과 재건축 경영 시뮬레이션 '재건축 조합장 키우기'를 무료로 즐기는 부동산 게임 놀이터.">
+<meta name="description" content="재건축 조합장 키우기, 대한민국 부동산 부루마블, 나의 첫 번째 서울 아파트 구하기 — 3가지 부동산 인생 시나리오를 무료로 즐기고 청약·대출·세금 기초까지 배우는 부동산 게임 놀이터.">
 <link rel="canonical" href="https://aptgame.kr/">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous"></script>
 <style>
@@ -12,13 +12,17 @@ body{margin:0;background-color:#2b2440;font-family:'Noto Sans KR','Apple SD Goth
 .wrap{max-width:1100px;margin:0 auto;padding:0 0 30px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .heroband{position:relative;width:100vw;margin-left:calc(50% - 50vw);overflow:hidden;background:#2b2440}
-.heroband::before{content:"";position:absolute;inset:-30px;background:url(/assets/landing.jpg) center/cover;filter:blur(24px) brightness(.8)}
+.heroband::before{content:"";position:absolute;inset:-30px;background:url(/assets/landing3.jpg) center/cover;filter:blur(24px) brightness(.8)}
 .hero-d{position:relative;line-height:0;max-width:1100px;margin:0 auto;box-shadow:0 0 40px rgba(0,0,0,.35)}
 .hero-d img{width:100%;height:auto;display:block}
 .hs{position:absolute;border-radius:3%;transition:box-shadow .2s,transform .2s}
 .hs:hover{box-shadow:0 0 0 4px rgba(255,214,120,.9),0 0 40px rgba(255,200,80,.6)}
-.hs.jh{left:3.7%;top:36.1%;width:45.5%;height:58.5%}
-.hs.bm{left:51%;top:36.1%;width:45.6%;height:58.5%}
+.hs.jh{left:2%;top:33%;width:32%;height:38.5%}
+.hs.bm{left:34.3%;top:33%;width:32%;height:38.5%}
+.hs.sa{left:67.3%;top:33%;width:31.3%;height:38.5%}
+.hs.go{left:20.5%;top:74%;width:59%;height:14%;border-radius:40px}
+.hs.pulse{animation:pl 1.2s ease 2}@keyframes pl{50%{box-shadow:0 0 0 5px #ffd678,0 0 50px rgba(255,200,80,.9);transform:scale(1.02)}}
+.hero-m .mt{margin-bottom:2px}
 .hero-m{display:none;background:linear-gradient(180deg,#2b2440,#3b2f52 85%,#f4efe6);padding-bottom:4px}
 .hero-m img{width:100%;height:auto;display:block}
 .hero-m .mc{display:block;margin:6px 10px 12px;border-radius:18px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.35)}
@@ -68,14 +72,17 @@ footer a{color:#8a7f6a}
 <body><div class="wrap">
   <h1 class="sr">aptgame.kr 대한민국 부동산 게임즈 — 재건축 조합장 키우기 · 대한민국 부동산 부루마블 · 나의 첫 번째 서울 아파트 구하기</h1>
   <div class="heroband"><div class="hero-d">
-    <img src="/assets/landing.jpg" alt="대한민국 부동산 게임즈: 재건축 조합장 키우기와 대한민국 부동산 부루마블">
+    <img src="/assets/landing3.jpg" width="1628" height="966" alt="aptgame.kr 대한민국 부동산 게임즈: 재건축 조합장, 부동산 부루마블, 나의 첫 번째 서울 아파트 구하기">
     <a class="hs jh" href="/johapjang/" aria-label="재건축 조합장 키우기 게임 시작하기"></a>
     <a class="hs bm" href="/bluemarble" aria-label="대한민국 부동산 부루마블 게임 시작하기"></a>
+    <a class="hs sa" href="/seoul/" aria-label="나의 첫 번째 서울 아파트 구하기 게임 시작하기"></a>
+    <a class="hs go" href="#" aria-label="지금 바로 플레이하기 — 게임 고르기" onclick="event.preventDefault();document.querySelectorAll('.hs.jh,.hs.bm,.hs.sa').forEach(a=>{a.classList.remove('pulse');void a.offsetWidth;a.classList.add('pulse')})"></a>
   </div></div>
   <div class="hero-m">
-    <img class="mt" src="/assets/landing_top.jpg" alt="대한민국 부동산 게임즈">
-    <a class="mc" href="/johapjang/"><img src="/assets/landing_jh.jpg" alt="재건축 조합장 키우기 — 게임 시작하기"></a>
-    <a class="mc" href="/bluemarble"><img src="/assets/landing_bm.jpg" alt="대한민국 부동산 부루마블 — 게임 시작하기"></a>
+    <img class="mt" src="/assets/landing3_top.jpg" alt="aptgame.kr 대한민국 부동산 게임즈 — 하나의 게임으로 즐기는 3가지 부동산 인생 시나리오">
+    <a class="mc" href="/johapjang/"><img src="/assets/landing3_jh.jpg" alt="재건축 조합장 키우기 — 게임 시작하기"></a>
+    <a class="mc" href="/bluemarble"><img src="/assets/landing3_bm.jpg" alt="대한민국 부동산 부루마블 — 게임 시작하기"></a>
+    <a class="mc" href="/seoul/"><img src="/assets/landing3_sa.jpg" alt="나의 첫 번째 서울 아파트 구하기 — 게임 시작하기"></a>
   </div>
 
   <a class="newgame" href="/seoul/"><span class="ng-b">NEW</span><span class="ng-i">🏙️</span><span class="ng-t"><b>나의 첫 번째 서울 아파트 구하기</b><small>5,000만 원으로 시작한 월급쟁이의 20년 · 엔딩 40종</small></span><span class="ng-go">시작 ›</span></a>
