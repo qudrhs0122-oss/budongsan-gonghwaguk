@@ -465,6 +465,7 @@ body{background:linear-gradient(180deg,#22397a 0%,#4b67ad 28%,#c9b6c4 60%,#f2d9c
 body.ingame .sitefoot{display:none}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous" onerror="this.dataset.failed=1"></script>
+<script src="/auth.js" defer></script>
 </head>
 <body>
 <div id="app"><noscript>부동산 공화국은 자바스크립트가 필요한 웹게임입니다.</noscript></div>
@@ -1746,6 +1747,7 @@ function finish() {
   const myLine = headline(me, myRank);
   S.shareLine = `[부동산 공화국] ${esc(me.name)} ${myRank + 1}위 — ${myLine}`;
   if (!S.online || S.isHost) recordRanking(rank);
+  if (window.APT && (S.online || S.mode === 'ai') && !me.isAI) { const sc = Math.round(Math.max(0, netWorth(me)) * 10) / 10, lb = `${myRank + 1}위${rank[0] === me ? ' 🏆' : ''}`; setTimeout(() => { const h = document.querySelector('#app .res'); if (h) APT.endCard('bluemarble', sc, lb, h); }, 0); }
   const reason = alive().length <= 1 ? '마지막 생존자' : (S.mode === 'ai' && S.players[0].bankrupt ? '플레이어 파산' : `${S.maxRounds}라운드 종료 · 순자산 기준`);
   $('#app').innerHTML = `
   <div class="res">

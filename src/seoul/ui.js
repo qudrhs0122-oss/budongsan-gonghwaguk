@@ -368,6 +368,7 @@ function renderEnding() {
     <div class="card"><h4>📋 ${esc(S.name)}의 부동산 인생 결산</h4><table class="qt"><tr><td>기간</td><td>${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년 (${Math.ceil(S.t / 2)}년)</td></tr><tr><td>나이</td><td>${ageOf(Math.min(S.t, MAXT - 1))}세</td></tr><tr><td>최종 순자산</td><td><b>${won(nw())}</b></td></tr><tr><td>보유 주택</td><td>${homes.map(p => esc(aptName(p))).join(', ') || '없음'}</td></tr><tr><td>총부채</td><td>${won(debtTotal())}</td></tr><tr><td>행복도</td><td>${S.happy}</td></tr><tr><td>갈아타기 / 청약 당첨</td><td>${S.st.flips}회 / ${S.st.chWin}회</td></tr></table></div>
     <p class="small">엔딩 도감 ${Object.keys(d).length}/40 수집</p>
     <button class="btn pri big" id="again">🔁 인생 다시 살기</button><button class="btn" id="dex">📖 엔딩 도감</button><button class="btn ghost" id="share">📤 결과 공유</button><a class="other" href="/">← aptgame.kr 다른 게임</a></div>`;
+  if (window.APT && !S.rankSent) { S.rankSent = 1; save(); APT.endCard('seoul', Math.round(nw() * 10) / 10, `엔딩 ${k.slice(1)} ${e.t}`, '#again'); }
   $('#again').onclick = () => { store.set('_save', null); renderSetup(); };
   $('#dex').onclick = () => renderDexPage(renderEnding);
   $('#share').onclick = () => { const t = `나의 첫 번째 서울 아파트 구하기 — 엔딩 ${k.slice(1)} "${e.t}" (순자산 ${won(nw())}) https://aptgame.kr/seoul/`; if (navigator.share) navigator.share({ text: t }).catch(() => { }); else { navigator.clipboard && navigator.clipboard.writeText(t); toast('결과 문구를 복사했어요'); } };

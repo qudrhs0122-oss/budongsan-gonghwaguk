@@ -3,10 +3,10 @@
 import html, os, json
 ROOT = '/home/claude/budongsan-gonghwaguk/public'
 SITE = 'https://aptgame.kr'
-TODAY = '2026-11-13'
+TODAY = '2026-11-14'
 e = html.escape
 
-NAV = [('/', '🏠 게임 고르기'), ('/learn/', '📚 부동산 공부'), ('/tools/', '🧮 계산기'), ('/bluemarble', '🎲 부루마블'), ('/johapjang/', '🏗️ 조합장 키우기'), ('/seoul/', '🏙️ 서울 아파트'), ('/news.html', '📰 업데이트'), ('/about.html', 'ℹ️ 소개')]
+NAV = [('/', '🏠 게임 고르기'), ('/learn/', '📚 부동산 공부'), ('/tools/', '🧮 계산기'), ('/bluemarble', '🎲 부루마블'), ('/johapjang/', '🏗️ 조합장 키우기'), ('/seoul/', '🏙️ 서울 아파트'), ('/ranking.html', '🏆 랭킹'), ('/news.html', '📰 업데이트'), ('/about.html', 'ℹ️ 소개')]
 AD = '<div class="adbox"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2150655592231599" data-ad-slot="4104692035" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>'
 
 def nav(cur):
@@ -21,7 +21,7 @@ def page(path, title, desc, body, cur='', ad=True, extra_head='', kind='article'
 <meta name="description" content="{e(desc)}">
 <link rel="canonical" href="{url}">
 <meta property="og:type" content="{kind}"><meta property="og:site_name" content="aptgame.kr"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{url}"><meta property="og:image" content="https://aptgame.kr/assets/og2.jpg"><meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="/page.css">{extra_head}
+<link rel="stylesheet" href="/page.css"><script src="/auth.js" defer></script>{extra_head}
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous"></script>
 </head><body>
 <header class="top"><a class="brand" href="/"><img src="/assets/logo.png" alt="aptgame.kr 대한민국 부동산 게임즈"></a><nav>{nav(cur)}</nav></header>
@@ -373,6 +373,7 @@ def build_guides():
     <h2>7. 팁</h2><ul><li>처음이라면 쉬움 모드로 시작하세요. 나쁜 효과가 줄고 법률 아이템을 더 받습니다.</li><li>지지율이 낮을 때는 무리한 결정보다 간담회와 정보 공개로 신뢰를 먼저 쌓으세요.</li><li>스트레스가 높으면 휴식을 넣어야 끝까지 갈 수 있습니다.</li></ul>'''
     urls.append(page('johapjang-guide.html', '재건축 조합장 키우기 게임 방법·사업 단계·엔딩', '재건축 조합장 키우기의 목표(지지율·자금·스트레스), 분기 진행, 사업 단계, 비례율·분담금, 엔딩과 공략 팁을 정리했습니다.', body, '/johapjang/'))
     body = '''<h1>📰 업데이트 소식</h1><p class="lead">aptgame.kr의 새 게임, 기능 개선, 새 글 소식을 모아 둡니다.</p>
+    <h2>2026-11-14</h2><ul><li>카카오 로그인과 계정별 <a href="/ranking.html">랭킹</a> 추가 — 세 게임의 기록이 주간·역대 순위로 집계됩니다.</li><li><a href="/privacy.html">개인정보처리방침</a> 개정 (카카오 로그인·랭킹 정보 처리 내용 추가).</li></ul>
     <h2>2026-11-13</h2><ul><li>세 번째 게임 <a href="/seoul/">나의 첫 번째 서울 아파트 구하기</a> 공개 — 실존 단지 30곳, 현실·역사 모드, 엔딩 40종.</li><li><a href="/learn/">부동산 공부</a> 코너 신설: 청약 가점, LTV·DSR, 10·15 대책, 재건축 절차, 비례율, 분양권·입주권, 취득세, 1주택 비과세, 전세가율, 첫 집 자금 계획 10편.</li><li><a href="/tools/">부동산 계산기</a> 4종 추가: 청약 가점, 대출 한도, 취득세, 비례율·분담금.</li><li>게임별 가이드 페이지 정리 (<a href="/seoul-guide.html">서울 아파트</a>, <a href="/johapjang-guide.html">조합장 키우기</a>, <a href="/guide.html">부동산 공화국</a>).</li></ul>
     <h2>2026-11-11</h2><ul><li>재건축 조합장 키우기 '쉬움' 모드 추가, 선택 전 효과 미리보기, 위험 경고, 처음 하는 사람을 위한 튜토리얼.</li><li>압구정·여의도·목동·상계 단지 일러스트 추가와 화면 전환 효과 개선.</li></ul>
     <h2>2026-11-05</h2><ul><li>부동산 공화국 단지 도감, 부동산 용어 사전, 게임 방법 페이지 공개.</li><li>재건축 조합장 키우기 2.0 — 엔딩 40종과 엔딩 도감.</li></ul>
@@ -387,11 +388,79 @@ def build_guides():
     urls.append(page('about.html', 'aptgame.kr 소개 · 운영자 · 문의', 'aptgame.kr은 부동산 게임 3종과 부동산 기초 지식·계산기를 무료로 제공하는 사이트입니다. 운영자와 콘텐츠 원칙, 문의처를 안내합니다.', body, '/about.html'))
     return urls
 
+
+def build_account_pages():
+    urls = []
+    body = """<h1>🏆 aptgame.kr 랭킹</h1><p class="lead">카카오 계정으로 로그인하면 게임을 마칠 때마다 기록이 자동으로 등록되고, 게임별로 이번 주 순위와 역대 순위를 볼 수 있습니다. 주간 랭킹은 매주 월요일 0시(한국 시간)에 새로 시작합니다.</p>
+<div id="acct" class="calc"></div>
+<div class="rtabs" id="gtabs"></div><div class="rtabs small" id="ptabs"></div>
+<div id="board" class="calc"></div>
+<h2>어떻게 점수를 매기나요?</h2><ul><li><b>대한민국 부동산 부루마블</b>: AI 대전·온라인 대전을 마쳤을 때의 내 순자산(억 원). 친구와 한 기기로 하는 대전은 기록하지 않습니다.</li><li><b>재건축 조합장 키우기</b>: 지지율·법률 위험·투명성·스트레스·반대 여론·분담금 증가율·입주 성공 여부로 계산한 조합장 성적 점수.</li><li><b>나의 첫 번째 서울 아파트 구하기</b>: 20년 인생을 마쳤을 때의 최종 순자산(억 원).</li></ul>
+<p>랭킹에는 내가 정한 랭킹 닉네임만 표시됩니다. 처음 로그인하면 카카오 닉네임이 기본으로 들어가며, 아래에서 언제든 바꿀 수 있습니다. 실명은 쓰지 않는 것을 권합니다. 자세한 내용은 <a href="/privacy.html">개인정보처리방침</a>을 확인하세요.</p>
+<script>
+const G={seoul:'🏙️ 서울 아파트',bluemarble:'🎲 부루마블',johapjang:'🏗️ 조합장 키우기'};
+const ERR={notready:'카카오 로그인을 준비하고 있어요. 조금만 기다려 주세요.',cancel:'로그인을 취소했어요.',state:'로그인 요청이 만료됐어요. 다시 시도해 주세요.',token:'카카오 인증에 실패했어요. 다시 시도해 주세요.',profile:'카카오 계정 정보를 가져오지 못했어요.'};
+const q=new URLSearchParams(location.search);let g=G[q.get('g')]?q.get('g'):'seoul',per='week';
+function tabs(){document.getElementById('gtabs').innerHTML=Object.entries(G).map(([k,v])=>`<button class="${k===g?'on':''}" onclick="g='${k}';tabs();load()">${v}</button>`).join('');
+document.getElementById('ptabs').innerHTML=[['week','이번 주'],['all','역대']].map(([k,v])=>`<button class="${k===per?'on':''}" onclick="per='${k}';tabs();load()">${v}</button>`).join('');}
+async function acct(){const el=document.getElementById('acct');const m=await APT.me(true);const er=q.get('err');
+ if(m.user){el.innerHTML=`<b>👤 ${APT.esc(m.user.nick)}</b>님으로 로그인 중<label>랭킹 닉네임 (2~12자)<input id="nn" maxlength="12" value="${APT.esc(m.user.nick)}"></label><button class="rbtn" onclick="nick()">닉네임 저장</button> <a class="rbtn ghost" href="/auth/logout?next=/ranking.html">로그아웃</a> <button class="rbtn ghost" onclick="del()">계정·기록 삭제</button><p id="msg" class="small"></p>`;}
+ else el.innerHTML=(er?`<p class="small" style="color:#c0392b">${ERR[er]||'로그인에 실패했어요.'}</p>`:'')+(m.ready?`<p>로그인하면 게임 기록이 랭킹에 등록됩니다.</p><a class="apt-kakao" href="${APT.loginUrl('/ranking.html')}">카카오로 로그인</a>`:`<p>카카오 로그인을 준비하고 있어요. 곧 열립니다.</p>`);}
+async function nick(){const n=document.getElementById('nn').value;const r=await fetch('/api/me',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nick:n})}).then(r=>r.json());document.getElementById('msg').textContent=r.ok?'저장했어요.':(r.error||'저장하지 못했어요.');if(r.ok)load();}
+async function del(){if(!confirm('계정과 모든 게임 기록을 삭제할까요? 되돌릴 수 없습니다.'))return;const r=await fetch('/api/me/delete',{method:'POST'}).then(r=>r.json());if(r.ok){alert('삭제했어요. 카카오 계정과의 연결은 카카오톡 > 설정 > 카카오계정 > 연결된 서비스 관리에서 끊을 수 있어요.');location.href='/ranking.html';}}
+async function load(){const el=document.getElementById('board');el.innerHTML='<p>불러오는 중…</p>';const b=await fetch(`/api/board?g=${g}&p=${per}`,{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
+ if(!b){el.innerHTML='<p>랭킹을 불러오지 못했어요.</p>';return;}
+ el.innerHTML=`<p class="small">${APT.esc(b.name)} · ${per==='week'?b.week+' 주간':'역대'} · 참가 ${b.total}명</p>`+(b.me?`<p><b>내 순위 ${b.me.rank}위</b> · ${APT.fmt(b.me.s,b.unit)}</p>`:'')+(b.list.length?`<table><tr><th>순위</th><th>닉네임</th><th>기록</th><th>내용</th></tr>${b.list.map(r=>`<tr class="${r.me?'me':''}"><td>${r.rank<=3?['🥇','🥈','🥉'][r.rank-1]:r.rank}</td><td>${APT.esc(r.nick)}</td><td><b>${APT.fmt(r.s,b.unit)}</b></td><td class="small">${APT.esc(r.label||'')}</td></tr>`).join('')}</table>`:'<p>아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!</p>')+`<p><a class="rbtn" href="${g==='bluemarble'?'/bluemarble':'/'+g+'/'}">게임하러 가기 ›</a></p>`;}
+window.addEventListener('DOMContentLoaded',()=>{tabs();acct();load();});
+</script>"""
+    urls.append(page('ranking.html', '랭킹 — 카카오 로그인으로 게임 기록 겨루기', 'aptgame.kr 게임별 주간·역대 랭킹. 카카오 로그인으로 부동산 부루마블, 재건축 조합장 키우기, 서울 아파트 구하기 기록을 저장하고 순위를 확인하세요.', body, '/ranking.html', ad=False, kind='website'))
+    body = """<h1>개인정보처리방침</h1>
+<p class="lead">aptgame.kr(이하 "서비스")은 「개인정보 보호법」 등 관련 법령을 지키며, 이용자의 개인정보를 소중히 다룹니다. 이 방침은 서비스가 어떤 정보를 어떤 목적으로 처리하고 어떻게 보호하는지 알려 드립니다.</p>
+<h2>1. 처리하는 개인정보 항목과 목적</h2>
+<table><tr><th>구분</th><th>항목</th><th>목적</th><th>보관 기간</th></tr>
+<tr><td>카카오 로그인 (선택)</td><td>카카오 회원번호, 카카오 닉네임</td><td>회원 식별, 계정별 랭킹 제공. 회원번호는 원본을 저장하지 않고 복원할 수 없는 값(해시)으로 바꿔 저장합니다.</td><td>회원 탈퇴(계정 삭제) 시까지</td></tr>
+<tr><td>랭킹 정보</td><td>랭킹 닉네임, 게임별 점수·순자산 기록, 엔딩·등급 이름, 기록 시각, 플레이 횟수</td><td>주간·역대 랭킹 표시</td><td>회원 탈퇴 시까지 (주간 순위는 매주 새로 집계)</td></tr>
+<tr><td>로그인 유지</td><td>서명된 로그인 쿠키(apt_s)</td><td>로그인 상태 유지</td><td>최대 60일 또는 로그아웃 시까지</td></tr>
+<tr><td>로그인 없이 이용</td><td>게임에서 직접 입력한 닉네임, 대전 결과(순자산·승리 여부·캐릭터)</td><td>부동산 부루마블 주간 랭킹</td><td>해당 주 종료 시 초기화</td></tr>
+<tr><td>접속 정보</td><td>IP 주소, 브라우저 정보, 접속 시각</td><td>온라인 대전 연결, 부정 이용(랭킹 도배 등) 방지, 서비스 안정성 확인</td><td>별도 보관하지 않음 (서버 처리 중 일시적으로 사용)</td></tr></table>
+<p>카카오 로그인 시 이메일, 전화번호, 프로필 사진, 생년월일, 친구 목록 등은 요청하지 않습니다. 카카오에서 받은 접속 토큰은 회원 확인에만 쓰고 저장하지 않습니다.</p>
+<h2>2. 이 기기에만 저장되는 정보</h2>
+<p>게임 진행 상황, 엔딩 도감, 설정, 로그인 전에 끝낸 판의 기록(로그인 후 등록용, 최대 3시간) 등은 이용자 브라우저의 로컬 저장소(localStorage)에만 저장되며 서버로 보내지 않습니다. 브라우저 데이터를 지우면 함께 삭제됩니다.</p>
+<h2>3. 개인정보의 제3자 제공</h2>
+<p>서비스는 이용자의 개인정보를 제3자에게 판매하거나 제공하지 않습니다. 다만 법령에 따라 수사기관 등이 적법한 절차로 요청하는 경우는 예외로 합니다.</p>
+<h2>4. 처리 위탁과 해외 이전</h2>
+<table><tr><th>수탁자</th><th>업무</th><th>이전 국가</th></tr>
+<tr><td>Render Services, Inc.</td><td>웹 서버 호스팅</td><td>미국 (서비스 이용 시 네트워크로 전송)</td></tr>
+<tr><td>GitHub, Inc.</td><td>랭킹 데이터 백업 저장(비공개 저장소)</td><td>미국 (기록이 생길 때 네트워크로 전송)</td></tr>
+<tr><td>Google LLC</td><td>광고 게재(AdSense)</td><td>미국</td></tr>
+<tr><td>㈜카카오</td><td>카카오 로그인 인증</td><td>대한민국</td></tr></table>
+<p>해외로 전송되는 정보는 위 1항의 랭킹 정보(해시된 회원 식별값, 랭킹 닉네임, 기록)와 접속 정보이며, 서비스 이용 기간 동안 보관됩니다. 이전을 원하지 않으면 카카오 로그인을 하지 않고 이용할 수 있습니다.</p>
+<h2>5. 광고와 쿠키</h2>
+<p>서비스는 Google AdSense 광고를 게재합니다. Google을 포함한 제3자 광고 사업자는 쿠키를 사용해 이 사이트와 다른 사이트 방문 기록을 바탕으로 광고를 제공할 수 있습니다. <a href="https://adssettings.google.com" rel="nofollow noopener" target="_blank">Google 광고 설정</a>에서 맞춤 광고를 끌 수 있고, <a href="https://policies.google.com/technologies/ads?hl=ko" rel="nofollow noopener" target="_blank">Google 광고 정책</a>에서 자세한 내용을 볼 수 있습니다. 브라우저 설정에서 쿠키 저장을 거부할 수 있지만, 이 경우 로그인 유지가 되지 않을 수 있습니다.</p>
+<h2>6. 파기 절차와 방법</h2>
+<p>이용자가 <a href="/ranking.html">랭킹 페이지</a>에서 "계정·기록 삭제"를 누르면 해당 계정 정보와 모든 게임 기록을 즉시 삭제합니다. 백업 저장소의 데이터도 다음 저장 때(보통 1분 이내) 함께 지워집니다. 1년 이상 로그인하지 않은 계정은 정리 대상이 될 수 있습니다. 카카오 계정과 서비스의 연결은 카카오톡 &gt; 설정 &gt; 카카오계정 &gt; 연결된 서비스 관리에서 직접 끊을 수 있습니다.</p>
+<h2>7. 이용자의 권리</h2>
+<p>이용자는 언제든 자신의 정보 열람(랭킹 페이지), 닉네임 정정, 삭제, 처리 정지를 요청할 수 있습니다. 대부분은 랭킹 페이지에서 바로 할 수 있고, 그 밖의 요청은 아래 문의처로 보내 주시면 지체 없이 처리합니다.</p>
+<h2>8. 만 14세 미만 아동</h2>
+<p>서비스는 만 14세 미만 아동의 카카오 로그인을 받지 않습니다. 만 14세 미만으로 확인되면 해당 계정과 기록을 삭제합니다.</p>
+<h2>9. 안전성 확보 조치</h2>
+<ul><li>모든 통신은 HTTPS로 암호화합니다.</li><li>회원번호는 비밀 키로 해시해 원본을 알 수 없게 저장합니다.</li><li>로그인 쿠키는 서명·HttpOnly·Secure 속성으로 위조와 탈취를 막습니다.</li><li>데이터 백업 저장소는 비공개로 운영하고 접근 권한을 운영자로 제한합니다.</li></ul>
+<h2>10. 개인정보 보호책임자</h2>
+<p>책임자: 강병곤 (aptgame.kr 운영자)<br>문의: <a href="https://github.com/qudrhs0122-oss/budongsan-gonghwaguk/issues" rel="noopener" target="_blank">문의·오류 제보 게시판</a></p>
+<p>개인정보 침해 신고·상담은 개인정보침해신고센터(privacy.kisa.or.kr, 국번 없이 118), 개인정보분쟁조정위원회(www.kopico.go.kr, 1833-6972)에 문의할 수 있습니다.</p>
+<h2>11. 방침의 변경</h2>
+<p>이 방침을 바꾸면 시행 7일 전에 이 페이지와 <a href="/news.html">업데이트 소식</a>에 알립니다.</p>
+<p>공고일: 2026-11-14 · 시행일: 2026-11-14 (이전 방침 시행일: 2026-11-04)</p>"""
+    urls.append(page('privacy.html', '개인정보처리방침', 'aptgame.kr 개인정보처리방침 — 카카오 로그인·계정 랭킹, 광고 쿠키, 보관 기간, 이용자 권리와 문의처.', body, '', ad=False, kind='website'))
+    return urls
+
 if __name__ == '__main__':
-    urls = build_articles() + build_tools() + build_guides()
+    urls = build_articles() + build_tools() + build_guides() + build_account_pages()
     # 공통 스타일 추가
     css = open(f'{ROOT}/page.css', encoding='utf-8').read()
-    if '.lgrid' not in css:
+    if '.rtabs' not in css:
+        css = css.split('\n.meta{')[0]
+    if '.rtabs' not in css:
         css += '''
 .meta{font-size:13px;color:#8a7f6a;margin:-4px 0 14px}.crumb{font-size:13px;margin:0}.crumb a{color:#8a7f6a}
 .formula{background:#f3f6ff;border-radius:10px;padding:10px 12px;font-weight:700;color:#1f2547}
@@ -404,7 +473,7 @@ if __name__ == '__main__':
 .pn{display:flex;justify-content:space-between;gap:10px;margin-top:26px;font-size:14px}.pn a{text-decoration:none;font-weight:700;max-width:48%}
 .calc{background:#f8f5ee;border-radius:16px;padding:14px;margin:14px 0}.calc label{display:block;font-weight:700;font-size:14.5px;margin:8px 0}
 .calc input[type=number],.calc select{display:block;width:100%;margin-top:4px;padding:10px;border:1.5px solid #e2d6c0;border-radius:10px;font:inherit;background:#fff}
-.calc .res{background:#fff;border-radius:14px;padding:12px 14px;margin-top:12px}.calc .big{font-size:30px;font-weight:900;color:#1f2547}.calc .big small{font-size:14px;color:#8a7f6a;margin-left:6px}
+.rtabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.rtabs button{border:0;background:#f5efe4;border-radius:12px;padding:8px 14px;font:inherit;font-weight:800;cursor:pointer}.rtabs button.on{background:#1f2547;color:#fff}.rtabs.small button{padding:5px 12px;font-size:13px}\n.rbtn{display:inline-block;border:0;background:#1f2547;color:#fff;border-radius:12px;padding:9px 14px;font:inherit;font-weight:800;text-decoration:none;cursor:pointer;margin:4px 2px}.rbtn.ghost{background:#f5efe4;color:#3a2e1e}tr.me td{background:#fff4d6;font-weight:800}.small{font-size:13px;color:#6a604e}.calc input:not([type]){display:block;width:100%;margin-top:4px;padding:10px;border:1.5px solid #e2d6c0;border-radius:10px;font:inherit}\n.calc .res{background:#fff;border-radius:14px;padding:12px 14px;margin-top:12px}.calc .big{font-size:30px;font-weight:900;color:#1f2547}.calc .big small{font-size:14px;color:#8a7f6a;margin-left:6px}
 '''
         open(f'{ROOT}/page.css', 'w', encoding='utf-8').write(css)
     print(len(urls), 'pages'); print('\n'.join(urls))

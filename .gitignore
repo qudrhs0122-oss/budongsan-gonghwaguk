@@ -2,3 +2,4 @@ node_modules/
 ranking.json
 .DS_Store
 stats.json
+accounts.json
