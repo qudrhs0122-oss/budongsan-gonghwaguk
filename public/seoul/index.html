@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>나의 첫 번째 서울 아파트 구하기 | 부동산 인생 시뮬레이션 — aptgame.kr</title>
+<meta name="description" content="월급쟁이로 시작해 서울에 내 집 한 채. 실존 서울 아파트 30곳, 청약·분양권·입주권·갭투자, 실제 대출 규제를 반영한 부동산 인생 시뮬레이션. 엔딩 40종.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="aptgame.kr"><meta property="og:title" content="나의 첫 번째 서울 아파트 구하기"><meta property="og:description" content="5,000만 원으로 시작한 월급쟁이, 20년 뒤 40가지 서로 다른 부동산 인생"><meta property="og:url" content="https://aptgame.kr/seoul/">
+<link rel="canonical" href="https://aptgame.kr/seoul/">
+<meta name="theme-color" content="#1f2547">
+<style>
+:root{--ink:#1f2547;--bg:#f6f1e7;--card:#fff;--line:#e8dfcf;--mut:#7a705f;--pri:#2f5bea;--red:#e5484d;--blue:#3b82f6;--gold:#f2b632;--grn:#16a34a}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:92px}
+button{font:inherit;color:inherit;cursor:pointer}
+.small{font-size:12.5px;color:var(--mut);line-height:1.5}.neg{color:var(--red)}.pos{color:var(--grn)}.up{color:var(--red)}.dn{color:var(--blue)}.warn{color:#b45309!important}
+.fade{animation:fd .35s ease}@keyframes fd{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:13px 14px;margin:8px 0 0;background:#efe7d8;font-weight:800;font-size:15px;transition:transform .08s}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.45;cursor:default}
+.btn.pri{background:var(--pri);color:#fff;box-shadow:0 4px 0 #1e3fae}.btn.big{font-size:17px;padding:16px}.btn.ghost{background:transparent;border:1.5px solid var(--line)}.btn.sm{display:inline-block;width:auto;padding:8px 12px;font-size:13px;margin:6px 6px 0 0}
+.card{background:var(--card);border-radius:18px;padding:14px 15px;margin:10px 12px;box-shadow:0 1px 0 var(--line)}
+.card h4{margin:0 0 8px;font-size:15.5px}.card h4 small{font-weight:600;color:var(--mut);font-size:12px}
+/* 타이틀 */
+.title{min-height:100vh;background:linear-gradient(#ffb36b 0%,#ff8a7a 30%,#6e78c7 70%,#1f2547 100%)}
+.sky{position:relative;height:250px;overflow:hidden}.sun{position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(#fff6d6,#ffd36b);left:50%;top:40px;transform:translateX(-50%);box-shadow:0 0 60px #ffd36b}
+.city{position:absolute;bottom:0;width:100%;height:150px}
+.tcard{background:var(--bg);border-radius:26px 26px 0 0;margin-top:-20px;position:relative;padding:22px 18px 30px}
+.kicker{font-size:11px;letter-spacing:3px;font-weight:900;color:#c26b2b}.tcard h1{font-size:31px;line-height:1.2;margin:6px 0 10px}.tcard h1 b{color:var(--pri)}
+.sub{font-size:15px;line-height:1.6;margin:0 0 12px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.chips span{background:#fff;border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:700}
+.fine{font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:14px}.other{display:block;text-align:center;margin-top:14px;color:var(--mut);font-size:13px}
+/* 설정 */
+.setup{padding:16px 12px 30px}.setup h2{font-size:21px;margin:6px 4px 10px}.lbl{display:block;font-weight:800;margin:14px 4px 6px;font-size:14px}
+.setup input{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);font:inherit;font-size:15px}
+.me{display:flex;gap:12px;align-items:center;margin:0}.avatar{font-size:38px}
+.opts{display:grid;gap:8px}.opt{text-align:left;border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px}.opt b{display:block;font-size:15px;margin-bottom:3px}.opt span{font-size:12.5px;color:var(--mut);line-height:1.45}.opt.on{border-color:var(--pri);background:#eef2ff}
+.diffs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.df{border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 4px}.df b{display:block}.df span{font-size:11px;color:var(--mut)}.df.on{border-color:var(--pri);background:#eef2ff}
+.goals{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0}.goal{position:relative;text-align:left;border:0;background:#fff;border-radius:16px;padding:14px 12px;box-shadow:0 3px 0 var(--line)}.goal .gn{position:absolute;right:10px;top:8px;font-weight:900;color:#d9cdb6}.goal .gi{font-size:30px;display:block}.goal b{display:block;margin:4px 0 3px}.goal span:last-child{font-size:12px;color:var(--mut);line-height:1.4}
+/* HUD */
+.hud{position:sticky;top:0;z-index:5;background:var(--ink);color:#fff;padding:10px 12px 8px;border-radius:0 0 18px 18px}
+.hrow{display:flex;gap:8px;align-items:center;font-size:12.5px}.hrow .when{font-size:15px}.hrow .tn{margin-left:auto;opacity:.7}
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}.hstats div{background:rgba(255,255,255,.1);border-radius:10px;padding:6px 7px}.hstats small{display:block;font-size:10.5px;opacity:.7}.hstats b{font-size:13px;white-space:nowrap}
+.hstats.sm div{background:#f6f1e7}.hstats.sm small{opacity:1;color:var(--mut)}
+.hb{display:block;height:4px;background:rgba(255,255,255,.2);border-radius:4px;margin-top:3px}.hb i{display:block;height:100%;background:var(--gold);border-radius:4px}
+.prog{height:3px;background:rgba(255,255,255,.15);border-radius:3px;margin-top:8px}.prog i{display:block;height:100%;background:#7dd3fc;border-radius:3px}
+/* 하단 */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;display:flex;gap:4px;background:#fff;padding:8px 8px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -2px 12px rgba(0,0,0,.08);z-index:6}
+.bnav button{border:0;background:none;flex:1;display:flex;flex-direction:column;align-items:center;font-size:19px;border-radius:12px;padding:4px 0}.bnav button span{font-size:11px;font-weight:700}.bnav button.on{background:#eef2ff}
+.bnav .next{flex:1.8;background:var(--pri);color:#fff;font-size:15px;font-weight:900;box-shadow:0 3px 0 #1e3fae}
+/* 홈 */
+.mrow{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.mrow small{display:block;font-size:11px;color:var(--mut)}.mrow b{font-size:14px}.ph.up{color:var(--red)}.ph.down{color:var(--blue)}
+.spark{display:block;margin:6px 0}.mk .spark{width:100%}
+.rule{background:#fff7e6;border-radius:12px;padding:8px 10px;font-size:12.5px;line-height:1.5;margin-top:6px}
+.flow div{display:flex;justify-content:space-between;font-size:13.5px;padding:3px 0;border-bottom:1px dashed var(--line)}.flow .tot{border:0;font-size:14.5px}
+.tips{padding-left:18px;margin:6px 0 0;font-size:13px;line-height:1.55}.log{list-style:none;padding:0;margin:0;font-size:13px;line-height:1.45}.log li{padding:5px 0;border-bottom:1px solid #f1eadc}.log i{display:block;font-style:normal;font-size:11px;color:var(--mut)}
+.ads .adb{background:#fff4d6;text-align:left;font-size:14px}
+/* 지도 */
+.seoul{position:relative;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,46px);gap:4px;margin:4px 0 8px}
+.gu{border:2px solid transparent;border-radius:10px;font-size:12px;font-weight:800;position:relative;z-index:1;padding:0}.gu i{position:absolute;top:-6px;right:-5px;background:var(--ink);color:#fff;font-style:normal;font-size:10px;border-radius:9px;padding:1px 5px}
+.gu.t1{background:#ffd6d6}.gu.t2{background:#ffe6c7}.gu.t3{background:#fff3c4}.gu.t4{background:#e2f2d8}.gu.t5{background:#d9ecf7}.gu.ok{border-color:var(--grn)}.gu.none{opacity:.55}
+.han{position:absolute;left:0;right:0;top:calc(46px*3.55 + 12px);height:14px;background:linear-gradient(90deg,#9fd3f0,#7cc4e8);border-radius:10px;transform:rotate(-4deg);opacity:.55;z-index:0}
+.legend{display:flex;flex-wrap:wrap;gap:4px;font-size:11px}.legend span{padding:2px 7px;border-radius:7px}.legend .t1{background:#ffd6d6}.legend .t2{background:#ffe6c7}.legend .t3{background:#fff3c4}.legend .t4{background:#e2f2d8}.legend .t5{background:#d9ecf7}.legend .okl{color:var(--grn)}
+.filt{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.filt button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:700}.filt button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.filt label{font-size:12.5px;margin-left:auto}
+.apt{display:flex;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:10px 11px;margin:6px 0;gap:8px}.apt.ok{border-color:#86d3a1}
+.an{flex:1;min-width:0}.an b{font-size:14.5px}.an small{display:block;font-size:11.5px;color:var(--mut);margin:2px 0}.ap{text-align:right;white-space:nowrap}.ap b{display:block;font-size:14px}.ap small{font-size:11.5px}
+.mine,.deal{font-size:10.5px;font-weight:800;border-radius:6px;padding:1px 5px;margin-left:4px;background:#dbeafe;color:#1d4ed8}.deal{background:#fee2e2;color:#b91c1c}
+.tags{display:flex;gap:3px;flex-wrap:wrap}.tg{font-size:10.5px;font-weight:700;border-radius:6px;padding:1px 6px;background:#f1eadc}.tg-rb{background:#ede9fe}.tg-sc{background:#dcfce7}.tg-tr{background:#e0f2fe}.tg-hv{background:#cffafe}.tg-nw{background:#fef3c7}.tg-bg{background:#fde4cf}
+/* 모달 */
+#modal{position:fixed;inset:0;background:rgba(15,18,40,.55);display:none;align-items:flex-end;justify-content:center;z-index:20}#modal.on{display:flex}
+.mbox{background:var(--bg);width:100%;max-width:520px;max-height:90vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));animation:up .25s ease}@keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+.mbox h3{margin:2px 0 8px;font-size:19px}.mbox p{line-height:1.6;font-size:14.5px}.evcat{font-size:11px;font-weight:900;letter-spacing:2px;color:#c26b2b}
+.chs{display:grid;gap:8px;margin-top:10px}.ch{text-align:left;border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px}.ch b{display:block;font-size:15px}.ch small{color:var(--mut);font-size:12.5px}.ch:disabled{opacity:.45}
+.rep{padding-left:18px;font-size:14px;line-height:1.6}.tut{padding-left:18px;font-size:13.5px;line-height:1.6}
+.pbox{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}.pbox div{background:#fff;border-radius:12px;padding:8px}.pbox small{display:block;font-size:11px;color:var(--mut)}.pbox b{font-size:14px}
+.chart{background:#fff;border-radius:12px;padding:6px 8px}.chart svg{width:100%}.lock{background:#fff;border-radius:10px;padding:8px}
+.tip{background:#fff;border-radius:12px;padding:10px;font-size:13.5px!important}.imj{margin:8px 0;font-size:13.5px;line-height:1.55;background:#eef6ff;border-radius:12px;padding:10px}
+.quote{background:#fff;border-radius:14px;padding:10px 12px;margin:10px 0}.quote h5{margin:0 0 6px;font-size:14.5px}
+.qt{width:100%;border-collapse:collapse;font-size:13.5px}.qt td{padding:5px 0;border-bottom:1px dashed var(--line)}.qt td:last-child{text-align:right;font-weight:700}.qt td small{display:block;font-size:11px;color:var(--mut);font-weight:400}.qt .tot td{font-size:15px;color:var(--pri);border:0}
+input[type=range]{width:100%}
+.prop{border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0}.prop p{margin:4px 0}.acts{display:flex;flex-wrap:wrap}
+.gj{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.gj div{background:#f6f1e7;border-radius:10px;padding:6px}.gj small{display:block;font-size:11px;color:var(--mut)}
+/* 도감 */
+.pt{margin:14px 0 6px;font-size:14px}.dex{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.de{border:0;background:#efe7d8;border-radius:12px;padding:7px 3px;display:flex;flex-direction:column;align-items:center;min-height:78px}.de span{font-size:22px}.de b{font-size:10px;color:var(--mut)}.de small{font-size:10.5px;line-height:1.25;text-align:center;font-weight:700}.de.got{background:#fff;box-shadow:0 2px 0 var(--gold)}
+.adex{display:grid;grid-template-columns:1fr 1fr;gap:6px}.adex div{background:#f3ede1;border-radius:10px;padding:6px 8px;opacity:.5}.adex div.got{opacity:1;background:#fff}.adex b{font-size:12.5px;display:block}.adex small{font-size:11px;color:var(--mut)}
+/* 엔딩 */
+.ending{padding:26px 12px 40px;text-align:center}.ekick{font-size:12px;font-weight:900;letter-spacing:3px;color:#c26b2b}.eic{font-size:68px;margin:6px 0}.ending h2{font-size:26px;margin:0 0 10px}.story{font-size:15.5px;line-height:1.75;background:#fff;border-radius:18px;padding:16px;text-align:left;margin:0 12px}
+.ending .card{text-align:left}.ending.p4 .ekick{color:var(--red)}
+#toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:700;opacity:0;transition:.25s;z-index:30;pointer-events:none;max-width:90%}#toast.on{opacity:1;transform:translate(-50%,0)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:40;overflow:hidden}.confetti i{position:absolute;top:-10px;width:8px;height:12px;border-radius:2px;animation:fall 1.8s ease-in forwards}@keyframes fall{to{transform:translateY(105vh) rotate(540deg)}}
+</style></head>
+<body><div id="app"></div><div id="modal"></div><div id="toast"></div>
+<script>
+// ===== 서울 25개 구 (지도 배치: 5x6 격자, 대략적인 위치) =====
+const GU = [
+  { id: 'dobong', n: '도봉', r: 0, c: 3, t: 5 }, { id: 'nowon', n: '노원', r: 0, c: 4, t: 5 },
+  { id: 'eunpyeong', n: '은평', r: 1, c: 0, t: 4 }, { id: 'gangbuk', n: '강북', r: 1, c: 3, t: 5 }, { id: 'jungnang', n: '중랑', r: 1, c: 5, t: 5 },
+  { id: 'seodaemun', n: '서대문', r: 2, c: 1, t: 3 }, { id: 'jongno', n: '종로', r: 2, c: 2, t: 2 }, { id: 'seongbuk', n: '성북', r: 1, c: 4, t: 4 },
+  { id: 'dongdaemun', n: '동대문', r: 2, c: 4, t: 4 }, { id: 'gwangjin', n: '광진', r: 3, c: 5, t: 3 },
+  { id: 'mapo', n: '마포', r: 3, c: 1, t: 2 }, { id: 'jung', n: '중구', r: 3, c: 2, t: 2 }, { id: 'seongdong', n: '성동', r: 3, c: 4, t: 2 },
+  { id: 'gangseo', n: '강서', r: 3, c: 0, t: 4 }, { id: 'yongsan', n: '용산', r: 4, c: 2, t: 1 },
+  { id: 'yangcheon', n: '양천', r: 4, c: 0, t: 3 }, { id: 'yeongdeungpo', n: '영등포', r: 4, c: 1, t: 3 },
+  { id: 'gangdong', n: '강동', r: 4, c: 6, t: 3 }, { id: 'guro', n: '구로', r: 5, c: 0, t: 4 }, { id: 'dongjak', n: '동작', r: 5, c: 2, t: 3 },
+  { id: 'seocho', n: '서초', r: 5, c: 3, t: 1 }, { id: 'gangnam', n: '강남', r: 5, c: 4, t: 1 }, { id: 'songpa', n: '송파', r: 5, c: 5, t: 1 },
+  { id: 'geumcheon', n: '금천', r: 6, c: 0, t: 5 }, { id: 'gwanak', n: '관악', r: 6, c: 2, t: 4 },
+];
+const GUN = Object.fromEntries(GU.map(g => [g.id, g]));
+
+// ===== 실존 단지·정비구역 =====
+// p: 2026년 게임 시세(억, 대표 평형 기준·게임용 수치), jr: 전세가율, b: 시장 민감도
+// tr: 특성 rb=재건축 기대 sc=학군 tr=교통 hv=한강 nw=신축 bg=대단지
+// kind: buy(매매) bun(분양권) ipj(입주권)
+const APTS = [
+  // ── 구축·기축 아파트 ──
+  { id: 'sg7', n: '상계주공 7단지', gu: 'nowon', kind: 'buy', y: 1988, sz: '전용 41㎡', p: 5.6, jr: .42, b: .85, tr: { rb: .6, sc: .2 }, tip: '소액 자본으로 들어가는 재건축 기대 단지. 대신 집이 좁고 낡았습니다.' },
+  { id: 'cd17', n: '창동주공 17단지', gu: 'dobong', kind: 'buy', y: 1989, sz: '전용 49㎡', p: 5.1, jr: .45, b: .8, tr: { rb: .4, tr: .3 }, tip: '창동 역세권 개발과 GTX-C 기대를 품은 장기 보유형 단지.' },
+  { id: 'jc3', n: '중계 청구3차', gu: 'nowon', kind: 'buy', y: 1996, sz: '전용 84㎡', p: 10.8, jr: .55, b: .85, tr: { sc: .9 }, tip: '중계동 학원가 바로 옆. 아이 교육을 생각하면 강북의 대치동이라 불립니다.' },
+  { id: 'misk', n: '미아동 SK북한산시티', gu: 'gangbuk', kind: 'buy', y: 2004, sz: '전용 59㎡', p: 6.6, jr: .55, b: .8, tr: { bg: .8 }, tip: '3,800여 세대 대단지. 서울 저가 실거주 진입의 대표 주자.' },
+  { id: 'bcds', n: '봉천 두산아파트', gu: 'gwanak', kind: 'buy', y: 2000, sz: '전용 59㎡', p: 7.4, jr: .55, b: .85, tr: { tr: .4 }, tip: '서울대입구·봉천역 생활권. 서울 첫 집 마련 루트로 자주 거론됩니다.' },
+  { id: 'gr1', n: '구로주공 1단지', gu: 'guro', kind: 'buy', y: 1986, sz: '전용 73㎡', p: 8.8, jr: .4, b: .9, tr: { rb: .5, tr: .3 }, tip: '구로디지털단지 출퇴근권 구축. 재건축 추진이 변수입니다.' },
+  { id: 'gy3', n: '가양 강변3단지', gu: 'gangseo', kind: 'buy', y: 1992, sz: '전용 49㎡', p: 6.9, jr: .45, b: .85, tr: { tr: .5, rb: .3 }, tip: '마곡 일자리와 9호선. 소형 위주라 신혼부부 첫 집 수요가 많습니다.' },
+  { id: 'gclc', n: '금천 롯데캐슬 골드파크', gu: 'geumcheon', kind: 'buy', y: 2016, sz: '전용 59㎡', p: 9.1, jr: .55, b: .85, tr: { nw: .3, bg: .6 }, tip: '금천구 대장 신축급. 신안산선 개통이 기대 요인.' },
+  { id: 'gil', n: '길음뉴타운 래미안', gu: 'seongbuk', kind: 'buy', y: 2010, sz: '전용 59㎡', p: 11.2, jr: .55, b: .95, tr: { sc: .5, tr: .4 }, tip: '뉴타운 대단지 실거주. 학교와 상권이 정리된 동네.' },
+  { id: 'dmc', n: 'DMC파크뷰자이', gu: 'seodaemun', kind: 'buy', y: 2015, sz: '전용 59㎡', p: 12.4, jr: .55, b: 1, tr: { bg: .8, nw: .3 }, tip: '가재울뉴타운 4,300세대. 상암 DMC 출퇴근 수요가 탄탄합니다.' },
+  { id: 'sgrs', n: '신길뉴타운 래미안에스티움', gu: 'yeongdeungpo', kind: 'buy', y: 2017, sz: '전용 59㎡', p: 13.6, jr: .55, b: 1, tr: { nw: .4, tr: .5 }, tip: '여의도 출퇴근권 신길뉴타운. 신안산선 호재.' },
+  { id: 'sdrm', n: '상도 래미안', gu: 'dongjak', kind: 'buy', y: 2007, sz: '전용 84㎡', p: 13.2, jr: .55, b: 1, tr: { tr: .4 }, tip: '7호선 상도역 생활권 84㎡. 가족 실거주용.' },
+  { id: 'gdg', n: '고덕그라시움', gu: 'gangdong', kind: 'buy', y: 2019, sz: '전용 59㎡', p: 15.8, jr: .5, b: 1.05, tr: { nw: .7, bg: .9 }, tip: '4,900세대 준신축 대단지. 9호선 연장 기대.' },
+  { id: 'tenz', n: '왕십리뉴타운 텐즈힐', gu: 'seongdong', kind: 'buy', y: 2014, sz: '전용 59㎡', p: 17.4, jr: .5, b: 1.1, tr: { tr: .9 }, tip: '왕십리역 쿼드러플 역세권. 도심·강남 모두 가깝습니다.' },
+  { id: 'khj', n: '경희궁자이', gu: 'jongno', kind: 'buy', y: 2017, sz: '전용 59㎡', p: 20.1, jr: .5, b: 1.05, tr: { tr: .8, nw: .4 }, tip: '광화문 직주근접의 상징. 도심 대장 단지.' },
+  { id: 'mrp', n: '마포래미안푸르지오', gu: 'mapo', kind: 'buy', y: 2014, sz: '전용 59㎡', p: 21.5, jr: .45, b: 1.1, tr: { bg: .9, tr: .6 }, tip: '3,885세대 마포 대장주. 상급지 갈아타기의 첫 목표가 되곤 합니다.' },
+  { id: 'helio', n: '헬리오시티', gu: 'songpa', kind: 'buy', y: 2018, sz: '전용 59㎡', p: 21.8, jr: .45, b: 1.15, tr: { bg: 1, nw: .6 }, tip: '9,510세대 국내 최대 단지. 송파 대단지 신축급 전략.' },
+  { id: 'md7', n: '목동신시가지 7단지', gu: 'yangcheon', kind: 'buy', y: 1986, sz: '전용 66㎡', p: 23.5, jr: .35, b: 1.1, tr: { rb: .8, sc: 1 }, tip: '목동 학군의 중심. 재건축은 길고 긴 장기전입니다.' },
+  { id: 'els', n: '잠실엘스', gu: 'songpa', kind: 'buy', y: 2008, sz: '전용 59㎡', p: 26.5, jr: .45, b: 1.15, tr: { bg: 1, tr: .8, sc: .5 }, tip: '잠실 핵심지 입성의 상징. 잠실·리센츠와 함께 "엘리트".' },
+  { id: 'rcz', n: '리센츠', gu: 'songpa', kind: 'buy', y: 2008, sz: '전용 59㎡', p: 27.2, jr: .45, b: 1.15, tr: { bg: 1, tr: .8, hv: .3 }, tip: '잠실새내역 바로 앞. 잠실엘스와 쌍두마차.' },
+  { id: 'em', n: '은마아파트', gu: 'gangnam', kind: 'buy', y: 1979, sz: '전용 76㎡', p: 29.5, jr: .25, b: 1.2, tr: { rb: 1, sc: 1 }, tip: '대치동 학군 한가운데 고가 재건축. 전세가율이 낮아 현금이 많이 필요합니다.' },
+  { id: 'rdp', n: '래미안대치팰리스', gu: 'gangnam', kind: 'buy', y: 2015, sz: '전용 84㎡', p: 46, jr: .4, b: 1.2, tr: { sc: 1, nw: .5 }, tip: '대치동 학군 신축급 대장. 강남 아파트의 주인 엔딩 후보.' },
+  { id: 'bpj', n: '반포자이', gu: 'seocho', kind: 'buy', y: 2009, sz: '전용 84㎡', p: 52, jr: .4, b: 1.2, tr: { sc: .7, hv: .4, bg: .8 }, tip: '반포 대장 대단지. 서초 핵심지.' },
+  { id: 'arp', n: '아크로리버파크', gu: 'seocho', kind: 'buy', y: 2016, sz: '전용 84㎡', p: 72, jr: .35, b: 1.25, tr: { hv: 1, nw: .6 }, tip: '한강뷰의 꿈. 평당 2억 시대를 연 반포 랜드마크.' },
+  // ── 분양권 (청약·전매) ──
+  { id: 'sone', n: '서울원 아이파크', gu: 'nowon', kind: 'bun', sz: '전용 59㎡', p: 10.6, mv: 2028, tr: { nw: 1, bg: .7, tr: .4 }, tip: '광운대역세권 대형 개발. 2028년 입주 예정 분양권. 잔금 마련이 관건입니다.' },
+  { id: 'rachel', n: '마포자이힐스테이트 라첼스', gu: 'mapo', kind: 'bun', sz: '전용 59㎡', p: 13.4, mv: 2027, tr: { nw: 1, tr: .7 }, tip: '공덕1구역 재건축. 2027년 3월 입주 예정. 도심 접근성과 분양권 프리미엄.' },
+  { id: 'cgrv', n: '청계리버뷰자이', gu: 'dongdaemun', kind: 'bun', sz: '전용 59㎡', p: 10.2, mv: 2027, tr: { nw: 1, tr: .6 }, tip: '역세권 수요가 탄탄한 2027년 입주 예정 단지. 잔금대출이 변수.' },
+  { id: 'jwmk', n: '장위 푸르지오 마크원', gu: 'seongbuk', kind: 'bun', sz: '전용 59㎡', p: 14.3, mv: 2030, tr: { nw: 1, bg: .6 }, tip: '장위10구역. 2030년 입주 예정. 분양가가 높아 자금 계획이 중요합니다.' },
+  // ── 입주권 (재개발·재건축) ──
+  { id: 'hn3', n: '한남3구역', gu: 'yongsan', kind: 'ipj', sz: '조합원 입주권 (84㎡ 배정)', p: 30, stage: 4, mv: 2031, tr: { hv: .7, nw: 1 }, tip: '관리처분인가 이후 단계. 권리 승계 조건, 공사비 상승, 장기 자금 묶임을 감당해야 합니다.' },
+  { id: 'nrj3', n: '노량진3구역', gu: 'dongjak', kind: 'ipj', sz: '조합원 입주권 (84㎡ 배정)', p: 17.5, stage: 3, mv: 2032, tr: { tr: .6, nw: 1 }, tip: '2026년 관리처분계획 인가. 이주·철거·분담금·입주권 거래 자격을 따져야 합니다.' },
+];
+const AP = Object.fromEntries(APTS.map(a => [a.id, a]));
+const STAGES = ['조합설립', '사업시행인가', '관리처분인가', '이주·철거', '착공', '준공·입주'];
+
+// 가상 청약 단지 (게임 속 신규 분양 · 실제 단지 아님)
+const VBUN = [
+  { n: '(가상) 성수 리버포레', gu: 'seongdong', p: 14.8, cut: 68 },
+  { n: '(가상) 이문 센트럴 신축', gu: 'dongdaemun', p: 9.2, cut: 58 },
+  { n: '(가상) 상봉역 더퍼스트', gu: 'jungnang', p: 8.4, cut: 52 },
+  { n: '(가상) 마곡 리버스위트', gu: 'gangseo', p: 10.5, cut: 61 },
+  { n: '(가상) 둔촌 파크뷰 2차', gu: 'gangdong', p: 13.2, cut: 66 },
+  { n: '(가상) 신림 선우 신축', gu: 'gwanak', p: 8.9, cut: 55 },
+  { n: '(가상) 청량리 스카이 리버', gu: 'dongdaemun', p: 11.6, cut: 63 },
+  { n: '(가상) 방배 써밋 리버', gu: 'seocho', p: 24.5, cut: 72 },
+];
+
+// 역사 모드 시장 (2015~2025 반기별 서울 아파트 게임 지수 변화 %, 기준금리 %) — 실제 흐름을 단순화한 게임용 수치
+const HIST = [
+  [3, 1.75], [3, 1.5], [3, 1.5], [4, 1.25], [5, 1.25], [6, 1.5], [8, 1.5], [7, 1.75], [2, 1.75], [5, 1.25],
+  [6, .75], [8, .5], [8, .5], [6, 1], [-2, 1.75], [-12, 3.25], [3, 3.5], [2, 3.5], [3, 3.5], [5, 3.25], [6, 2.75], [5, 2.5],
+];
+
+// ===== 40종 엔딩 =====
+// p: 파트 1~4, ic: 아이콘, t: 제목, d: 조건 설명(도감), s: 스토리
+const ENDS = {
+  e1: { p: 1, ic: '🏠', t: '서울 입성 성공!', d: '첫 번째 서울 아파트를 사서 실거주에 성공', s: '이삿짐 트럭이 떠나고, 텅 빈 거실에 앉아 처음으로 내 집 열쇠를 만지작거립니다. 대출은 아직 길지만, 이 벽에 못을 박아도 누구에게 허락받을 필요가 없습니다.' },
+  e2: { p: 1, ic: '💼', t: '월급쟁이의 기적', d: '근로소득과 저축 중심으로 순자산 10억 원 돌파', s: '화려한 투자는 없었습니다. 매달 들어오는 월급을 꾸준히 모았고, 무리하지 않았습니다. 동료들이 비결을 묻자 당신은 가계부 앱을 보여줍니다.' },
+  e3: { p: 1, ic: '🪜', t: '갈아타기의 신', d: '3회 이상 성공적인 갈아타기로 상급지 입성', s: '외곽 구축에서 시작해 한 칸씩 올라왔습니다. 이사 업체 사장님이 이제 당신 번호를 저장해 두었습니다. "또 올라가세요?"' },
+  e4: { p: 1, ic: '🏙️', t: '강남 아파트의 주인', d: '강남·서초 핵심 단지를 대출 부담 없이 보유', s: '대치동 학원가의 불빛이 창밖으로 보입니다. 29살 월세방에서 꿈만 꾸던 주소가 이제 당신 등기부등본에 적혀 있습니다.' },
+  e5: { p: 1, ic: '🌉', t: '잠실의 새로운 주민', d: '잠실엘스·리센츠 등 잠실 주요 단지 입성', s: '석촌호수 산책로를 걷다가 롯데타워를 올려다봅니다. 엘리트(엘스·리센츠·트리지움) 주민 단톡방에 초대받았습니다.' },
+  e6: { p: 1, ic: '🎰', t: '청약 로또 인생', d: '고경쟁률 청약에 당첨된 뒤 큰 자산 증가를 실현', s: '당첨 문자를 받던 날 손이 떨려 캡처를 세 번 했습니다. 오랜 무주택 기간과 통장 납입이 결국 보답을 받았습니다.' },
+  e7: { p: 1, ic: '🏗️', t: '재개발의 전설', d: '고위험 정비사업을 끝까지 버텨 신축 입주와 투자 성공', s: '철거 전 낡은 골목을 걷던 날을 기억합니다. 분담금 고지서와 소송 소식을 견딘 끝에, 그 자리에 선 새 아파트의 첫 입주민이 되었습니다.' },
+  e8: { p: 1, ic: '🕊️', t: '대출 없는 자유인', d: '서울 자가를 보유하고 모든 금융부채 상환', s: '마지막 상환 버튼을 누르자 은행 앱에 "대출 잔액 0원"이 뜹니다. 이번 달 월급은 온전히 당신 것입니다.' },
+  e9: { p: 1, ic: '🌊', t: '한강뷰의 꿈', d: '한강 조망 주택 입성과 높은 주거 만족도 동시 달성', s: '저녁마다 거실 창으로 한강 위 노을이 번집니다. 친구들이 놀러 오면 아무도 TV를 켜지 않습니다.' },
+  e10: { p: 1, ic: '👑', t: '서울 부동산 자산왕', d: '부동산 순자산 30억 원 이상, 유동성 위기 없이 종료', s: '자산 관리 앱의 숫자가 30억을 넘었습니다. 그런데도 당신은 여전히 아침에 출근해 커피를 직접 내립니다. 위기 한 번 없이 이룬 결과입니다.' },
+  e11: { p: 2, ic: '🌱', t: '작지만 행복한 우리 집', d: '소형 아파트를 보유하고 주거 만족도 최고', s: '방은 두 개뿐이지만 햇살이 잘 들고, 창가에 키우는 화분이 열 개가 넘었습니다. 집이 클 필요는 없었습니다.' },
+  e12: { p: 2, ic: '💍', t: '신혼부부 내 집 마련', d: '결혼 후 5년 안에 서울 첫 집 마련', s: '결혼식 축의금 봉투를 정리하던 그 식탁에서, 이제는 우리 집 가계부를 씁니다. 둘이 모은 돈으로 만든 첫 보금자리입니다.' },
+  e13: { p: 2, ic: '👨‍👩‍👧‍👦', t: '두 아이의 부모', d: '아이 둘을 키우며 교육·주거 안정성 동시 달성', s: '아이들 방에 이층 침대를 들였습니다. 이사 걱정 없이 같은 학교에 다닐 수 있다는 게 이렇게 큰 선물일 줄 몰랐습니다.' },
+  e14: { p: 2, ic: '📚', t: '목동 학군 입성', d: '목동 실거주와 자녀 교육 목표 달성', s: '학원 셔틀버스가 단지 앞에 줄지어 섭니다. 아이는 투덜대지만, 당신은 이 동네를 고른 이유를 잘 알고 있습니다.' },
+  e15: { p: 2, ic: '🎁', t: '부모님께 드리는 선물', d: '부모님 주거를 지원하고 본인 자가도 유지', s: '부모님 집 전세 보증금을 대신 내 드린 날, 아버지가 처음으로 "고맙다"는 말을 두 번 했습니다.' },
+  e16: { p: 2, ic: '🚇', t: '역세권이 최고야', d: '교통이 가장 좋은 집을 오래 보유', s: '현관에서 지하철 개찰구까지 6분. 20년 동안 출퇴근 시간에 아낀 시간을 합치면 1년이 넘습니다.' },
+  e17: { p: 2, ic: '🧘', t: '여전히 싱글, 하지만 자가', d: '비혼 상태에서 무대출 자가 달성', s: '명절마다 "결혼은?"이라는 질문을 받지만, 당신은 대출 없는 자기 집에서 원하는 대로 삽니다. 고양이도 만족한 눈치입니다.' },
+  e18: { p: 2, ic: '🏡', t: '오래 산 우리 집', d: '처음 산 집에서 오랫동안 거주', s: '현관 문틀에 아이 키를 잰 연필 자국이 빼곡합니다. 시세표보다 이 자국들이 더 소중합니다.' },
+  e19: { p: 2, ic: '❤️', t: '부동산보다 가족', d: '투자 수익은 평범하지만 행복도 최고', s: '자산 순위에서는 평범했습니다. 하지만 주말마다 가족이 함께 웃는 식탁만큼은 서울 어느 집에도 지지 않습니다.' },
+  e20: { p: 2, ic: '🌅', t: '행복한 은퇴 준비', d: '안정적인 자가·노후자금·낮은 부채 달성', s: '50살 생일에 은퇴 설계 상담을 받았습니다. 상담사가 서류를 넘기다 말합니다. "이미 준비가 다 되어 있으시네요."' },
+  e21: { p: 3, ic: '⛏️', t: '구축 아파트 발굴왕', d: '저평가 구축을 사서 높은 장기 수익', s: '모두가 "그 낡은 걸 왜 사?"라고 물었습니다. 당신은 입지와 대지지분을 봤고, 시간이 답을 해 주었습니다.' },
+  e22: { p: 3, ic: '🎯', t: '갭투자의 달인', d: '역사 모드에서 적법한 갭투자 3회 성공', s: '전세 만기 달력을 누구보다 꼼꼼히 챙겼습니다. 규제가 바뀔 때마다 규칙을 지키며 움직였고, 세 번 모두 수익을 냈습니다.' },
+  e23: { p: 3, ic: '🤝', t: '전세금 반환의 고수', d: '보증금 반환 위기 없이 임대계약 여러 번 종료', s: '세입자들이 이사 갈 때마다 보증금이 정확히 그날 들어왔습니다. 동네 중개사무소에서 "그 집주인은 믿어도 돼"라는 말이 돕니다.' },
+  e24: { p: 3, ic: '🧯', t: '전세가 폭락 생존자', d: '전세가 급락과 반환 위기를 이겨냄', s: '전세가가 떨어지던 그해, 차액을 돌려주느라 비상금을 모두 털었습니다. 하지만 단 한 명의 세입자도 울리지 않았습니다.' },
+  e25: { p: 3, ic: '🍀', t: '무순위 청약의 기적', d: '무순위 청약 당첨 후 잔금까지 납부', s: '새벽 알람을 맞춰 넣은 줍줍 청약. 경쟁률 수천 대 1을 뚫은 당신을 친구들은 "부동산 로또 1등"이라 부릅니다.' },
+  e26: { p: 3, ic: '📈', t: '분양권 프리미엄 승부사', d: '거래 가능한 분양권 투자로 큰 순수익', s: '분양권 시세표를 매일 확인했습니다. 전매 가능 시점과 잔금 일정을 정확히 계산해 프리미엄을 실현했습니다.' },
+  e27: { p: 3, ic: '🔑', t: '입주권 장기투자 성공', d: '조합원 입주권 취득부터 준공까지 완주', s: '관리처분부터 준공까지 몇 년이 걸렸는지 세다가 그만두었습니다. 새 아파트 키를 받는 날, 조합 사무실 직원이 박수를 쳐 주었습니다.' },
+  e28: { p: 3, ic: '🧱', t: '추가분담금 버티기', d: '정비사업 공사비 증가 충격을 극복', s: '분담금 증액 공문이 두 번이나 날아왔습니다. 적금을 깨고 대출을 늘려 버텼고, 결국 그 집은 당신 것이 되었습니다.' },
+  e29: { p: 3, ic: '📉', t: '폭락장에서 집 산 사람', d: '하락장 저점 부근에 사서 장기 보유 성공', s: '모두가 "지금 사면 바보"라던 해에 계약서에 도장을 찍었습니다. 몇 년 뒤, 그때 말리던 친구가 당신에게 시세를 묻습니다.' },
+  e30: { p: 3, ic: '🔥', t: '다시 일어선 부동산 투자자', d: '큰 손실 뒤 자산을 회복하고 서울 자가 재취득', s: '한때 자산의 절반 가까이를 잃었습니다. 하지만 포기하지 않았고, 다시 서울에 내 집을 마련했습니다. 실패는 비싼 수업료였을 뿐입니다.' },
+  e31: { p: 4, ic: '📦', t: '영원한 전세살이', d: '20년 동안 서울 자가 마련 실패', s: '2년마다 이삿짐을 쌌습니다. 49살, 계약 만료 문자를 받은 당신은 또 부동산 앱을 엽니다. 아직 늦지 않았다고 스스로 말해 봅니다.' },
+  e32: { p: 4, ic: '📝', t: '청약 당첨, 계약 포기', d: '청약에 당첨됐지만 계약금을 마련하지 못함', s: '그토록 바라던 당첨 문자였지만, 계약금 통장 잔액이 모자랐습니다. 포기 서류에 서명하던 손이 무거웠습니다.' },
+  e33: { p: 4, ic: '💸', t: '계약금 날린 날', d: '잔금·중도금을 내지 못해 계약금을 잃음', s: '잔금일이 다가와도 대출이 나오지 않았습니다. 계약은 해지되었고, 몇 년간 모은 계약금이 사라졌습니다.' },
+  e34: { p: 4, ic: '💣', t: '이자 폭탄', d: '이자 부담이 가계 현금흐름을 압도', s: '월급날 아침, 통장에 들어온 돈이 오후가 되기 전에 이자로 빠져나갑니다. 장바구니에서 하나씩 물건을 빼는 게 일상이 되었습니다.' },
+  e35: { p: 4, ic: '😱', t: '공포에 매도한 사람', d: '급락장에서 손절한 뒤 시장이 반등', s: '당신은 몇 년 동안 모은 돈으로 산 아파트를 팔았습니다. 손실을 확정했지만 더 큰 폭락이 두려웠기 때문입니다. 그리고 얼마 뒤, 그 아파트 가격은 당신이 판 값을 훌쩍 넘어섰습니다. 당신은 오늘도 부동산 앱을 열어 봅니다. "그때 팔지만 않았더라면…"' },
+  e36: { p: 4, ic: '🎢', t: '영끌의 최후', d: '고점에 사서 큰 자산 감소와 과다 부채', s: '영혼까지 끌어모아 샀던 그해가 꼭대기였습니다. 집값은 떨어지고 대출만 남았습니다.' },
+  e37: { p: 4, ic: '⏳', t: '끝나지 않는 재개발', d: '정비사업이 오래 늦어져 유동성 위기', s: '착공 소식은 해마다 "내년"으로 미뤄졌습니다. 돈은 묶여 있고 이주비 이자만 쌓여 갑니다.' },
+  e38: { p: 4, ic: '⚠️', t: '현금청산의 악몽', d: '권리 검증 실패로 기대한 입주권을 잃음', s: '조합에서 날아온 통지서에는 "조합원 지위 승계 불가, 현금청산 대상"이라고 적혀 있었습니다. 새 아파트 대신 감정가가 적힌 서류만 남았습니다.' },
+  e39: { p: 4, ic: '🏚️', t: '부동산 파산', d: '채무불이행 등 심각한 재무 위기', s: '이자를 막으려 빌린 돈이 또 다른 이자를 낳았습니다. 경매 통지서를 받던 날, 당신은 처음으로 모든 걸 멈추고 싶었습니다.' },
+  e40: { p: 4, ic: '🌤️', t: '집을 잃고 인생을 얻다', d: '집은 처분했지만 재기와 생활 안정 달성', s: '집은 남지 않았지만 빚도 남지 않았습니다. 작은 월세방에서 다시 시작한 당신은, 그 어느 때보다 잠을 잘 잡니다.' },
+};
+
+// ===================== 나의 첫 번째 서울 아파트 구하기 — 엔진 =====================
+const KEY = 'seoulapt_v1';
+const $ = s => document.querySelector(s);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const r2 = v => Math.round(v * 100) / 100;
+function won(v) { // 억 단위 숫자 → "3억 2,500만"
+  const neg = v < 0; v = Math.abs(v);
+  let e = Math.floor(v + 1e-9), m = Math.round((v - e) * 1000) * 10;
+  if (m >= 10000) { e++; m -= 10000; }
+  const s = e >= 1 ? e + '억' + (m > 0 ? ' ' + m.toLocaleString() + '만' : '') : (m > 0 ? m.toLocaleString() + '만' : '0');
+  return (neg ? '-' : '') + s + '원';
+}
+const wonS = v => (Math.abs(v) >= 1 ? (Math.round(v * 10) / 10) + '억' : Math.round(v * 10000).toLocaleString() + '만') ;
+const pct = v => (v >= 0 ? '+' : '') + (Math.round(v * 10) / 10) + '%';
+const store = { get(k, d) { try { const v = localStorage.getItem(KEY + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) { } } };
+
+const MAXT = 40; // 20년 × 반기
+const DIFFS = { d3: { n: '하드', cash: .3, d: '현금 3,000만 원' }, d5: { n: '보통', cash: .5, d: '현금 5,000만 원' }, d10: { n: '쉬움', cash: 1, d: '현금 1억 원' }, d30: { n: '금수저', cash: 3, d: '현금 3억 원' } };
+let S = null;
+
+// ---------- 시간·규칙 ----------
+const yearOf = (t = S.t) => S.startYear + Math.floor(t / 2);
+const halfOf = t => t % 2 === 0 ? '상반기' : '하반기';
+const when = (t = S.t) => `${yearOf(t)}년 ${halfOf(t)}`;
+const ageOf = (t = S.t) => 29 + Math.floor(t / 2);
+// 시점별 규제 (역사 모드는 실제 흐름을 단순화, 현실 모드는 2026년 10·15 대책 기준)
+function rules(t = S.t) {
+  const y = yearOf(t) + (t % 2 ? .5 : 0);
+  const R = { name: '', ltv: .4, ltvFirst: .7, ownerLoan: false, gap: false, live: true, transfer: false, bunResale: false, acqHeavy: true, cap: p => p <= 15 ? 6 : p <= 25 ? 4 : 2, note: '' };
+  if (S.mode === 'hist' && y < 2017.5) Object.assign(R, { name: '2015 부동산 완화기', ltv: .7, ltvFirst: .7, ownerLoan: true, gap: true, live: false, transfer: true, bunResale: true, acqHeavy: false, cap: () => 99, note: 'LTV 70%, 전세 낀 매수(갭투자) 가능, 실거주 의무 없음' });
+  else if (S.mode === 'hist' && y < 2020) Object.assign(R, { name: '8·2 대책 시기', ltv: .4, ltvFirst: .5, ownerLoan: false, gap: true, live: false, transfer: true, bunResale: true, acqHeavy: false, cap: () => 99, note: '서울 LTV 40%, 다주택자 대출 제한, 갭투자는 가능' });
+  else if (S.mode === 'hist' && y < 2025.5) Object.assign(R, { name: '12·16 대책 이후', ltv: .4, ltvFirst: .5, ownerLoan: false, gap: true, live: false, transfer: true, bunResale: true, acqHeavy: y >= 2020.5, cap: p => p > 15 ? 0 : 99, note: '15억 초과 주택 대출 금지, 다주택 취득세 중과(2020 하반기~), 갭투자 가능' });
+  else Object.assign(R, { name: '10·15 대책 (서울 전역 토지거래허가)', note: '무주택 LTV 40%(생애최초 70%), 대출 한도 6·4·2억, 유주택자 주담대 불가, 2년 실거주 의무, 갭투자 금지, 조합원 지위 양도·분양권 전매 제한' });
+  if (S.relax && R.name.startsWith('10·15')) Object.assign(R, { name: '규제지역 일부 해제', ltv: .5, ltvFirst: .7, ownerLoan: true, gap: true, live: false, transfer: true, bunResale: true, cap: p => p <= 15 ? 6 : 4, note: '규제 완화: LTV 50%, 갭투자 다시 가능, 실거주 의무 해제' });
+  if (S.tight) { R.ltv = Math.max(.3, R.ltv - .1); R.ltvFirst = Math.max(.5, R.ltvFirst - .1); R.note += ' · 추가 대출 규제(LTV −10%p)'; }
+  return R;
+}
+
+// ---------- 시세 ----------
+function price(id) { return S.px[id]; }
+function bunValue(pr) { // 분양권 시세 = 분양가 + 프리미엄
+  if (pr.vb) return pr.base * (S.G / pr.G0) * pr.prem;
+  return price(pr.aid);
+}
+function propValue(pr) {
+  if (pr.kind === 'bun') return bunValue(pr);
+  if (pr.kind === 'ipj') return pr.conv ? price(pr.aid) * (1 + pr.stage * .06) : price(pr.aid) * .72 * (pr.stage >= 4 ? 1.05 : 1);
+  return pr.vb ? pr.base * (S.G / pr.G0) : price(pr.aid);
+}
+function aptName(pr) { return pr.vb ? pr.vname : AP[pr.aid].n; }
+function aptTr(pr) { return pr.vb ? { nw: 1 } : AP[pr.aid].tr; }
+
+// ---------- 대출 ----------
+const mRate = () => S.rate + 1.6;              // 주담대 금리
+function pmtHalf(bal, ratePct, years = 30) { const r = ratePct / 100 / 12, n = years * 12; if (bal <= 0) return 0; return 6 * bal * r / (1 - Math.pow(1 + r, -n)); }
+function income() { return S.salary + (S.spouse ? S.spouse : 0); } // 연 소득(억)
+function annualDebtService(extra = 0, stress = 1.5) {
+  let a = 0;
+  for (const p of S.props) if (p.loan > 0) a += 2 * pmtHalf(p.loan, mRate() + stress);
+  if (S.res.loan > 0) a += S.res.loan * (S.rate + 1.3) / 100;
+  if (S.credit > 0) a += S.credit * (S.rate + 4) / 100 + S.credit / 5;
+  if (extra > 0) a += 2 * pmtHalf(extra, mRate() + stress);
+  return a;
+}
+function homesOwned() { return S.props.filter(p => p.kind === 'buy').length + S.props.filter(p => p.kind !== 'buy').length; }
+function isHomeless() { return S.props.length === 0; }
+function loanLimit(priceV, opts = {}) {
+  const R = rules();
+  const owner = S.props.length > 0 && !opts.replacing;
+  if (owner && !R.ownerLoan) return { max: 0, why: '유주택자는 주택담보대출을 받을 수 없어요 (현 규제)' };
+  const first = !S.everOwned;
+  const ltv = first ? R.ltvFirst : R.ltv;
+  let max = priceV * ltv; let why = `LTV ${Math.round(ltv * 100)}%${first ? ' (생애최초)' : ''}`;
+  const cap = R.cap(priceV); if (cap < max) { max = cap; why = cap === 0 ? '15억 초과 주택은 주담대 금지' : `주택가격 구간 대출 한도 ${cap}억`; }
+  // DSR 40%
+  let lo = 0, hi = max;
+  if (annualDebtService(hi) > income() * .4) {
+    for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (annualDebtService(m) <= income() * .4) lo = m; else hi = m; }
+    max = lo; why = 'DSR 40% (소득 대비 원리금)';
+  }
+  return { max: Math.max(0, Math.floor(max * 100) / 100), why };
+}
+function acqTax(p, homesAfter) {
+  const R = rules();
+  if (R.acqHeavy && homesAfter >= 3) return p * .12;
+  if (R.acqHeavy && homesAfter === 2) return p * .08;
+  return p * (p <= 6 ? .01 : p <= 9 ? .02 : .03);
+}
+
+// ---------- 새 게임 ----------
+function newGame(mode, diff, name, goal) {
+  const hist = mode === 'hist';
+  S = {
+    v: 1, mode, diff, name: name || '나', goal, t: 0, startYear: hist ? 2015 : 2026,
+    cash: DIFFS[diff].cash, salary: .48, spouse: 0, married: -1, kids: [], parentsHelp: false,
+    res: { type: 'wolse', dep: .1, loan: 0 }, props: [], credit: 0,
+    G: 1, J: hist ? 1.75 : 1, rate: hist ? 1.75 : 2.5, phase: hist ? 'up' : 'up', future: [],
+    px: {}, hist: {}, Gh: [1], happy: 50, imjang: 1, adUsed: {}, report: 0, chart: false,
+    everOwned: false, firstHome: null, log: [], flags: {}, st: { flips: 0, gap: 0, gapOk: 0, jReturn: 0, jCrash: 0, duesUp: 0, crisis: 0, interestBad: 0, peakNW: 0, minAfterPeak: 1e9, homeTurns: 0, transitTurns: 0, bigLoss: false, lowBuy: false, oldBuyGain: 0, chWin: 0, chGain: 0, bunProfit: 0, ipjDone: 0, musun: false, sameHome: 0 },
+    relax: false, tight: false, deal: null, ev: null, ended: null, uid: 1, seen: {},
+  };
+  // 시작 시세: 현실 모드는 2026 시세, 역사 모드는 2015년 수준으로 역산
+  let back = 1; if (hist) for (const [g] of HIST) back *= 1 + g / 100;
+  for (const a of APTS) { const p = hist ? a.p / back * rnd(.92, 1.08) : a.p; S.px[a.id] = r2(p); S.hist[a.id] = [S.px[a.id]]; }
+  // 역사 모드에서 아직 분양 전/입주권 단계 전 단지는 나중에 등장
+  S.avail = {}; for (const a of APTS) S.avail[a.id] = !hist || a.kind === 'buy';
+  rollFuture();
+  log(`${when()}, ${S.name}의 서울 생활이 시작됐습니다. ${DIFFS[diff].d}, 연봉 4,800만 원, 월세 85만 원.`);
+  save();
+}
+function log(s) { S.log.unshift({ t: S.t, s }); if (S.log.length > 60) S.log.pop(); }
+function save() { store.set('_save', S); }
+
+// ---------- 시장 ----------
+function nextPhase(ph) {
+  const T = { up: [['up', .62], ['flat', .28], ['down', .1]], flat: [['up', .35], ['flat', .4], ['down', .25]], down: [['down', .45], ['flat', .35], ['up', .2]] }[ph];
+  let r = Math.random(); for (const [k, p] of T) { if ((r -= p) < 0) return k; } return 'flat';
+}
+function rollFuture() { // 앞으로 4반기 시장 흐름을 미리 굴려 둠 (전문가 리포트가 정직하게 보여주도록)
+  while (S.future.length < 4) {
+    const t = S.t + S.future.length;
+    if (S.mode === 'hist' && t < HIST.length) { const [g, r] = HIST[t]; S.future.push({ g, rate: r, ph: g >= 4 ? 'up' : g <= -1 ? 'down' : 'flat' }); continue; }
+    const prev = S.future.length ? S.future[S.future.length - 1].ph : S.phase;
+    const ph = nextPhase(prev);
+    const g = ph === 'up' ? rnd(2.5, 7.5) : ph === 'down' ? rnd(-7, -1) : rnd(-1, 2.5);
+    S.future.push({ g, ph, rate: null });
+  }
+}
+function stepMarket() {
+  rollFuture();
+  const f = S.future.shift(); S.phase = f.ph;
+  if (f.rate != null) S.rate = f.rate;
+  else { S.rate = clamp(S.rate + (f.ph === 'up' ? rnd(-.1, .3) : f.ph === 'down' ? rnd(-.35, .1) : rnd(-.15, .15)), .5, 6); S.rate = Math.round(S.rate * 4) / 4; }
+  const g = f.g + (S.gShock || 0); S.gShock = 0;
+  S.G *= 1 + g / 100; S.Gh.push(S.G);
+  // J = 전세가율 배수: 전세가는 매매가보다 덜 오르고 덜 떨어짐 → 상승장엔 전세가율 하락
+  S.J = S.J * (1 + (g * .45 + rnd(-1, 1.5) + (S.jShock || 0)) / 100) / (1 + g / 100); S.J += (1 - S.J) * .04; S.jShock = 0;
+  for (const a of APTS) {
+    let d = g * (a.b || 1) + rnd(-1.4, 1.4);
+    if (a.tr.rb) d += (S.rbBoost || 0) * a.tr.rb;
+    if (a.tr.nw && a.kind === 'buy') d -= .15; // 신축 프리미엄이 서서히 줄어듦
+    S.px[a.id] = r2(Math.max(.5, S.px[a.id] * (1 + d / 100)));
+    S.hist[a.id].push(S.px[a.id]);
+  }
+  S.rbBoost = 0;
+  // 역사 모드: 정비사업·분양 단지 등장 시점
+  if (S.mode === 'hist') for (const a of APTS) if (!S.avail[a.id] && ((a.kind === 'bun' && yearOf() >= a.mv - 3) || (a.kind === 'ipj' && yearOf() >= 2024))) { S.avail[a.id] = true; log(`📢 ${a.n} ${a.kind === 'bun' ? '분양권 거래가 시작됐습니다' : '입주권 매물이 나오기 시작했습니다'}.`); }
+  return g;
+}
+
+// ---------- 한 반기 정산 ----------
+function settle() {
+  const R = rules(), lines = [];
+  const inc = income() / 2;
+  const living = Math.max(.1, inc * .42) + (S.married >= 0 ? .03 : 0) + S.kids.length * .06; // 소득이 늘면 씀씀이도 늘어남
+  let housing = 0;
+  if (S.res.type === 'wolse') housing = .051;
+  if (S.res.type === 'jeonse') housing = S.res.loan * (S.rate + 1.3) / 100 / 2;
+  let loanPay = 0;
+  for (const p of S.props) if (p.loan > 0) { const pay = pmtHalf(p.loan, mRate()); const intr = p.loan * mRate() / 100 / 2; p.loan = r2(Math.max(0, p.loan - (pay - intr))); loanPay += pay; }
+  const credit = S.credit > 0 ? S.credit * (S.rate + 4) / 100 / 2 : 0;
+  let tax = 0;
+  if (S.t % 2 === 1) { // 하반기: 보유세
+    const homes = S.props.filter(p => p.kind === 'buy');
+    for (const p of homes) { const v = propValue(p); tax += homes.length >= 2 ? v * .004 : v * .0012 + Math.max(0, v - 12) * .003; }
+  }
+  const out = living + housing + loanPay + credit + tax;
+  S.cash = r2(S.cash + inc - out);
+  S.lastFlow = { inc, living, housing, loanPay, credit, tax, net: inc - out };
+  if (loanPay + credit + housing > inc * .55) { S.st.interestBad++; lines.push('⚠️ 이자·원리금이 소득의 절반을 넘었습니다.'); } else S.st.interestBad = Math.max(0, S.st.interestBad - 1);
+  return lines;
+}
+function progressProps() {
+  const msgs = [];
+  for (const p of [...S.props]) {
+    // 세입자 만기
+    if (p.tenant && S.t >= p.tenant.until) {
+      const v = propValue(p), jr = AP[p.aid] ? AP[p.aid].jr || .5 : .5;
+      const newDep = r2(Math.min(v * .8, v * jr * S.J));
+      const diff = r2(newDep - p.tenant.dep);
+      if (diff >= 0) { S.cash = r2(S.cash + diff); msgs.push(`🔑 ${aptName(p)} 전세 재계약: 보증금이 ${won(diff)} 올라 현금이 들어왔습니다.`); }
+      else {
+        S.cash = r2(S.cash + diff); msgs.push(`💦 ${aptName(p)} 전세 재계약: 전세가가 떨어져 보증금 차액 ${won(-diff)}을 돌려줬습니다.`);
+        if (-diff > p.tenant.dep * .12) { S.flags.jCrashHit = true; }
+      }
+      S.st.jReturn++;
+      p.tenant = { dep: newDep, until: S.t + 4, J0: S.J };
+    }
+    // 분양권 입주
+    if (p.kind === 'bun' && yearOf() >= p.mv && S.t % 2 === 0) msgs.push(...moveInBun(p));
+    // 입주권 진행
+    if (p.kind === 'ipj') {
+      if (!p.verified && !p.cleared && Math.random() < .12) { // 권리 검증 실패 → 현금청산
+        const back = r2(p.paid * .72); S.cash = r2(S.cash + back - (p.loan || 0)); S.props = S.props.filter(x => x !== p);
+        S.flags.cashOut = true; msgs.push(`⚠️ ${aptName(p)}: 조합원 지위 승계가 인정되지 않아 현금청산 대상이 됐습니다. 감정가 ${won(back)}만 돌려받습니다.`); continue;
+      }
+      p.wait = (p.wait || 0) + 1;
+      if (Math.random() < (p.slow ? .1 : .2)) { p.stage++; p.wait = 0; msgs.push(`🏗️ ${aptName(p)}: '${STAGES[Math.min(p.stage, 5)]}' 단계에 들어섰습니다.`); }
+      if (p.wait >= 6) S.flags.ipjLong = true;
+      if (p.stage >= 5) msgs.push(...completeIpj(p));
+    }
+  }
+  return msgs;
+}
+function moveInBun(p) {
+  const v = bunValue(p), R = rules();
+  const need = r2(p.total * .9 - (p.prepaid || 0) + acqTax(p.total, S.props.filter(x => x.kind === 'buy').length + 1)); // 중도금(대출 상환)+잔금+취득세
+  const lim = loanLimit(v, { replacing: S.props.length === 1 });
+  const cashNeed = r2(Math.max(0, need - lim.max));
+  if (S.cash >= cashNeed) {
+    S.cash = r2(S.cash - cashNeed);
+    Object.assign(p, { kind: 'buy', loan: r2(need - cashNeed), buyP: p.total + (p.premPaid || 0), buyT: S.t, live: !S.props.some(x => x.live && x !== p), vb: p.vb, base: v, G0: S.G });
+    if (p.live) moveIntoOwned(p);
+    S.everOwned = true; if (!S.firstHome) S.firstHome = { t: S.t, uid: p.uid };
+    if (p.fromCh) { S.st.chGain = Math.max(S.st.chGain, v - p.total); }
+    if (p.musun) S.st.musun = true;
+    return [`🎉 ${aptName(p)} 입주! 잔금을 치르고 새 아파트의 주인이 됐습니다. (잔금대출 ${won(p.loan)})`];
+  }
+  // 잔금 부족
+  if (R.bunResale || p.resaleOk) {
+    const sell = r2(v * .95), got = r2(sell - p.total * .9 + (p.prepaid || 0) - (p.loan || 0));
+    S.cash = r2(S.cash + Math.max(0, got)); S.props = S.props.filter(x => x !== p);
+    if (got < p.total * .1) S.flags.depositLost = true;
+    return [`📉 ${aptName(p)}: 잔금 ${won(cashNeed)}이 모자라 입주 직전 급매로 넘겼습니다. 손에 쥔 돈 ${won(Math.max(0, got))}.`];
+  }
+  S.props = S.props.filter(x => x !== p); S.flags.depositLost = true;
+  return [`💸 ${aptName(p)}: 잔금 ${won(cashNeed)}을 마련하지 못해 계약이 해지되고 계약금 ${won(p.total * .1)}을 잃었습니다.`];
+}
+function completeIpj(p) {
+  const v = r2(price(p.aid) * (p.conv ? 1.7 : 1.05));
+  const need = p.dues;
+  const lim = loanLimit(v, { replacing: S.props.length === 1 });
+  const cashNeed = r2(Math.max(0, need - lim.max));
+  if (S.cash < cashNeed) {
+    S.flags.ipjCrisis = true;
+    const sell = r2(v * .9 - need); S.cash = r2(S.cash + sell - (p.loan || 0)); S.props = S.props.filter(x => x !== p);
+    return [`😵 ${aptName(p)}: 준공됐지만 분담금 ${won(need)}을 낼 돈이 없어 입주권을 급매로 넘겼습니다.`];
+  }
+  S.cash = r2(S.cash - cashNeed);
+  Object.assign(p, { kind: 'buy', loan: r2((p.loan || 0) + need - cashNeed), buyP: p.paid + need, buyT: S.t, live: !S.props.some(x => x.live && x !== p) });
+  if (!p.conv) S.px[p.aid] = v; else { p.vb = true; p.vname = AP[p.aid].n.replace(/주공 ?\d*단지|아파트|\d+단지/, '') + ' 신축 (재건축)'; p.base = v; p.G0 = S.G; }
+  if (p.live) moveIntoOwned(p);
+  S.st.ipjDone++; S.everOwned = true; if (!S.firstHome) S.firstHome = { t: S.t, uid: p.uid };
+  S.st.ipjProfit = v - p.buyP;
+  return [`🔑 ${aptName(p)} 준공! 조합원 입주권이 새 아파트로 바뀌었습니다. 시세 ${won(v)}.`];
+}
+function moveIntoOwned(p) {
+  // 전세 보증금 회수
+  if (S.res.type === 'jeonse' || S.res.type === 'wolse') { S.cash = r2(S.cash + S.res.dep - S.res.loan); }
+  S.res = { type: 'own', dep: 0, loan: 0, uid: p.uid };
+  p.live = true; p.liveFrom = S.t; p.tenant = null;
+}
+function propEquity(p) {
+  if (p.kind === 'bun') return bunValue(p) - p.total * .9 + (p.prepaid || 0) - (p.loan || 0);
+  if (p.kind === 'ipj') return propValue(p) - (p.loan || 0);
+  return propValue(p) - (p.loan || 0) - (p.tenant ? p.tenant.dep : 0);
+}
+function nw() {
+  let v = S.cash + (S.res.type !== 'own' ? S.res.dep - S.res.loan : 0) - S.credit;
+  for (const p of S.props) v += propEquity(p);
+  return r2(v);
+}
+function reNW() { let v = 0; for (const p of S.props) v += propEquity(p); return r2(v); }
+function debtTotal() { let d = S.credit + S.res.loan; for (const p of S.props) d += (p.loan || 0); return r2(d); }
+
+// 위기: 현금이 마이너스면 신용대출 → 급매 → 파산
+function crisis() {
+  const msgs = [];
+  if (S.cash >= 0) return msgs;
+  const room = Math.max(0, Math.min(1.5, income() * 1.2) - S.credit);
+  if (room > 0) { const take = r2(Math.min(room, -S.cash + .05)); S.credit = r2(S.credit + take); S.cash = r2(S.cash + take); msgs.push(`🏦 현금이 바닥나 신용대출 ${won(take)}을 받았습니다. (금리 ${(S.rate + 4).toFixed(1)}%)`); S.st.crisis++; }
+  if (S.cash < 0 && S.res.type === 'jeonse') { const back = r2(S.res.dep - S.res.loan); S.cash = r2(S.cash + back); S.res = { type: 'wolse', dep: 0, loan: 0 }; msgs.push(`📦 전세 보증금을 빼서 보증금 없는 월세로 옮겼습니다.`); }
+  while (S.cash < 0 && S.props.length) {
+    const p = S.props.slice().sort((a, b) => (b.live ? 0 : 1) - (a.live ? 0 : 1))[S.props.length - 1];
+    const got = sellProp(p, true);
+    msgs.push(`🚨 돈이 모자라 ${aptName(p)}을(를) 급매로 처분했습니다. (${won(got)})`); S.flags.forcedSale = true;
+  }
+  if (S.cash < 0) { S.ended = 'e39'; msgs.push('💥 더 이상 버틸 수 없습니다…'); }
+  return msgs;
+}
+
+// ---------- 매수 ----------
+function buyQuote(aid, mode) { // mode: live | gap
+  const a = AP[aid], p = price(aid) * (S.deal && S.deal.aid === aid ? 1 - S.deal.disc : 1);
+  const homesAfter = S.props.filter(x => x.kind === 'buy').length + 1;
+  const tax = r2(acqTax(p, homesAfter)), fee = r2(p * .005);
+  let dep = 0;
+  if (mode === 'gap') dep = r2(Math.min(p * .8, p * a.jr * S.J));
+  const lim = mode === 'gap' ? { max: 0, why: '갭투자는 주택담보대출 없이 전세보증금으로 매수' } : loanLimit(p);
+  const resBack = mode === 'live' && S.res.type !== 'own' ? r2(S.res.dep - S.res.loan) : 0;
+  const cashNeed = r2(p + tax + fee - dep - lim.max);
+  return { p, tax, fee, dep, lim, cashNeed, resBack, ok: S.cash + resBack >= cashNeed };
+}
+function doBuy(aid, mode, loanUse) {
+  const q = buyQuote(aid, mode), a = AP[aid];
+  const loan = mode === 'gap' ? 0 : clamp(loanUse == null ? q.lim.max : loanUse, 0, q.lim.max);
+  const cashNeed = r2(q.p + q.tax + q.fee - q.dep - loan);
+  if (S.cash + q.resBack < cashNeed) return false;
+  const pr = { uid: S.uid++, aid, kind: 'buy', buyP: r2(q.p), buyT: S.t, loan: r2(loan), live: false, tenant: null, G0: S.G };
+  if (mode === 'live') { S.props.push(pr); moveIntoOwned(pr); }
+  else { pr.tenant = { dep: q.dep, until: S.t + 4, J0: S.J }; S.props.push(pr); S.st.gap++; }
+  S.cash = r2(S.cash - cashNeed);
+  if (!S.everOwned && mode === 'live') S.firstHome = { t: S.t, uid: pr.uid };
+  S.everOwned = true;
+  if (S.phase === 'down' || (S.Gh.length > 3 && S.G < Math.max(...S.Gh) * .9)) pr.lowBuy = true;
+  if (S.Gh.length > 2 && S.G >= Math.max(...S.Gh) * .98 && S.phase === 'up') pr.peakBuy = true;
+  if (a.y && a.y < 2000) pr.old = true;
+  // 갈아타기: 최근 2반기 안에 실거주 집을 판 뒤 더 비싼 집으로
+  if (mode === 'live' && S.lastLivedSale && S.t - S.lastLivedSale.t <= 2 && q.p > S.lastLivedSale.p * 1.15) { S.st.flips++; S.lastLivedSale = null; }
+  if (S.deal && S.deal.aid === aid) S.deal = null;
+  S.seen[aid] = 2;
+  log(`🖊️ ${a.n} ${mode === 'gap' ? '전세 끼고 매수' : '매수·입주'} (${won(q.p)}, 대출 ${won(loan)})`);
+  return true;
+}
+function buyBun(aid) { // 분양권 전매 매수
+  const a = AP[aid], v = price(aid), prem = r2(Math.max(0, v - a.p));
+  const cost = r2(a.p * .1 + prem + v * .005);
+  if (S.cash < cost) return false;
+  S.cash = r2(S.cash - cost);
+  S.props.push({ uid: S.uid++, aid, kind: 'bun', total: a.p, premPaid: prem, mv: a.mv, buyT: S.t, loan: 0, resaleOk: true });
+  log(`📄 ${a.n} 분양권 매수 (계약금 ${won(a.p * .1)} + 프리미엄 ${won(prem)})`);
+  return true;
+}
+function buyIpj(aid, verify) {
+  const a = AP[aid], v = price(aid), cost = r2(v * .72), R = rules();
+  const fee = verify === 'paid' ? .03 : 0, loan = ipjLoan(aid);
+  if (S.cash < cost + fee - loan) return false;
+  S.cash = r2(S.cash - cost - fee + loan);
+  S.props.push({ uid: S.uid++, aid, kind: 'ipj', paid: cost, paid0: cost, dues: r2(v * .3), stage: a.stage, buyT: S.t, loan, verified: R.transfer || !!verify, slow: false });
+  log(`📜 ${a.n} 조합원 입주권 매수 (${won(cost)}, 예상 분담금 ${won(v * .3)})${!R.transfer && !verify ? ' — 권리 검증 없이 매수' : ''}`);
+  return true;
+}
+function ipjLoan(aid) { // 조합 이주비 대출 승계 (권리가액의 일부)
+  return S.props.length ? 0 : r2(price(aid) * .72 * .35);
+}
+function sellProp(p, forced) {
+  const v = propValue(p) * (forced ? .9 : 1), R = rules();
+  let tax = 0;
+  if (p.kind === 'buy') {
+    const gain = v - p.buyP - p.buyP * .04, held = S.t - p.buyT, homes = S.props.filter(x => x.kind === 'buy').length;
+    if (gain > 0) {
+      const lived = p.live && S.t - (p.liveFrom ?? p.buyT) >= 4;
+      if (homes === 1 && held >= 4 && (lived || S.mode === 'hist' && yearOf(p.buyT) < 2017)) tax = v > 12 ? gain * (v - 12) / v * .25 : 0;
+      else tax = gain * (held < 2 ? .7 : held < 4 ? .6 : homes >= 2 ? .45 : .3);
+    }
+  }
+  let got;
+  if (p.kind === 'bun') got = v - p.total * .9 + (p.prepaid || 0) - (p.loan || 0);
+  else if (p.kind === 'ipj') got = v - (p.loan || 0);
+  else got = v - (p.loan || 0) - (p.tenant ? p.tenant.dep : 0) - v * .005 - tax;
+  got = r2(got);
+  S.cash = r2(S.cash + got);
+  S.props = S.props.filter(x => x !== p);
+  const profit = p.kind === 'buy' ? v - p.buyP : 0;
+  if (p.kind === 'buy') {
+    if (p.tenant && profit > 0 && S.mode === 'hist') S.st.gapOk++;
+    if (p.old && profit / p.buyP > S.st.oldBuyGain) S.st.oldBuyGain = profit / p.buyP;
+    if (p.lowBuy && S.t - p.buyT >= 8 && profit / p.buyP >= .4) S.st.lowBuy = true;
+    if (S.phase === 'down' && profit < 0 && !forced) S.panic = { aid: p.aid, p: v, t: S.t };
+  }
+  if (p.kind === 'bun' && !forced) S.st.bunProfit += got - (p.total * .1 + (p.premPaid || 0));
+  if (p.live) { S.res = { type: 'wolse', dep: 0, loan: 0 }; S.lastLivedSale = { t: S.t, p: v }; S.st.sameHome = 0; }
+  log(`🤝 ${aptName(p)} ${forced ? '급매 ' : ''}매도 (${won(v)}${tax > 0 ? `, 양도세 ${won(tax)}` : ''})`);
+  return got;
+}
+
+// ===================== 부동산 이벤트 카드 =====================
+// w(S) → 가중치(0이면 안 나옴), run(S) → { cat, t, d, ch:[{l, f() → 결과 문장}] }
+const owns = k => S.props.filter(p => p.kind === k);
+const ownsOld = () => S.props.filter(p => p.kind === 'buy' && !p.vb && AP[p.aid].y && AP[p.aid].y < 2000);
+const gapProps = () => S.props.filter(p => p.tenant);
+const single = () => S.married < 0;
+const homelessYears = () => S.everOwned ? 0 : Math.max(0, ageOf() - 30) + 1;
+function gajeom() { // 청약 가점 (84점 만점, 단순화)
+  const h = Math.min(32, 2 + homelessYears() * 2);
+  const fam = Math.min(35, 5 + ((S.married >= 0) ? 5 : 0) + S.kids.length * 5 + (S.parentsHelp ? 5 : 0));
+  const acc = Math.min(17, 6 + Math.floor(S.t / 2) + 1);
+  const bonus = S.chBonus || 0;
+  return { h, fam, acc, bonus, total: Math.min(84, h + fam + acc + bonus) };
+}
+function payOrCredit(amt) { S.cash = r2(S.cash - amt); }
+
+const EVENTS = [
+  // ── 시장 ──
+  { id: 'rateUp', w: () => S.rate < 5 ? 6 : 0, run: () => {
+    const y = yearOf();
+    return { cat: '시장', t: `${y}년, 금리가 급등했습니다!`, d: '은행에서 연락이 왔습니다. 다음 달부터 대출 이자가 오릅니다. 이대로라면 저축액이 크게 줄어듭니다.',
+      ch: [
+        { l: '그대로 버틴다', s: '현금 유지 · 이자 부담 증가', f: () => { S.rate = r2(S.rate + .75); return `기준금리가 ${S.rate.toFixed(2)}%로 올랐습니다. 매달 나가는 이자가 늘어납니다.`; } },
+        { l: '일부 대출 상환', s: '현금 감소 · 미래 이자 완화', ok: () => S.props.some(p => p.loan > 0) && S.cash > .3, f: () => { S.rate = r2(S.rate + .75); const p = S.props.filter(p => p.loan > 0).sort((a, b) => b.loan - a.loan)[0]; const amt = r2(Math.min(p.loan, S.cash * .5)); p.loan = r2(p.loan - amt); S.cash = r2(S.cash - amt); return `${aptName(p)} 대출 ${won(amt)}을 미리 갚았습니다.`; } },
+        { l: '아파트 매도 검토', s: '부채를 줄일 수 있지만 매매 손익과 이사비 발생', ok: () => S.props.length > 0, f: () => { S.rate = r2(S.rate + .75); S.goTab = 'assets'; return '내 자산 화면에서 팔 집을 골라 보세요.'; } },
+      ] };
+  } },
+  { id: 'rateDown', w: () => S.rate > 1 ? 4 : 0, run: () => ({ cat: '시장', t: '기준금리 인하', d: '중앙은행이 경기 부양을 위해 금리를 내렸습니다. 대출 문의가 늘고 매수 심리가 살아납니다.',
+    ch: [{ l: '좋은 소식이다', f: () => { S.rate = r2(Math.max(.5, S.rate - .5)); S.gShock = 1.5; return `기준금리 ${S.rate.toFixed(2)}%. 다음 반기 집값에 훈풍이 붑니다.`; } }] }) },
+  { id: 'freeze', w: () => S.phase !== 'up' ? 4 : 1, run: () => ({ cat: '시장', t: '거래 절벽', d: '매수 문의가 뚝 끊겼습니다. 중개사무소마다 "지금은 사려는 사람이 없어요"라는 말뿐입니다.',
+    ch: [{ l: '시장을 지켜본다', f: () => { S.gShock = -2; return '다음 반기 집값이 약세를 보일 가능성이 커졌습니다.'; } }] }) },
+  { id: 'urgent', w: () => 5, run: () => {
+    const cands = APTS.filter(a => a.kind === 'buy' && S.avail[a.id]); const a = pick(cands); const disc = r2(rnd(.06, .12));
+    return { cat: '시장', t: `급매 출현: ${a.n}`, d: `집주인 사정으로 ${GUN[a.gu].n}구 ${a.n}에 시세보다 ${Math.round(disc * 100)}% 싼 급매가 나왔습니다. 이번 반기에만 유효합니다.`,
+      ch: [{ l: '매물 보러 가기', f: () => { S.deal = { aid: a.id, disc, t: S.t }; S.goApt = a.id; return `${a.n} 급매가 ${won(price(a.id) * (1 - disc))}에 나와 있습니다.`; } }, { l: '관심 없다', f: () => '그냥 넘겼습니다.' }] };
+  } },
+  { id: 'jUp', w: () => 3, run: () => ({ cat: '전월세', t: '전세가 급등', d: '입주 물량이 줄어 전세 매물이 사라지고 있습니다. 전셋값이 크게 오릅니다.',
+    ch: [{ l: '어쩔 수 없다', f: () => { S.jShock = 8; let m = '전세 시세가 오릅니다.'; if (S.res.type === 'jeonse') { const add = r2(S.res.dep * .1); S.res.dep = r2(S.res.dep + add); S.cash = r2(S.cash - add); m += ` 집주인이 보증금 ${won(add)} 인상을 요구해 올려 줬습니다.`; } return m; } }] }) },
+  { id: 'jDown', w: () => S.phase === 'down' ? 4 : 1.5, run: () => ({ cat: '전월세', t: '전세가 급락', d: '대규모 입주와 금리 부담으로 전세 시세가 크게 떨어졌습니다. 다음 재계약 때 보증금을 돌려줘야 하는 집주인이 늘고 있습니다.',
+    ch: [{ l: '비상금을 점검한다', f: () => { S.jShock = -14; if (gapProps().length) { S.flags.jCrashHit = true; return '갖고 있는 전세 낀 집의 다음 재계약이 걱정됩니다. 현금을 넉넉히 준비하세요.'; } return '세입자 입장에서는 나쁘지 않은 소식입니다.'; } }] }) },
+  { id: 'tenantOut', w: () => gapProps().length ? 3 : 0, run: () => { const p = pick(gapProps()); return { cat: '갭투자', t: '세입자 퇴거 요청', d: `${aptName(p)} 세입자가 회사 발령으로 만기 전에 나가겠다며 보증금 ${won(p.tenant.dep)} 반환을 요청했습니다.`,
+    ch: [
+      { l: '새 세입자를 구해 돌려준다', s: '현재 전세 시세로 다시 계약', f: () => { const nd = r2(propValue(p) * AP[p.aid].jr * S.J); const diff = r2(nd - p.tenant.dep); S.cash = r2(S.cash + diff); p.tenant = { dep: nd, until: S.t + 4, J0: S.J }; S.st.jReturn++; return diff >= 0 ? `새 보증금이 ${won(diff)} 더 높아 차액이 들어왔습니다.` : `새 보증금이 낮아 ${won(-diff)}을 보태 돌려줬습니다.`; } },
+      { l: '집을 팔아 정리한다', f: () => { const g = sellProp(p); return `매도 대금으로 보증금을 정리했습니다. 손에 남은 돈 ${won(g)}.`; } },
+    ] }; } },
+  // ── 청약 ──
+  { id: 'cheong', w: () => isHomeless() ? 7 : 1, run: () => {
+    const b = pick(VBUN), g = gajeom(), ok = isHomeless() && S.t >= 1;
+    const sp = S.married >= 0 && S.t - S.married <= 14 ? 12 : 0;
+    const chance = clamp(1 / (1 + Math.exp(-(g.total + sp - b.cut) / 3)) * .9 + .02, .02, .9);
+    return { cat: '청약', t: `청약 공고: ${b.n}`, d: `${GUN[b.gu].n}구 신규 분양. 분양가 ${won(b.p)} (전용 59㎡). 예상 당첨 가점 ${b.cut}점 안팎. 내 가점 ${g.total}점 (무주택 ${g.h} · 부양가족 ${g.fam} · 통장 ${g.acc})${sp ? ' · 신혼 특별공급 대상' : ''}. 당첨되면 계약금 10%(${won(b.p * .1)})를 바로 내야 합니다.`,
+      ch: [
+        { l: `청약 넣기 (당첨 확률 약 ${Math.round(chance * 100)}%)`, ok: () => ok, s: ok ? '' : '무주택자만 청약할 수 있어요', f: () => {
+          if (Math.random() > chance) return '아쉽게도 낙첨입니다. 가점을 더 쌓아 다음 기회를 노려 보세요.';
+          if (S.cash < b.p * .1) { S.flags.chGiveUp = true; return `당첨됐습니다! …하지만 계약금 ${won(b.p * .1)}이 없어 계약을 포기했습니다. 청약통장도 재사용할 수 없습니다.`; }
+          S.cash = r2(S.cash - b.p * .1); S.st.chWin++;
+          S.props.push({ uid: S.uid++, vb: true, vname: b.n, vgu: b.gu, kind: 'bun', total: b.p, base: b.p, G0: S.G, prem: rnd(1.15, 1.45), mv: yearOf() + 3, buyT: S.t, loan: 0, fromCh: true, resaleOk: rules().bunResale });
+          return `🎉 당첨! 계약금 ${won(b.p * .1)}을 냈습니다. ${yearOf() + 3}년 입주 예정입니다. 중도금은 집단대출로, 잔금은 입주 때 냅니다.`;
+        } },
+        { l: '이번엔 넘긴다', f: () => '다음 공고를 기다립니다.' },
+      ] };
+  } },
+  { id: 'musun', w: () => S.t > 2 ? 2 : 0, run: () => { const b = pick(VBUN); const ok = isHomeless() || S.mode === 'hist';
+    return { cat: '청약', t: '무순위 청약(줍줍) 공고', d: `${b.n}에서 계약 포기 물량이 나왔습니다. 분양가 ${won(b.p)}. 경쟁률 수천 대 1이 예상됩니다.`,
+      ch: [{ l: '밑져야 본전, 넣어 본다', ok: () => ok, s: ok ? '' : '현 규제에서는 무주택자만 신청할 수 있어요', f: () => {
+        if (Math.random() > .04) return '역시 어렵네요. 낙첨입니다.';
+        if (S.cash < b.p * .1) { S.flags.chGiveUp = true; return '기적처럼 당첨! 하지만 계약금이 없어 포기했습니다…'; }
+        S.cash = r2(S.cash - b.p * .1);
+        S.props.push({ uid: S.uid++, vb: true, vname: b.n + ' (무순위)', vgu: b.gu, kind: 'bun', total: b.p, base: b.p, G0: S.G, prem: rnd(1.3, 1.6), mv: yearOf() + 2, buyT: S.t, loan: 0, musun: true, resaleOk: rules().bunResale });
+        return `🍀 무순위 당첨! 계약금 ${won(b.p * .1)}을 냈습니다. ${yearOf() + 2}년 입주 예정.`; } }, { l: '안 넣는다', f: () => '넘겼습니다.' }] }; } },
+  { id: 'special', w: () => (S.married >= 0 || S.kids.length) && isHomeless() ? 2 : 0, run: () => ({ cat: '청약', t: '특별공급 자격 발생', d: '신혼부부·다자녀 특별공급 자격이 생겼습니다. 다음 청약에서 당첨 확률이 크게 오릅니다.',
+    ch: [{ l: '좋아!', f: () => { S.married = Math.max(S.married, S.t - 1); return '특별공급 대상자로 등록했습니다.'; } }] }) },
+  // ── 구축 ──
+  { id: 'leak', w: () => ownsOld().length ? 4 : 0, run: () => { const p = pick(ownsOld()), c = r2(rnd(.03, .08)); return { cat: '구축', t: '누수 발견', d: `${aptName(p)} 욕실 천장에서 물이 샙니다. 아랫집에서 연락이 왔습니다. 수리비 ${won(c)}.`,
+    ch: [{ l: '바로 수리한다', f: () => { payOrCredit(c); return `수리비 ${won(c)}을 냈습니다. 아랫집과 관계는 지켰습니다.`; } }, { l: '보험 처리 알아본다', f: () => { payOrCredit(c * .5); S.happy -= 4; return `절반은 보험으로 처리했지만, 몇 주간 공사로 스트레스를 받았습니다.`; } }] }; } },
+  { id: 'remodel', w: () => S.props.some(p => p.kind === 'buy' && p.live) ? 2 : 0, run: () => { const p = S.props.find(p => p.kind === 'buy' && p.live); const c = r2(rnd(.15, .4)); return { cat: '구축', t: '인테리어 고민', d: `${aptName(p)}이(가) 낡아 보입니다. 리모델링을 하면 생활이 훨씬 쾌적해집니다. 비용 ${won(c)}.`,
+    ch: [{ l: '리모델링한다', ok: () => S.cash >= c, f: () => { S.cash = r2(S.cash - c); S.happy += 10; p.remod = true; return '새집 같아졌습니다. 주거 만족도가 크게 올랐습니다.'; } }, { l: '조금 더 참는다', f: () => '다음에 하기로 했습니다.' }] }; } },
+  // ── 분양권 ──
+  { id: 'delay', w: () => owns('bun').length ? 3 : 0, run: () => { const p = pick(owns('bun')); return { cat: '분양권', t: '공사 지연', d: `${aptName(p)} 현장에 자재 수급 문제가 생겨 입주가 1년 늦어진다는 공지가 왔습니다.`,
+    ch: [{ l: '기다린다', f: () => { p.mv++; return `입주 예정이 ${p.mv}년으로 미뤄졌습니다.`; } }] }; } },
+  { id: 'option', w: () => owns('bun').length ? 2 : 0, run: () => { const p = pick(owns('bun')); const c = r2(p.total * .02); return { cat: '분양권', t: '옵션비 증가', d: `${aptName(p)} 발코니 확장·시스템 에어컨 옵션 비용이 ${won(c)}로 확정됐습니다.`,
+    ch: [{ l: '옵션을 넣는다', f: () => { payOrCredit(c); S.happy += 3; return '입주 때 쾌적하게 살 수 있겠습니다.'; } }, { l: '기본형으로 간다', f: () => '옵션 없이 가기로 했습니다.' }] }; } },
+  { id: 'midBlock', w: () => owns('bun').length && S.t > 3 ? 1.5 : 0, run: () => { const p = pick(owns('bun')); const c = r2(p.total * .2); return { cat: '분양권', t: '중도금 대출 불가', d: `대출 규제로 ${aptName(p)} 중도금 집단대출 일부가 막혔습니다. 중도금 ${won(c)}을 직접 내야 합니다.`,
+    ch: [
+      { l: '현금으로 낸다', ok: () => S.cash >= c, f: () => { S.cash = r2(S.cash - c); p.total = r2(p.total - c / .9 * 0); p.prepaid = (p.prepaid || 0) + c; return `중도금 ${won(c)}을 냈습니다.`; } },
+      { l: '분양권을 판다', ok: () => p.resaleOk || rules().bunResale, s: p.resaleOk || rules().bunResale ? '' : '전매제한 기간이라 팔 수 없어요', f: () => { const g = sellProp(p); return `분양권을 넘겼습니다. 손에 남은 돈 ${won(g)}.`; } },
+      { l: '신용대출로 버틴다', f: () => { S.credit = r2(S.credit + c); p.prepaid = (p.prepaid || 0) + c; return `신용대출 ${won(c)}으로 중도금을 막았습니다.`; } },
+    ] }; } },
+  // ── 입주권 ──
+  { id: 'ipjStep', w: () => owns('ipj').length ? 3 : 0, run: () => { const p = pick(owns('ipj')); return { cat: '입주권', t: '정비사업 진척', d: `${aptName(p)} 조합 총회가 순조롭게 끝났습니다.`, ch: [{ l: '좋다', f: () => { p.stage = Math.min(5, p.stage + 1); return `'${STAGES[p.stage]}' 단계로 넘어갔습니다.`; } }] }; } },
+  { id: 'dues', w: () => owns('ipj').length ? 3 : 0, run: () => { const p = pick(owns('ipj')); const add = r2(p.dues * rnd(.12, .25)); return { cat: '입주권', t: '추가분담금 증가', d: `${aptName(p)} 공사비가 올라 조합원 1인당 분담금이 ${won(add)} 늘어난다는 총회 안건이 올라왔습니다.`,
+    ch: [{ l: '찬성한다 (사업 속도 유지)', f: () => { p.dues = r2(p.dues + add); S.st.duesUp++; return `분담금이 ${won(p.dues)}으로 늘었습니다.`; } }, { l: '반대표를 던진다', f: () => { if (Math.random() < .5) { p.slow = true; return '안건이 부결돼 시공사와 협상이 길어집니다. 사업이 늦어질 수 있습니다.'; } p.dues = r2(p.dues + add); S.st.duesUp++; return `반대에도 안건이 통과됐습니다. 분담금 ${won(p.dues)}.`; } }] }; } },
+  { id: 'suit', w: () => owns('ipj').length ? 2 : 0, run: () => { const p = pick(owns('ipj')); return { cat: '입주권', t: '조합 소송', d: `${aptName(p)} 비대위가 관리처분계획 무효 소송을 냈습니다.`, ch: [{ l: '결과를 기다린다', f: () => { p.slow = Math.random() < .6; p.wait = (p.wait || 0) + 2; return p.slow ? '소송이 길어지며 사업이 지연됩니다.' : '법원이 조합 손을 들어줬습니다.'; } }] }; } },
+  { id: 'nego', w: () => owns('ipj').length ? 1.5 : 0, run: () => { const p = pick(owns('ipj')); return { cat: '입주권', t: '공사비 협상', d: `${aptName(p)} 시공사가 공사비 인상을 요구하며 공사를 멈추겠다고 통보했습니다.`,
+    ch: [{ l: '조합의 합의안 찬성', f: () => { const add = r2(p.dues * .1); p.dues = r2(p.dues + add); S.st.duesUp++; p.slow = false; return `공사가 재개됩니다. 분담금 +${won(add)}.`; } }, { l: '버틴다', f: () => { p.slow = true; p.wait = (p.wait || 0) + 2; return '공사가 멈췄습니다. 이주비 이자가 쌓입니다.'; } }] }; } },
+  { id: 'rbStart', w: () => S.props.some(p => p.kind === 'buy' && !p.vb && (AP[p.aid].tr.rb || 0) >= .4 && S.t - p.buyT >= 4) ? 3 : 0, run: () => {
+    const p = pick(S.props.filter(p => p.kind === 'buy' && !p.vb && (AP[p.aid].tr.rb || 0) >= .4 && S.t - p.buyT >= 4)); const v = propValue(p);
+    return { cat: '재건축', t: `${aptName(p)} 재건축 조합 설립!`, d: `드디어 ${aptName(p)} 재건축 조합이 설립됐습니다. 집이 조합원 입주권으로 바뀌고, 이주·철거 뒤 새 아파트가 지어집니다. 준공 때 분담금은 약 ${won(v * .35)}로 예상됩니다.${p.live ? ' 사는 집이라 이주해야 합니다(이주비 대출로 전세를 구합니다).' : ''}`,
+      ch: [
+        { l: '조합원으로 끝까지 간다', s: '신축 입주까지 몇 년 · 분담금 필요', f: () => { if (p.live) { S.res = { type: 'jeonse', dep: r2(v * .4), loan: r2(v * .4) }; } if (p.tenant) { S.cash = r2(S.cash - p.tenant.dep); p.tenant = null; } Object.assign(p, { kind: 'ipj', conv: true, paid: p.buyP, paid0: p.buyP, dues: r2(v * .35), stage: 0, live: false, verified: true, slow: false, wait: 0 }); return '조합원이 됐습니다. 이주비 대출로 근처 전셋집에 들어갔습니다. 이제 사업 단계를 지켜보세요.'; } },
+        { l: '조합 설립 호재에 판다', f: () => { S.px[p.aid] = r2(S.px[p.aid] * 1.08); const g = sellProp(p); return `호재로 시세가 오른 틈에 팔았습니다. 손에 쥔 돈 ${won(g)}.`; } },
+      ] };
+  } },
+  { id: 'rebuild', w: () => S.t > 2 ? 2 : 0, run: () => ({ cat: '정책', t: '재건축 규제 완화', d: '정부가 안전진단 기준을 완화하고 재건축 초과이익 부담을 줄이겠다고 발표했습니다.', ch: [{ l: '재건축 단지에 호재다', f: () => { S.rbBoost = 6; for (const p of owns('ipj')) p.slow = false; return '재건축 기대 단지 시세가 들썩입니다.'; } }] }) },
+  // ── 도시 ──
+  { id: 'transit', w: () => 3, run: () => { const a = pick(APTS.filter(a => a.tr.tr)); const g = GUN[a.gu].n; return { cat: '도시', t: `교통망 개통: ${g} 일대`, d: `${g}구를 지나는 새 철도 노선이 개통 일정을 확정했습니다. 역세권 단지들이 주목받습니다.`,
+    ch: [{ l: '소식을 확인했다', f: () => { for (const b of APTS) if (b.gu === a.gu || (b.tr.tr && Math.random() < .3)) S.px[b.id] = r2(S.px[b.id] * 1.05); return `${g}구 단지 시세가 5% 안팎 올랐습니다.`; } }] }; } },
+  { id: 'station', w: () => 2, run: () => { const a = pick(APTS.filter(a => a.kind === 'buy')); return { cat: '도시', t: '신설역 계획 변경', d: `${GUN[a.gu].n}구에 들어서기로 했던 신설역 위치가 바뀌었습니다.`, ch: [{ l: '아쉽다', f: () => { for (const b of APTS) if (b.gu === a.gu) S.px[b.id] = r2(S.px[b.id] * .96); return `${GUN[a.gu].n}구 단지 시세가 4% 빠졌습니다.`; } }] }; } },
+  { id: 'devCancel', w: () => 1.5, run: () => { const g = pick(GU.filter(g => g.t >= 3)); return { cat: '도시', t: '개발 호재 취소', d: `${g.n}구 대형 복합개발 사업이 무산됐습니다.`, ch: [{ l: '그렇구나', f: () => { for (const b of APTS) if (b.gu === g.id) S.px[b.id] = r2(S.px[b.id] * .95); return `${g.n}구 시세가 약세입니다.`; } }] }; } },
+  { id: 'school', w: () => 1.5, run: () => ({ cat: '도시', t: '학군 수요 집중', d: '자사고·특목고 정책 변화로 학군지 수요가 몰립니다.', ch: [{ l: '확인', f: () => { for (const b of APTS) if (b.tr.sc) S.px[b.id] = r2(S.px[b.id] * (1 + .05 * b.tr.sc)); return '대치·목동·중계 학군 단지가 올랐습니다.'; } }] }) },
+  // ── 정책 ──
+  { id: 'relax', w: () => !S.relax && rules().name.startsWith('10·15') && yearOf() >= 2029 ? 1.5 : 0, run: () => ({ cat: '정책', t: '규제지역 일부 해제', d: '집값이 안정되자 정부가 서울 일부 규제를 풀었습니다. LTV가 50%로 오르고, 전세 낀 매수도 다시 가능해집니다.', ch: [{ l: '판이 바뀐다', f: () => { S.relax = true; S.gShock = 2; return '규제 완화. 갭투자와 분양권 전매가 다시 가능합니다.'; } }] }) },
+  { id: 'tight', w: () => !S.tight && S.phase === 'up' && S.t > 3 ? 1.5 : 0, run: () => ({ cat: '정책', t: '추가 대출 규제', d: '집값 과열에 정부가 LTV를 추가로 낮췄습니다.', ch: [{ l: '확인', f: () => { S.tight = true; S.gShock = -1.5; return '대출 한도가 줄었습니다 (LTV −10%p).'; } }] }) },
+  // ── 인생 ──
+  { id: 'marry', w: () => single() && ageOf() >= 30 && ageOf() <= 42 ? 5 : 0, run: () => ({ cat: '인생', t: '결혼 이야기', d: '오래 만난 연인과 결혼 이야기가 나왔습니다. 예식과 혼수에 3,000만 원 정도가 들고, 배우자 소득이 생깁니다.',
+    ch: [{ l: '결혼한다', f: () => { S.married = S.t; S.spouse = .42; S.cash = r2(S.cash - .3); S.happy += 12; return '💍 결혼했습니다! 가구 소득이 늘었고, 신혼부부 특별공급 자격이 생겼습니다.'; } }, { l: '아직은 이르다', f: () => { S.happy -= 2; return '조금 더 생각해 보기로 했습니다.'; } }] }) },
+  { id: 'baby', w: () => S.married >= 0 && S.kids.length < 3 && ageOf() <= 44 ? 4 : 0, run: () => ({ cat: '인생', t: '아기 소식', d: '가족이 늘어날 수 있습니다. 육아비가 들지만 청약 부양가족 점수가 오릅니다.',
+    ch: [{ l: '새 가족을 맞는다', f: () => { S.kids.push(S.t); S.happy += 10; payOrCredit(.1); return `👶 아이가 태어났습니다! (${S.kids.length}명)`; } }, { l: '지금은 어렵다', f: () => '조금 더 준비하기로 했습니다.' }] }) },
+  { id: 'job', w: () => ageOf() < 50 ? 4 : 0, run: () => ({ cat: '인생', t: '이직 제안', d: '경쟁사에서 연봉 15% 인상 조건으로 이직 제안이 왔습니다. 다만 새 회사는 안정성이 조금 떨어집니다.',
+    ch: [{ l: '옮긴다', f: () => { S.salary = r2(S.salary * 1.15); S.jobRisk = (S.jobRisk || 0) + 1; return `연봉이 ${won(S.salary)}으로 올랐습니다.`; } }, { l: '남는다', f: () => { S.happy += 2; return '익숙한 곳에서 계속 일하기로 했습니다.'; } }] }) },
+  { id: 'promo', w: () => 3, run: () => ({ cat: '인생', t: '승진', d: '그동안의 성과를 인정받아 승진했습니다.', ch: [{ l: '감사합니다', f: () => { S.salary = r2(S.salary * 1.1); S.happy += 5; return `연봉 ${won(S.salary)}.`; } }] }) },
+  { id: 'layoff', w: () => 1 + (S.jobRisk || 0) * 1.5, run: () => ({ cat: '인생', t: '회사 구조조정', d: '회사가 구조조정에 들어갔습니다. 당분간 소득이 크게 줄어듭니다.',
+    ch: [{ l: '버티며 재취업 준비', f: () => { S.cash = r2(S.cash - S.salary * .35); S.salary = r2(S.salary * .95); S.happy -= 10; S.jobRisk = 0; return '반년 가까이 쉬다 재취업했습니다. 연봉은 조금 줄었습니다.'; } }] }) },
+  { id: 'kidcost', w: () => S.kids.length ? 3 : 0, run: () => ({ cat: '인생', t: '교육비 증가', d: '아이가 커 가며 학원비가 늘었습니다.', ch: [{ l: '학원을 보낸다', f: () => { payOrCredit(.04 * S.kids.length); S.happy += 2; return `교육비 ${won(.04 * S.kids.length)}이 더 나갔습니다.`; } }, { l: '집에서 가르친다', f: () => { S.happy -= 3; return '돈은 아꼈지만 저녁 시간이 빠듯해졌습니다.'; } }] }) },
+  { id: 'parents', w: () => ageOf() >= 35 && !S.parentsHelp ? 2.5 : 0, run: () => ({ cat: '인생', t: '부모님 부양', d: '부모님 전셋집 계약이 끝나 보증금이 모자란다고 하십니다. 5,000만 원을 보태 드리면 큰 힘이 됩니다.',
+    ch: [{ l: '보태 드린다', ok: () => S.cash >= .5, f: () => { S.cash = r2(S.cash - .5); S.parentsHelp = true; S.happy += 6; return '부모님이 한시름 놓으셨습니다. 청약 부양가족 점수도 오릅니다.'; } }, { l: '지금은 어렵다고 말씀드린다', f: () => { S.happy -= 5; return '마음이 무겁습니다.'; } }] }) },
+  { id: 'bonus', w: () => 2, run: () => ({ cat: '인생', t: '성과급', d: '회사 실적이 좋아 성과급이 나왔습니다.', ch: [{ l: '저축한다', f: () => { const b = r2(S.salary * .15); S.cash = r2(S.cash + b); return `${won(b)}을 모았습니다.`; } }, { l: '가족 여행을 간다', f: () => { const b = r2(S.salary * .15); S.cash = r2(S.cash + b * .4); S.happy += 8; return '오랜만에 푹 쉬었습니다.'; } }] }) },
+];
+function drawEvent() {
+  const pool = EVENTS.map(e => [e, Math.max(0, e.w())]).filter(x => x[1] > 0 && x[0].id !== S.lastEv);
+  let tot = pool.reduce((a, x) => a + x[1], 0), r = Math.random() * tot;
+  for (const [e, w] of pool) { if ((r -= w) < 0) { S.lastEv = e.id; return e; } }
+  return null;
+}
+
+// ===================== 반기 진행 · 엔딩 판정 =====================
+function liveHome() { return S.props.find(p => p.kind === 'buy' && p.live); }
+function happyTarget() {
+  let t = S.res.type === 'wolse' ? 38 : S.res.type === 'jeonse' ? 50 : 62;
+  const h = liveHome();
+  if (h) { const tr = aptTr(h); t += (tr.nw || 0) * 8 + (tr.tr || 0) * 7 + (tr.hv || 0) * 12 + (tr.sc || 0) * (S.kids.length ? 8 : 2) + (h.remod ? 6 : 0) - (!h.vb && AP[h.aid].y && AP[h.aid].y < 1995 ? 5 : 0); }
+  if (S.married >= 0) t += 6; t += Math.min(2, S.kids.length) * 4; if (S.parentsHelp) t += 3;
+  const ds = annualDebtService(0, 0) / Math.max(.1, income());
+  t -= ds > .5 ? 18 : ds > .4 ? 10 : ds > .3 ? 4 : 0;
+  if (S.credit > 0) t -= 6;
+  return clamp(t, 5, 98);
+}
+// 다음 반기로
+function nextTurn() {
+  const msgs = [];
+  msgs.push(...settle());
+  const g = stepMarket();
+  msgs.unshift(`📊 서울 아파트 시장 ${pct(g)} · 기준금리 ${S.rate.toFixed(2)}% · 분위기 ${{ up: '상승장 🔥', flat: '보합 😐', down: '하락장 🧊' }[S.phase]}`);
+  msgs.push(...progressProps());
+  msgs.push(...crisis());
+  // 연봉·나이
+  if (S.t % 2 === 1) { S.salary = r2(S.salary * 1.03); if (S.spouse) S.spouse = r2(S.spouse * 1.03); }
+  S.happy = clamp(Math.round(S.happy + (happyTarget() - S.happy) * .35), 0, 100);
+  // 통계
+  const n = nw(); S.st.peakNW = Math.max(S.st.peakNW, n);
+  if (S.st.peakNW > 1.5 && n < S.st.peakNW * .6) S.st.bigLoss = true;
+  const h = liveHome(); if (h) { S.st.homeTurns++; if ((aptTr(h).tr || 0) >= .5) S.st.transitTurns++; if (S.firstHome && h.uid === S.firstHome.uid) S.st.sameHome++; }
+  if (S.flags.jCrashHit && S.cash >= 0) S.st.jCrash = 1;
+  if (S.deal && S.deal.t < S.t) S.deal = null;
+  S.imjang = Math.min(3, S.imjang + 1);
+  S.t++;
+  for (const m of msgs) log(m);
+  if (S.ended) return { msgs, end: true };
+  if (S.st.interestBad >= 4 && debtTotal() > income() * 6) { S.ended = 'e34'; return { msgs, end: true }; }
+  if (S.t >= MAXT) { S.ended = chooseEnding(); return { msgs, end: true }; }
+  const e = drawEvent(); S.ev = e ? e.id : null;
+  if (S.t === 10 || S.t === 20 || S.t === 30) S.interAd = true;
+  save();
+  return { msgs, ev: e };
+}
+
+// ---------- 엔딩 판정 ----------
+// 강제 종료 → 실패 플래그 → 특별·목표 → 일반 순서로 하나만
+function chooseEnding() {
+  const homes = S.props.filter(p => p.kind === 'buy'), live = liveHome(), n = nw(), re = reNW(), debt = debtTotal();
+  const ownSeoul = homes.length > 0;
+  const age = ageOf(MAXT - 1);
+  const C = [];
+  // 실패·위기
+  if (!ownSeoul && S.flags.cashOut) C.push('e38');
+  if (S.flags.ipjCrisis || (S.flags.ipjLong && S.st.crisis >= 2 && S.props.some(p => p.kind === 'ipj'))) C.push('e37');
+  if (!ownSeoul && S.flags.depositLost) C.push('e33');
+  if (!ownSeoul && S.flags.chGiveUp) C.push('e32');
+  if (S.st.interestBad >= 3 && debt > income() * 5) C.push('e34');
+  if (homes.some(p => p.peakBuy) && n < S.st.peakNW * .7 && debt > re * .8) C.push('e36');
+  if (S.panic && price(S.panic.aid) > S.panic.p * 1.2 && !ownSeoul) C.push('e35');
+  if (!ownSeoul && S.everOwned && S.flags.forcedSale && S.cash > 0 && S.happy >= 55) C.push('e40');
+  if (!ownSeoul) {
+    if (S.mode === 'hist' && S.st.gapOk >= 3) C.push('e22');
+    if (S.st.bunProfit >= 3) C.push('e26');
+    if (n >= 10 && S.st.gap === 0 && !S.st.chWin) C.push('e2');
+    if (S.st.jReturn >= 3 && S.st.crisis === 0) C.push('e23');
+    if (S.panic && price(S.panic.aid) > S.panic.p * 1.2) C.push('e35');
+    if (S.everOwned && S.flags.forcedSale) C.push('e40');
+    C.push('e31');
+  }
+  if (C.length) { const got = store.get('_dex', {}); return C.find(k => !got[k]) || C[0]; }
+  // 성공·특별
+  const liveAp = live && !live.vb ? AP[live.aid] : null;
+  const has = ids => homes.some(p => !p.vb && ids.includes(p.aid));
+  if (S.st.bigLoss && ownSeoul && n >= S.st.peakNW * .85) C.push('e30');
+  if (re >= 30 && S.st.crisis === 0) C.push('e10');
+  if (has(['em', 'rdp', 'bpj', 'arp']) && homes.filter(p => ['em', 'rdp', 'bpj', 'arp'].includes(p.aid)).every(p => (p.loan || 0) <= propValue(p) * .15)) C.push('e4');
+  if (live && (aptTr(live).hv || 0) >= .7 && S.happy >= 70) C.push('e9');
+  if (liveAp && ['els', 'rcz', 'helio'].includes(liveAp.id)) C.push('e5');
+  if (S.st.ipjDone && (S.st.ipjProfit || 0) > 3) C.push('e7');
+  if (S.st.chWin && S.st.chGain >= 3) C.push('e6');
+  if (S.st.bunProfit >= 3) C.push('e26');
+  if (S.mode === 'hist' && S.st.gapOk >= 3) C.push('e22');
+  if (S.st.flips >= 3) C.push('e3');
+  if (debt <= 0.001 && ownSeoul) C.push('e8');
+  if (liveAp && liveAp.id === 'md7' && S.kids.length) C.push('e14');
+  if (S.st.ipjDone) C.push(S.st.duesUp >= 2 ? 'e28' : 'e27');
+  if (S.st.musun) C.push('e25');
+  if (S.st.jCrash && S.st.crisis === 0) C.push('e24');
+  if (S.st.jReturn >= 3 && S.st.crisis === 0) C.push('e23');
+  if (S.st.lowBuy) C.push('e29');
+  if (S.st.oldBuyGain >= .8) C.push('e21');
+  if (S.kids.length >= 2 && live) C.push('e13');
+  if (S.married >= 0 && S.firstHome && S.firstHome.t - S.married <= 10 && S.firstHome.t >= S.married) C.push('e12');
+  if (S.parentsHelp) C.push('e15');
+  if (n >= 10 && S.st.gap === 0 && !S.st.chWin && !S.st.ipjDone && S.st.flips <= 1) C.push('e2');
+  if (S.married < 0 && debt <= 0.001 && live) C.push('e17');
+  if (S.st.sameHome >= 24) C.push('e18');
+  if (S.st.transitTurns >= 16) C.push('e16');
+  if (age >= 48 && debt < re * .2 && S.cash >= 3) C.push('e20');
+  if (S.happy >= 85 && n < 15) C.push('e19');
+  if (live && propValue(live) < 12 && S.happy >= 78) C.push('e11');
+  // 같은 판에서 여러 개면 '아직 못 본 엔딩'을 먼저
+  const got = store.get('_dex', {});
+  const fresh = C.find(k => !got[k]);
+  if (fresh) return fresh;
+  if (C.length) return C[0];
+  return live ? 'e1' : 'e1';
+}
+function unlockEnding(k) { const d = store.get('_dex', {}); if (!d[k]) d[k] = { t: Date.now(), name: S.name, nw: nw(), mode: S.mode }; store.set('_dex', d); }
+
+// ===================== 화면 =====================
+let TAB = 'home', MAPGU = null, FILTER = 'all', ONLYOK = false;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const TRN = { rb: '재건축 기대', sc: '학군', tr: '교통', hv: '한강', nw: '신축', bg: '대단지' };
+function tags(tr) { return Object.entries(tr || {}).filter(([, v]) => v >= .5).map(([k]) => `<span class="tg tg-${k}">${TRN[k]}</span>`).join(''); }
+function toast(s) { const t = $('#toast'); t.textContent = s; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2600); }
+function modal(html, cls = '') { const m = $('#modal'); m.innerHTML = `<div class="mbox ${cls}">${html}</div>`; m.classList.add('on'); m.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal); }
+function closeModal() { $('#modal').classList.remove('on'); $('#modal').innerHTML = ''; }
+function spark(arr, w = 120, h = 34) {
+  if (!arr || arr.length < 2) return '';
+  const mn = Math.min(...arr), mx = Math.max(...arr), sx = w / (arr.length - 1), sy = mx > mn ? (h - 4) / (mx - mn) : 0;
+  const pts = arr.map((v, i) => `${(i * sx).toFixed(1)},${(h - 2 - (v - mn) * sy).toFixed(1)}`).join(' ');
+  const up = arr[arr.length - 1] >= arr[0];
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><polyline fill="none" stroke="${up ? '#e5484d' : '#3b82f6'}" stroke-width="2" points="${pts}"/></svg>`;
+}
+function chg(id, n = 2) { const h = S.hist[id]; if (!h || h.length <= n) return 0; return (h[h.length - 1] / h[h.length - 1 - n] - 1) * 100; }
+
+// ---------- 타이틀 ----------
+function renderTitle() {
+  const sv = store.get('_save', null), dex = store.get('_dex', {});
+  $('#app').innerHTML = `<div class="title fade">
+    <div class="sky"><div class="sun"></div>${skyline()}</div>
+    <div class="tcard">
+      <div class="kicker">MY FIRST SEOUL APARTMENT</div>
+      <h1>나의 첫 번째<br><b>서울 아파트</b> 구하기</h1>
+      <p class="sub">월급쟁이로 시작해 서울에 내 집 한 채.<br>어떤 집을, 언제, 어떻게 샀느냐에 따라 <b>40가지 인생</b>이 갈립니다.</p>
+      <div class="chips"><span>🏙️ 서울 25개 구</span><span>🏢 실존 단지 30곳</span><span>🎬 엔딩 40종</span><span>⏳ 최대 20년</span></div>
+      ${sv && !sv.ended ? `<button class="btn pri big" id="bCont">이어하기 · ${sv.name} ${sv.startYear + Math.floor(sv.t / 2)}년</button>` : ''}
+      <button class="btn ${sv && !sv.ended ? '' : 'pri big'}" id="bNew">🏁 새 인생 시작</button>
+      <button class="btn ghost" id="bDex">📖 엔딩 도감 (${Object.keys(dex).length}/40)</button>
+      <p class="fine">게임 속 시세·수익률은 실제 공개 자료를 참고한 <b>게임용 시뮬레이션 수치</b>이며 미래 시세 예측이나 투자 권유가 아닙니다. 단지 이름은 실제 장소, 그 외 인물·사건은 가상입니다.</p>
+      <a class="other" href="/">← aptgame.kr 다른 부동산 게임</a>
+    </div></div>`;
+  if ($('#bCont')) $('#bCont').onclick = () => { S = sv; renderGame(); };
+  $('#bNew').onclick = renderSetup;
+  $('#bDex').onclick = () => renderDexPage(renderTitle);
+}
+function skyline() {
+  let s = '<svg class="city" viewBox="0 0 400 120" preserveAspectRatio="none">';
+  const hs = [50, 80, 64, 95, 70, 110, 58, 88, 74, 100, 62, 84, 54, 92, 66, 78, 104, 60, 86, 72];
+  hs.forEach((h, i) => { s += `<rect x="${i * 20 + 2}" y="${120 - h}" width="17" height="${h}" rx="2" fill="rgba(31,37,71,${.35 + (i % 3) * .15})"/>`; for (let y = 120 - h + 8; y < 114; y += 12) s += `<rect x="${i * 20 + 6}" y="${y}" width="3" height="4" fill="#ffe7a3" opacity=".7"/><rect x="${i * 20 + 12}" y="${y}" width="3" height="4" fill="#ffe7a3" opacity=".5"/>`; });
+  return s + '<path d="M0 118 Q100 108 200 116 T400 112 V120 H0Z" fill="#7cc4e8" opacity=".8"/></svg>';
+}
+
+// ---------- 시작 설정 ----------
+function renderSetup() {
+  let mode = 'real', diff = 'd5';
+  const draw = () => {
+    $('#app').innerHTML = `<div class="setup fade">
+      <h2>🗓️ 2026년, 서울에 첫 직장을 얻었습니다.</h2>
+      <div class="me card"><div class="avatar">🧑‍💼</div><div><b>29세 · 무주택 · 서울 거주</b><br><span class="small">연봉 4,800만 원 · 월세 85만 원 · 청약통장 가입 5년</span></div></div>
+      <label class="lbl">이름</label><input id="nm" maxlength="8" placeholder="나" value="">
+      <label class="lbl">시장 모드</label>
+      <div class="opts">
+        <button class="opt ${mode === 'real' ? 'on' : ''}" data-m="real"><b>🏛️ 2026 현실 모드</b><span>서울 전역 토지거래허가구역. 갭투자 불가, 2년 실거주 의무, LTV 40%(생애최초 70%). 이후 시장은 가상 시나리오.</span></button>
+        <button class="opt ${mode === 'hist' ? 'on' : ''}" data-m="hist"><b>📜 역사 모드 (2015년 시작)</b><span>2015년 완화기부터 시작. 8·2, 12·16, 10·15 대책을 차례로 겪으며 갭투자도 합법적으로 체험.</span></button>
+      </div>
+      <label class="lbl">시작 자금 (난이도)</label>
+      <div class="diffs">${Object.entries(DIFFS).map(([k, d]) => `<button class="df ${diff === k ? 'on' : ''}" data-d="${k}"><b>${d.n}</b><span>${d.d}</span></button>`).join('')}</div>
+      <button class="btn pri big" id="go">다음: 첫 번째 선택 →</button>
+      <button class="btn ghost" id="back">← 처음으로</button></div>`;
+    document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mode = b.dataset.m; const v = $('#nm').value; draw(); $('#nm').value = v; });
+    document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { diff = b.dataset.d; const v = $('#nm').value; draw(); $('#nm').value = v; });
+    $('#back').onclick = renderTitle;
+    $('#go').onclick = () => renderFirstChoice(mode, diff, $('#nm').value.trim());
+  };
+  draw();
+}
+const GOALS = {
+  old: { ic: '🏚️', t: '구축 아파트 매수', d: '저렴한 지역부터 시작해 갈아타기', hint: '외곽 구축은 대출 한도 안에서 들어가기 쉽습니다. 실거주 2년을 채우고 상급지로 갈아타 보세요.' },
+  gap: { ic: '🎯', t: '갭투자 도전', d: '시대별 규제와 전세금 반환 위험까지 관리', hint: '갭투자는 규제가 허용할 때만 가능합니다. 현실 모드에서는 금지돼 있으니 역사 모드에서 도전하세요. 전세 만기마다 보증금 차액을 조심하세요.' },
+  ch: { ic: '🎟️', t: '청약·분양권', d: '당첨을 기다리거나 거래 가능한 분양권 매수', hint: '무주택 기간과 부양가족이 가점을 올립니다. 당첨되면 계약금 10%가 바로 필요하니 현금을 모아 두세요.' },
+  re: { ic: '🏗️', t: '재개발·재건축', d: '정비사업 투자로 신축 아파트 입성', hint: '입주권은 권리 승계 요건 검증이 핵심입니다. 임장으로 검증하지 않으면 현금청산 위험이 있습니다. 분담금 증가에도 대비하세요.' },
+};
+function renderFirstChoice(mode, diff, name) {
+  $('#app').innerHTML = `<div class="setup fade"><h2>당신의 첫 번째 선택은?</h2><p class="small">어떤 길로 가도 나중에 바꿀 수 있어요. 고른 길에 맞춘 조언과 작은 혜택이 따라옵니다.</p>
+    <div class="goals">${Object.entries(GOALS).map(([k, g], i) => `<button class="goal" data-g="${k}"><span class="gn">0${i + 1}</span><span class="gi">${g.ic}</span><b>${g.t}</b><span>${g.d}</span></button>`).join('')}</div>
+    <button class="btn ghost" id="back">← 이전</button></div>`;
+  $('#back').onclick = renderSetup;
+  document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+    newGame(mode, diff, name, b.dataset.g);
+    if (b.dataset.g === 'old') S.imjang = 3;
+    if (b.dataset.g === 're') S.freeVerify = 1;
+    if (b.dataset.g === 'ch') S.chBonus = 2;
+    TAB = 'home'; renderGame();
+    modal(`<div class="evcat">튜토리얼</div><h3>${GOALS[b.dataset.g].ic} ${GOALS[b.dataset.g].t}</h3><p>${GOALS[b.dataset.g].hint}</p>
+      <ul class="tut"><li>🗺️ <b>지도</b>에서 구를 눌러 실제 단지 매물을 보고, 살 수 있는지 자금 계산을 확인하세요.</li><li>💼 <b>내 자산</b>에서 집을 팔거나 전세로 옮기고, 대출을 갚을 수 있어요.</li><li>⏭️ 아래 <b>다음 반기</b>를 누르면 6개월이 흐르고 월급·이자·시세가 바뀝니다. 20년(40턴) 뒤 인생이 결산됩니다.</li></ul>
+      <p class="small">현재 규제: ${rules().name} — ${rules().note}</p><button class="btn pri" data-close>시작하기</button>`);
+  });
+}
+
+// ---------- 게임 화면 ----------
+function hud() {
+  const n = nw();
+  return `<div class="hud"><div class="hrow"><b class="when">${when()}</b><span>${S.name} · ${ageOf()}세${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</span><span class="tn">${S.t + 1}/${MAXT}턴</span></div>
+    <div class="hstats"><div><small>현금</small><b class="${S.cash < 0 ? 'neg' : ''}">${won(S.cash)}</b></div><div><small>순자산</small><b>${won(n)}</b></div><div><small>부채</small><b>${won(debtTotal())}</b></div><div><small>행복</small><b>${S.happy}</b><i class="hb"><i style="width:${S.happy}%"></i></i></div></div>
+    <div class="prog"><i style="width:${S.t / MAXT * 100}%"></i></div></div>`;
+}
+function renderGame() {
+  if (S.ended) return renderEnding();
+  $('#app').innerHTML = `${hud()}<div id="tab" class="fade"></div>
+    <nav class="bnav"><button data-t="home" class="${TAB === 'home' ? 'on' : ''}">🏠<span>홈</span></button><button data-t="map" class="${TAB === 'map' ? 'on' : ''}">🗺️<span>지도</span></button><button data-t="assets" class="${TAB === 'assets' ? 'on' : ''}">💼<span>내 자산</span></button><button data-t="dex" class="${TAB === 'dex' ? 'on' : ''}">📖<span>도감</span></button>
+    <button class="next" id="bNext">다음 반기 ⏭️</button></nav>`;
+  document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { TAB = b.dataset.t; MAPGU = null; renderGame(); });
+  $('#bNext').onclick = onNext;
+  ({ home: tabHome, map: tabMap, assets: tabAssets, dex: tabDex })[TAB]();
+}
+function tabHome() {
+  const R = rules(), f = S.lastFlow, g = GOALS[S.goal], live = liveHome();
+  const resTxt = S.res.type === 'own' ? `🏡 자가 · ${aptName(live)}` : S.res.type === 'jeonse' ? `🔑 전세 · 보증금 ${won(S.res.dep)}${S.res.loan ? ` (전세대출 ${won(S.res.loan)})` : ''}` : `📦 월세 · 월 85만 원`;
+  const ph = { up: ['상승장', '🔥', 'up'], flat: ['보합', '😐', 'flat'], down: ['하락장', '🧊', 'down'] }[S.phase];
+  const gj = gajeom();
+  $('#tab').innerHTML = `
+    <div class="card mk"><div class="mrow"><div><small>시장 분위기</small><b class="ph ${ph[2]}">${ph[1]} ${ph[0]}</b></div><div><small>기준금리</small><b>${S.rate.toFixed(2)}%</b></div><div><small>주담대</small><b>${mRate().toFixed(2)}%</b></div><div><small>서울 지수</small><b>${Math.round(S.G * 100)}</b></div></div>
+      ${spark(S.Gh.slice(-16), 300, 40)}
+      <div class="rule"><b>📜 ${esc(R.name)}</b><br>${esc(R.note)}</div></div>
+    <div class="card"><h4>🏠 지금 사는 곳</h4><p>${resTxt}</p>${S.res.type !== 'own' ? `<p class="small">무주택 ${homelessYears()}년차 · 청약 가점 ${gj.total}점</p>` : ''}
+      <div class="flow">${f ? `<div><span>지난 반기 수입</span><b>+${won(f.inc)}</b></div><div><span>생활비</span><b>−${won(f.living)}</b></div><div><span>주거비</span><b>−${won(f.housing)}</b></div><div><span>대출 원리금</span><b>−${won(f.loanPay + f.credit)}</b></div>${f.tax ? `<div><span>보유세</span><b>−${won(f.tax)}</b></div>` : ''}<div class="tot"><span>반기 저축</span><b class="${f.net < 0 ? 'neg' : 'pos'}">${f.net >= 0 ? '+' : ''}${won(f.net)}</b></div>` : `<div><span>예상 반기 수입</span><b>+${won(income() / 2)}</b></div><div><span>생활비+월세</span><b>−${won(.171)}</b></div>`}</div></div>
+    <div class="card"><h4>${g.ic} 나의 전략: ${g.t}</h4><p class="small">${g.hint}</p>${advice()}</div>
+    <div class="card ads"><h4>🎁 광고 보고 받는 도움 <small>(한 판에 각 1회)</small></h4>
+      <button class="btn adb" data-ad="report" ${S.adUsed.report ? 'disabled' : ''}>📊 부동산 전문가 분석 리포트 ${S.adUsed.report ? '✓' : ''}</button>
+      <button class="btn adb" data-ad="chart" ${S.adUsed.chart ? 'disabled' : ''}>📈 과거 시세 복기 (모든 단지 시세 그래프) ${S.adUsed.chart ? '✓' : ''}</button>
+      <button class="btn adb" data-ad="imjang" ${S.adUsed.imjang ? 'disabled' : ''}>🔍 추가 임장 기회 +2 ${S.adUsed.imjang ? '✓' : ''}</button>
+      <p class="small">광고로 이미 확정된 손실이나 규제 위반을 없앨 수는 없어요.</p></div>
+    <div class="card"><h4>📰 최근 소식</h4><ul class="log">${S.log.slice(0, 8).map(l => `<li><i>${when(l.t)}</i>${esc(l.s)}</li>`).join('')}</ul></div>`;
+  document.querySelectorAll('[data-ad]').forEach(b => b.onclick = () => adReward(b.dataset.ad));
+}
+function advice() {
+  const tips = [];
+  const cheapest = APTS.filter(a => a.kind === 'buy' && S.avail[a.id]).map(a => [a, buyQuote(a.id, 'live')]).sort((a, b) => a[1].p - b[1].p);
+  const ok = cheapest.filter(x => x[1].ok);
+  if (!S.props.length) {
+    if (ok.length) tips.push(`✅ 지금 자금으로 <b>${ok.length}곳</b>을 실거주 매수할 수 있어요. 가장 비싼 곳: ${ok[ok.length - 1][0].n}`);
+    else { const c = cheapest[0]; tips.push(`💡 가장 싼 ${c[0].n}도 현금 ${won(c[1].cashNeed - S.cash - c[1].resBack)}이 더 필요해요. 반기 저축으로 모으거나 청약을 노려 보세요.`); }
+  }
+  if (S.res.type === 'wolse' && !S.props.length && S.cash > 1.2) tips.push('💡 현금이 꽤 모였어요. 전세로 옮기면 월세가 사라집니다 (내 자산 → 거주지 바꾸기).');
+  if (S.credit > 0) tips.push('⚠️ 고금리 신용대출이 있어요. 여유 현금으로 먼저 갚는 게 좋아요.');
+  for (const p of S.props) if (p.kind === 'bun') tips.push(`📄 ${aptName(p)} 입주 ${p.mv}년 — 잔금 약 ${won(p.total * .9 - (p.prepaid || 0))}, 대출로 못 채우는 부분은 현금이 필요해요.`);
+  for (const p of S.props) if (p.kind === 'ipj') tips.push(`🏗️ ${aptName(p)} — ${STAGES[Math.min(5, p.stage)]} 단계 · 준공 때 분담금 ${won(p.dues)}${p.verified ? '' : ' · ⚠️ 권리 미검증'}`);
+  return tips.length ? `<ul class="tips">${tips.map(t => `<li>${t}</li>`).join('')}</ul>` : '';
+}
+
+// ---------- 지도 ----------
+function tabMap() {
+  if (MAPGU) return mapList(MAPGU);
+  const cnt = {}; for (const a of APTS) if (S.avail[a.id]) cnt[a.gu] = (cnt[a.gu] || 0) + 1;
+  const okGu = {}; for (const a of APTS) if (S.avail[a.id] && a.kind === 'buy' && buyQuote(a.id, 'live').ok) okGu[a.gu] = 1;
+  $('#tab').innerHTML = `<div class="card"><h4>🗺️ 서울 25개 구 <small>구를 눌러 매물 보기</small></h4>
+    <div class="seoul">${GU.map(g => `<button class="gu t${g.t} ${okGu[g.id] ? 'ok' : ''} ${cnt[g.id] ? '' : 'none'}" style="grid-row:${g.r + 1};grid-column:${g.c + 1}" data-gu="${g.id}">${g.n}${cnt[g.id] ? `<i>${cnt[g.id]}</i>` : ''}</button>`).join('')}<div class="han"></div></div>
+    <div class="legend"><span class="t1">1급지</span><span class="t2">2</span><span class="t3">3</span><span class="t4">4</span><span class="t5">5급지</span><span class="okl">초록 테두리 = 지금 살 수 있는 단지 있음</span></div></div>
+    <div class="card"><div class="filt">${[['all', '전체'], ['buy', '매매'], ['bun', '분양권'], ['ipj', '입주권']].map(([k, l]) => `<button class="${FILTER === k ? 'on' : ''}" data-f="${k}">${l}</button>`).join('')}<label><input type="checkbox" id="okOnly" ${ONLYOK ? 'checked' : ''}> 살 수 있는 곳만</label></div>
+    <div id="alist">${aptRows(APTS.filter(a => S.avail[a.id] && (FILTER === 'all' || a.kind === FILTER)).sort((a, b) => price(a.id) - price(b.id)))}</div></div>`;
+  document.querySelectorAll('[data-gu]').forEach(b => b.onclick = () => { MAPGU = b.dataset.gu; tabMap(); });
+  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { FILTER = b.dataset.f; tabMap(); });
+  $('#okOnly').onchange = e => { ONLYOK = e.target.checked; tabMap(); };
+  bindRows();
+}
+function canAfford(a) { if (a.kind === 'buy') return buyQuote(a.id, 'live').ok || (rules().gap && buyQuote(a.id, 'gap').ok); if (a.kind === 'bun') return S.cash >= a.p * .1 + Math.max(0, price(a.id) - a.p) + price(a.id) * .005; return S.cash >= price(a.id) * .72 - ipjLoan(a.id); }
+function aptRows(list) {
+  if (ONLYOK) list = list.filter(canAfford);
+  if (!list.length) return '<p class="small">조건에 맞는 매물이 없어요.</p>';
+  return list.map(a => { const c = chg(a.id), mine = S.props.some(p => p.aid === a.id), ok = canAfford(a), deal = S.deal && S.deal.aid === a.id;
+    return `<button class="apt ${ok ? 'ok' : ''}" data-a="${a.id}"><div class="an"><b>${a.n}</b>${mine ? '<span class="mine">보유</span>' : ''}${deal ? '<span class="deal">급매</span>' : ''}<small>${GUN[a.gu].n}구 · ${a.sz}${a.y ? ' · ' + a.y + '년' : ''} · ${{ buy: '매매', bun: '분양권', ipj: '입주권' }[a.kind]}</small><span class="tags">${tags(a.tr)}</span></div>
+      <div class="ap"><b>${won(price(a.id) * (deal ? 1 - S.deal.disc : 1))}</b><small class="${c >= 0 ? 'up' : 'dn'}">${pct(c)} /1년</small>${S.chart ? spark(S.hist[a.id].slice(-20), 70, 22) : ''}</div></button>`; }).join('');
+}
+function bindRows() { document.querySelectorAll('[data-a]').forEach(b => b.onclick = () => aptModal(b.dataset.a)); }
+function mapList(gu) {
+  const g = GUN[gu], list = APTS.filter(a => a.gu === gu && S.avail[a.id]);
+  $('#tab').innerHTML = `<div class="card"><button class="btn ghost sm" id="mback">← 서울 지도</button><h4>${g.n}구 <small>${g.t}급지</small></h4>${aptRows(list)}
+    ${list.length ? '' : '<p class="small">이 구에는 아직 등록된 단지가 없어요. 업데이트로 단지가 늘어날 예정입니다.</p>'}</div>`;
+  $('#mback').onclick = () => { MAPGU = null; tabMap(); };
+  bindRows();
+}
+
+// ---------- 단지 상세 · 매수 ----------
+function imjangNote(a) {
+  if (a.kind === 'ipj') return rules().transfer ? '현 규제에서는 조합원 지위 양도가 자유로워요. 권리 승계 문제 없음.' : '이 매물은 10년 보유·5년 거주 요건을 채운 매도인의 "양도 예외" 매물로 확인됐습니다. 권리 승계 가능.';
+  if (a.kind === 'bun') return `잔금대출은 입주 시점 시세 기준으로 나옵니다. 지금 기준으로는 최대 ${won(loanLimit(price(a.id)).max)} 정도.`;
+  const notes = [];
+  if (a.y && a.y < 1995) notes.push('배관이 많이 낡아 누수 가능성이 높아요. 수리비를 따로 잡아 두세요.');
+  if (a.tr.rb) notes.push('재건축 추진위 사무실에 들러 보니 사업 속도는 아직 초기입니다. 장기전 각오가 필요해요.');
+  if (a.jr < .4) notes.push(`전세가율이 ${Math.round(a.jr * 100)}%로 낮아 전세 끼고 사기엔 현금이 많이 듭니다.`);
+  if (a.tr.tr) notes.push('역까지 걸어 보니 정말 가깝습니다. 출퇴근 만족도가 높겠어요.');
+  if (a.tr.sc) notes.push('학원가 셔틀이 단지 앞에 섭니다. 아이가 있다면 만족도가 높아요.');
+  if (a.tr.bg) notes.push('대단지라 매물과 거래가 많아 팔 때 유리합니다.');
+  return notes.join(' ') || '특별한 하자는 보이지 않습니다.';
+}
+function aptModal(aid) {
+  const a = AP[aid], v = price(aid), R = rules(), seen = S.seen[aid];
+  const head = `<div class="evcat">${GUN[a.gu].n}구 · ${{ buy: '매매', bun: '분양권', ipj: '입주권' }[a.kind]}</div><h3>${a.n}</h3><p class="small">${a.sz}${a.y ? ` · ${a.y}년 준공` : ''}${a.mv ? ` · ${a.mv}년 입주 예정` : ''}</p><span class="tags">${tags(a.tr)}</span>
+    <div class="pbox"><div><small>게임 시세</small><b>${won(v)}</b></div>${a.kind === 'buy' ? `<div><small>전세 시세</small><b>${won(v * a.jr * S.J)}</b></div>` : a.kind === 'bun' ? `<div><small>분양가</small><b>${won(a.p)}</b></div>` : `<div><small>예상 분담금</small><b>${won(v * .3)}</b></div>`}<div><small>1년 변화</small><b class="${chg(aid) >= 0 ? 'up' : 'dn'}">${pct(chg(aid))}</b></div></div>
+    ${S.chart ? `<div class="chart">${spark(S.hist[aid], 300, 60)}<small>${when(0)} → 지금</small></div>` : `<p class="small lock">📈 과거 시세 그래프는 홈 → 과거 시세 복기로 열 수 있어요.</p>`}
+    <p class="tip">${a.tip}</p>
+    <div class="imj">${seen ? `<b>🔍 임장 메모</b><br>${imjangNote(a)}` : `<button class="btn sm" id="bImj" ${S.imjang ? '' : 'disabled'}>🔍 임장 가기 (남은 기회 ${S.imjang})</button>`}</div>`;
+  let body = '';
+  if (a.kind === 'buy') {
+    const q = buyQuote(aid, 'live'), qg = buyQuote(aid, 'gap');
+    const owned = S.props.some(p => p.aid === aid);
+    body = `<div class="quote"><h5>🏡 실거주 매수 자금 계산</h5>${quoteTable(q)}
+      ${q.lim.max > 0 ? `<label class="small">대출 사용액 <b id="lv">${won(q.lim.max)}</b></label><input type="range" id="loanR" min="0" max="${q.lim.max}" step="0.05" value="${q.lim.max}">` : ''}
+      <button class="btn pri" id="bLive" ${q.ok ? '' : 'disabled'}>${q.ok ? '실거주로 매수하고 입주' : `자금 부족 · ${won(q.cashNeed - S.cash - q.resBack)} 더 필요`}</button></div>
+      ${R.gap ? `<div class="quote"><h5>🎯 전세 끼고 매수 (갭투자)</h5>${quoteTable(qg)}<button class="btn" id="bGap" ${qg.ok ? '' : 'disabled'}>${qg.ok ? '전세 끼고 매수' : `자금 부족 · ${won(qg.cashNeed - S.cash)} 더 필요`}</button><p class="small">2년마다 전세 재계약. 전세가가 떨어지면 차액을 돌려줘야 해요.</p></div>` : `<p class="small warn">🚫 현재 규제(${R.name})에서는 전세 낀 매수가 금지돼 있어요. 사면 2년 실거주해야 합니다.</p>`}
+      ${owned ? '<p class="small">이미 보유 중인 단지예요.</p>' : ''}`;
+  } else if (a.kind === 'bun') {
+    const prem = Math.max(0, v - a.p), cost = a.p * .1 + prem + v * .005;
+    body = `<div class="quote"><h5>📄 분양권 매수 (전매)</h5><table class="qt"><tr><td>계약금 (분양가 10%)</td><td>${won(a.p * .1)}</td></tr><tr><td>프리미엄</td><td>${won(prem)}</td></tr><tr><td>중개보수 등</td><td>${won(v * .005)}</td></tr><tr class="tot"><td>지금 필요한 현금</td><td>${won(cost)}</td></tr><tr><td>중도금 (60%)</td><td>집단대출 승계</td></tr><tr><td>잔금 (${a.mv}년)</td><td>${won(a.p * .3)} + 중도금 상환</td></tr></table>
+      <button class="btn pri" id="bBun" ${S.cash >= cost ? '' : 'disabled'}>${S.cash >= cost ? '분양권 매수' : `현금 ${won(cost - S.cash)} 부족`}</button><p class="small">이 단지는 10·15 대책 이전 계약분이라 전매가 가능한 분양권입니다. 입주 때 잔금을 못 내면 급매로 넘기거나 계약금을 잃을 수 있어요.</p></div>`;
+  } else {
+    const cost = v * .72, verifyNeeded = !R.transfer, il = ipjLoan(aid), cn = r2(cost - il);
+    body = `<div class="quote"><h5>📜 조합원 입주권 매수</h5><table class="qt"><tr><td>권리가액 + 프리미엄</td><td>${won(cost)}</td></tr><tr><td>이주비 대출 승계 <small>무주택자만</small></td><td>−${won(il)}</td></tr><tr class="tot"><td>지금 필요한 현금</td><td>${won(cn)}</td></tr><tr><td>준공 때 분담금 (예상)</td><td>${won(v * .3)}</td></tr><tr><td>현재 단계</td><td>${STAGES[a.stage]}</td></tr></table>
+      ${verifyNeeded ? `<p class="small warn">⚠️ 현 규제에서는 조합원 지위 양도가 원칙적으로 막혀 있어요. 양도 예외 요건을 검증하지 않고 사면 나중에 <b>현금청산</b>될 수 있어요.</p>
+        <button class="btn pri" id="bIpjV" ${S.cash >= cn + .03 || (seen && S.cash >= cn) ? '' : 'disabled'}>${seen ? '임장으로 검증 완료 · 매수' : '법무 검토(300만 원) 후 매수'}</button>
+        <button class="btn" id="bIpj" ${S.cash >= cn ? '' : 'disabled'}>검증 없이 바로 매수 (위험)</button>` : `<button class="btn pri" id="bIpj" ${S.cash >= cn ? '' : 'disabled'}>입주권 매수</button>`}
+      ${S.cash < cn ? `<p class="small">현금 ${won(cn - S.cash)} 부족</p>` : ''}</div>`;
+  }
+  modal(head + body + '<button class="btn ghost" data-close>닫기</button>', 'wide');
+  if ($('#bImj')) $('#bImj').onclick = () => { S.imjang--; S.seen[aid] = 1; save(); aptModal(aid); };
+  if ($('#loanR')) $('#loanR').oninput = e => { $('#lv').textContent = won(+e.target.value); };
+  if ($('#bLive')) $('#bLive').onclick = () => { const lu = $('#loanR') ? +$('#loanR').value : 0; if (doBuy(aid, 'live', lu)) { closeModal(); save(); toast(`🎉 ${a.n} 매수! 이삿짐을 옮겼습니다.`); celebrate(); renderGame(); } };
+  if ($('#bGap')) $('#bGap').onclick = () => { if (doBuy(aid, 'gap')) { closeModal(); save(); toast(`🎯 ${a.n} 전세 끼고 매수 완료`); renderGame(); } };
+  if ($('#bBun')) $('#bBun').onclick = () => { if (buyBun(aid)) { closeModal(); save(); toast('📄 분양권을 샀습니다'); renderGame(); } };
+  if ($('#bIpjV')) $('#bIpjV').onclick = () => { if (buyIpj(aid, seen ? 'imjang' : 'paid')) { closeModal(); save(); toast('📜 입주권 매수 (권리 검증 완료)'); renderGame(); } };
+  if ($('#bIpj')) $('#bIpj').onclick = () => { if (buyIpj(aid, R.transfer ? 'free' : null)) { closeModal(); save(); toast('📜 입주권 매수'); renderGame(); } };
+}
+function quoteTable(q) {
+  return `<table class="qt"><tr><td>매매가</td><td>${won(q.p)}</td></tr><tr><td>취득세</td><td>${won(q.tax)}</td></tr><tr><td>중개보수</td><td>${won(q.fee)}</td></tr>
+    ${q.dep ? `<tr><td>전세보증금 (세입자)</td><td>−${won(q.dep)}</td></tr>` : `<tr><td>대출 가능액 <small>${q.lim.why}</small></td><td>−${won(q.lim.max)}</td></tr>`}
+    ${q.resBack ? `<tr><td>지금 집 보증금 회수</td><td>+${won(q.resBack)}</td></tr>` : ''}
+    <tr class="tot"><td>필요한 내 현금</td><td>${won(q.cashNeed)}</td></tr><tr><td>보유 현금</td><td>${won(S.cash)}</td></tr></table>`;
+}
+function celebrate() { const c = document.createElement('div'); c.className = 'confetti'; for (let i = 0; i < 40; i++) { const s = document.createElement('i'); s.style.left = Math.random() * 100 + '%'; s.style.background = pick(['#ffc94d', '#e5484d', '#3b82f6', '#22c55e', '#a855f7']); s.style.animationDelay = Math.random() * .5 + 's'; c.appendChild(s); } document.body.appendChild(c); setTimeout(() => c.remove(), 2200); }
+
+// ---------- 내 자산 ----------
+function tabAssets() {
+  const R = rules();
+  const props = S.props.map(p => {
+    const v = propValue(p), gain = p.kind === 'buy' ? v - p.buyP : 0;
+    let info = '', acts = '';
+    if (p.kind === 'buy') {
+      info = `매수 ${won(p.buyP)} → 시세 <b>${won(v)}</b> <span class="${gain >= 0 ? 'up' : 'dn'}">(${gain >= 0 ? '+' : ''}${won(gain)})</span><br>대출 ${won(p.loan)}${p.tenant ? ` · 세입자 보증금 ${won(p.tenant.dep)} (만기 ${when(p.tenant.until)})` : ''} · ${p.live ? '🏡 실거주' : '🔑 임대 중'}`;
+      const liveOk = !R.live || S.t - (p.liveFrom ?? p.buyT) >= 4;
+      acts = `<button class="btn sm" data-sell="${p.uid}">매도</button>${p.loan > 0 ? `<button class="btn sm" data-repay="${p.uid}" ${S.cash > .05 ? '' : 'disabled'}>대출 상환</button>` : ''}
+        ${p.live && !S.props.some(x => x !== p && x.live) ? `<button class="btn sm" data-rent="${p.uid}" ${liveOk ? '' : 'disabled'}>${liveOk ? '전세 놓고 이사' : '실거주 2년 전'}</button>` : ''}
+        ${!p.live && !S.props.some(x => x.live) ? `<button class="btn sm" data-movein="${p.uid}">세입자 내보내고 입주</button>` : ''}`;
+    } else if (p.kind === 'bun') {
+      info = `분양가 ${won(p.total)} · 분양권 시세 <b>${won(v)}</b><br>입주 ${p.mv}년 · 잔금 약 ${won(p.total * .9 - (p.prepaid || 0))}`;
+      const can = p.resaleOk || R.bunResale;
+      acts = `<button class="btn sm" data-sell="${p.uid}" ${can ? '' : 'disabled'}>${can ? '분양권 매도' : '전매제한 중'}</button>`;
+    } else {
+      info = `${STAGES[Math.min(5, p.stage)]} 단계 · 낸 돈 ${won(p.paid)} · 준공 때 분담금 ${won(p.dues)}${p.verified ? ' · ✅ 권리 검증' : ' · ⚠️ 권리 미검증'}${p.slow ? ' · 🐢 지연 중' : ''}`;
+      acts = `<button class="btn sm" data-sell="${p.uid}" ${R.transfer ? '' : 'disabled'}>${R.transfer ? '입주권 매도' : '양도 제한 중'}</button>`;
+    }
+    return `<div class="prop"><b>${{ buy: '🏢', bun: '📄', ipj: '📜' }[p.kind]} ${esc(aptName(p))}</b><p class="small">${info}</p><div class="acts">${acts}</div></div>`;
+  }).join('');
+  const gj = gajeom();
+  $('#tab').innerHTML = `<div class="card"><h4>💼 내 자산</h4><div class="hstats sm"><div><small>현금</small><b>${won(S.cash)}</b></div><div><small>부동산 순자산</small><b>${won(reNW())}</b></div><div><small>총부채</small><b>${won(debtTotal())}</b></div><div><small>DSR</small><b>${Math.round(annualDebtService(0, 0) / income() * 100)}%</b></div></div>
+    ${props || '<p class="small">아직 가진 집이 없어요. 지도에서 매물을 찾아보세요.</p>'}</div>
+    <div class="card"><h4>🏠 거주지</h4><p>${S.res.type === 'own' ? '자가 거주 중' : S.res.type === 'jeonse' ? `전세 · 보증금 ${won(S.res.dep)} · 전세대출 ${won(S.res.loan)}` : '월세 (보증금 1,000만 · 월 85만)'}</p>
+      ${S.res.type !== 'own' ? `<div class="acts">${[['wolse', '월세', 0], ['jeonse', '소형 전세', 2.5], ['jeonse', '중형 전세', 4], ['jeonse', '대형 전세', 6]].map(([t, l, d]) => `<button class="btn sm" data-res="${t}:${d}" ${S.res.type === t && S.res.dep === d ? 'disabled' : ''}>${l}${d ? ` ${d}억` : ''}</button>`).join('')}</div><p class="small">전세대출은 보증금의 80%까지(금리 ${(S.rate + 1.3).toFixed(1)}%), 월세보다 주거비가 싸지만 목돈이 묶여요.</p>` : ''}</div>
+    <div class="card"><h4>🎟️ 청약 가점 <small>${isHomeless() ? '무주택' : '유주택 (청약 불가)'}</small></h4><div class="gj"><div><small>무주택 기간</small><b>${gj.h}/32</b></div><div><small>부양가족</small><b>${gj.fam}/35</b></div><div><small>통장 가입</small><b>${gj.acc}/17</b></div><div><small>합계</small><b>${gj.total}/84</b></div></div>${gj.bonus ? `<p class="small">🎟️ 청약 전략 보너스 +${gj.bonus}점 (청약 정보를 꼼꼼히 챙긴 덕분)</p>` : ''}</div>
+    ${S.credit > 0 ? `<div class="card"><h4>🏦 신용대출 ${won(S.credit)}</h4><button class="btn sm" id="bCr" ${S.cash > .05 ? '' : 'disabled'}>여유 현금으로 갚기</button></div>` : ''}`;
+  document.querySelectorAll('[data-sell]').forEach(b => b.onclick = () => sellModal(+b.dataset.sell));
+  document.querySelectorAll('[data-repay]').forEach(b => b.onclick = () => { const p = S.props.find(x => x.uid === +b.dataset.repay); const amt = r2(Math.min(p.loan, S.cash)); p.loan = r2(p.loan - amt); S.cash = r2(S.cash - amt); log(`💳 ${aptName(p)} 대출 ${won(amt)} 상환`); save(); renderGame(); });
+  document.querySelectorAll('[data-rent]').forEach(b => b.onclick = () => { const p = S.props.find(x => x.uid === +b.dataset.rent); const dep = r2(propValue(p) * AP[p.aid].jr * S.J); p.live = false; p.tenant = { dep, until: S.t + 4, J0: S.J }; S.cash = r2(S.cash + dep); S.res = { type: 'wolse', dep: 0, loan: 0 }; log(`🔑 ${aptName(p)} 전세 ${won(dep)}에 놓고 월세로 이사`); save(); renderGame(); });
+  document.querySelectorAll('[data-movein]').forEach(b => b.onclick = () => { const p = S.props.find(x => x.uid === +b.dataset.movein); if (S.cash + (S.res.dep - S.res.loan) < p.tenant.dep) return toast(`보증금 ${won(p.tenant.dep)}을 돌려줄 현금이 부족해요.`); S.cash = r2(S.cash - p.tenant.dep); moveIntoOwned(p); log(`🏡 ${aptName(p)} 세입자를 내보내고 입주`); save(); renderGame(); });
+  document.querySelectorAll('[data-res]').forEach(b => b.onclick = () => changeRes(...b.dataset.res.split(':')));
+  if ($('#bCr')) $('#bCr').onclick = () => { const amt = r2(Math.min(S.credit, S.cash)); S.credit = r2(S.credit - amt); S.cash = r2(S.cash - amt); save(); renderGame(); };
+}
+function changeRes(type, dep) {
+  dep = +dep;
+  const back = r2(S.res.dep - S.res.loan);
+  if (type === 'wolse') { S.cash = r2(S.cash + back - .1); S.res = { type: 'wolse', dep: .1, loan: 0 }; log('📦 월세로 이사'); save(); return renderGame(); }
+  const maxLoan = r2(Math.min(dep * .8, S.props.length ? 2 : dep * .8));
+  const need = r2(dep - maxLoan + .02);
+  if (S.cash + back < need) return toast(`현금 ${won(need - S.cash - back)}이 더 필요해요.`);
+  modal(`<h3>🔑 전세 ${dep}억 집으로 이사</h3><table class="qt"><tr><td>보증금</td><td>${won(dep)}</td></tr><tr><td>전세대출 (80%)</td><td>−${won(maxLoan)}</td></tr><tr><td>이사비</td><td>${won(.02)}</td></tr><tr><td>지금 집 보증금 회수</td><td>+${won(back)}</td></tr><tr class="tot"><td>필요한 현금</td><td>${won(need - back)}</td></tr></table>
+    <p class="small">전세대출 이자 연 ${(S.rate + 1.3).toFixed(1)}%. 월세 85만 원이 사라집니다.</p><button class="btn pri" id="ok">이사하기</button><button class="btn ghost" data-close>취소</button>`);
+  $('#ok').onclick = () => { S.cash = r2(S.cash + back - need); S.res = { type: 'jeonse', dep, loan: maxLoan }; log(`🔑 전세 ${dep}억 집으로 이사`); closeModal(); save(); renderGame(); };
+}
+function sellModal(uid) {
+  const p = S.props.find(x => x.uid === uid), v = propValue(p);
+  const snapshot = JSON.stringify(S); const got = sellProp(p); const after = JSON.parse(JSON.stringify(S)); S = JSON.parse(snapshot); void after;
+  modal(`<h3>🤝 ${esc(aptName(p))} 매도</h3><p>시세 ${won(v)}에 내놓으면 대출·보증금·세금·수수료를 정리하고 <b>${won(got)}</b>이 손에 들어옵니다.</p>
+    ${S.phase === 'down' ? '<p class="small warn">🧊 하락장입니다. 공포에 팔고 나면 반등할 때 후회할 수도 있어요.</p>' : ''}
+    ${p.live ? '<p class="small">실거주 집을 팔면 월세로 옮깁니다. 2반기 안에 더 좋은 집을 사면 갈아타기로 기록돼요.</p>' : ''}
+    <button class="btn pri" id="ok">팔기</button><button class="btn ghost" data-close>취소</button>`);
+  $('#ok').onclick = () => { const q = S.props.find(x => x.uid === uid); sellProp(q); closeModal(); save(); toast('매도 완료'); renderGame(); };
+}
+
+// ---------- 도감 ----------
+function tabDex() { renderDexInner($('#tab'), false); }
+function renderDexPage(back) { $('#app').innerHTML = `<div class="setup fade"><button class="btn ghost sm" id="bk">← 돌아가기</button><div id="dx"></div></div>`; $('#bk').onclick = back; renderDexInner($('#dx'), true); }
+function renderDexInner(el) {
+  const d = store.get('_dex', {});
+  const parts = ['', '🏆 부동산 성공', '🌱 특별한 인생', '♟️ 투자 전략·역전', '💥 실패·위기'];
+  let h = `<div class="card"><h4>🎬 엔딩 도감 ${Object.keys(d).length}/40</h4><p class="small">달성하면 이야기가 열립니다. 엔딩을 눌러 보세요.</p>`;
+  for (let pt = 1; pt <= 4; pt++) {
+    h += `<h5 class="pt">${parts[pt]}</h5><div class="dex">`;
+    for (const [k, e] of Object.entries(ENDS).filter(([, e]) => e.p === pt)) h += `<button class="de ${d[k] ? 'got' : ''}" data-e="${k}"><span>${d[k] ? e.ic : '❔'}</span><b>${k.slice(1).padStart(2, '0')}</b><small>${d[k] ? e.t : '???'}</small></button>`;
+    h += '</div>';
+  }
+  h += `</div><div class="card"><h4>🏢 아파트 도감</h4><div class="adex">${APTS.map(a => `<div class="${S && S.seen && S.seen[a.id] ? 'got' : ''}"><b>${a.n}</b><small>${GUN[a.gu].n}구 · ${a.y ? a.y + '년' : a.mv ? a.mv + '년 입주' : ''}</small></div>`).join('')}</div><p class="small">임장하거나 매수한 단지가 표시됩니다.</p></div>`;
+  el.innerHTML = h;
+  el.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { const k = b.dataset.e, e = ENDS[k]; modal(d[k] ? `<div class="evcat">엔딩 ${k.slice(1)}</div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${e.d}<br>달성: ${d[k].name} · ${d[k].mode === 'hist' ? '역사' : '현실'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${e.d}</p><button class="btn" data-close>닫기</button>`); });
+}
+
+// ---------- 진행 ----------
+function onNext() {
+  if (S.res.type !== 'own' && !S.props.some(p => p.live) && S.t === 0 && !S.warned0) { S.warned0 = 1; }
+  const r = nextTurn();
+  if (r.end) { save(); return renderEnding(); }
+  const go = () => { if (r.ev) showEvent(r.ev); else renderGame(); };
+  const after = () => { if (S.interAd) { S.interAd = false; showAd(go, true, 'turn_break'); } else go(); };
+  renderGame();
+  modal(`<div class="evcat">${when()} 결산</div><h3>📅 6개월이 지났습니다</h3><ul class="rep">${r.msgs.map(m => `<li>${esc(m)}</li>`).join('')}${S.lastFlow ? `<li>💰 반기 저축 ${S.lastFlow.net >= 0 ? '+' : ''}${won(S.lastFlow.net)} → 현금 ${won(S.cash)}</li>` : ''}</ul><button class="btn pri" id="ok">확인</button>`);
+  $('#ok').onclick = () => { closeModal(); after(); };
+}
+function showEvent(e) {
+  const E = e.run();
+  modal(`<div class="evcat">이벤트 · ${E.cat}</div><h3>${esc(E.t)}</h3><p>${esc(E.d)}</p><div class="chs">${E.ch.map((c, i) => { const ok = !c.ok || c.ok(); return `<button class="ch" data-i="${i}" ${ok ? '' : 'disabled'}><b>${esc(c.l)}</b>${c.s ? `<small>${esc(c.s)}</small>` : ''}</button>`; }).join('')}</div>`, 'ev');
+  document.querySelectorAll('[data-i]').forEach(b => b.onclick = () => {
+    const res = E.ch[+b.dataset.i].f(); log(`${E.t}: ${res}`);
+    const c2 = crisis(); for (const m of c2) log(m);
+    save();
+    modal(`<h3>${esc(E.t)}</h3><p>${esc(res)}</p>${c2.map(m => `<p class="small">${esc(m)}</p>`).join('')}<button class="btn pri" id="ok">계속</button>`);
+    $('#ok').onclick = () => { closeModal(); if (S.ended) return renderEnding(); if (S.goTab) { TAB = S.goTab; S.goTab = null; } if (S.goApt) { const id = S.goApt; S.goApt = null; TAB = 'map'; renderGame(); return aptModal(id); } renderGame(); };
+  });
+}
+
+// ---------- 광고 보상 ----------
+const ADS = { client: null };
+let adOn = false, lastInter = 0;
+function adReward(kind) {
+  if (S.adUsed[kind]) return;
+  showAd(() => {
+    S.adUsed[kind] = 1;
+    if (kind === 'report') { rollFuture(); const f = S.future.slice(0, 2); const nm = { up: '상승 🔥', flat: '보합 😐', down: '하락 🧊' };
+      modal(`<div class="evcat">부동산 전문가 분석 리포트</div><h3>📊 앞으로 1년 전망</h3><ul class="rep"><li>${when(S.t)}: <b>${nm[f[0].ph]}</b></li><li>${when(S.t + 1)}: <b>${nm[f[1].ph]}</b></li></ul><p class="small">${f.some(x => x.ph === 'down') ? '조정이 예상됩니다. 무리한 대출은 피하고 현금을 확보하세요.' : f.every(x => x.ph === 'up') ? '상승 흐름이 이어질 전망입니다. 다만 고점 추격 매수의 위험도 함께 커집니다.' : '방향성이 약한 장입니다. 급매를 노려 볼 만합니다.'}</p><p class="small">게임 속 가상 시나리오 전망입니다.</p><button class="btn" data-close>닫기</button>`); }
+    if (kind === 'chart') { S.chart = true; toast('📈 모든 단지의 과거 시세 그래프가 열렸습니다'); }
+    if (kind === 'imjang') { S.imjang += 2; toast('🔍 임장 기회 +2'); }
+    save(); if (kind !== 'report') renderGame();
+  }, false, 'reward_' + kind);
+}
+function stat(ev, k) { try { const body = JSON.stringify({ g: 'seoul', ev, k: k || '' }); if (navigator.sendBeacon) navigator.sendBeacon('/api/stat', new Blob([body], { type: 'application/json' })); } catch (e) { } }
+fetch('/api/config', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(c => { const a = c && c.ads; if (!a || !a.h5 || !a.client) return;
+  ADS.client = a.client; const sc = document.createElement('script'); sc.async = true; sc.crossOrigin = 'anonymous'; sc.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + a.client; sc.setAttribute('data-ad-frequency-hint', '30s'); if (a.test) sc.setAttribute('data-adbreak-test', 'on'); document.head.appendChild(sc);
+  window.adsbygoogle = window.adsbygoogle || []; window.adBreak = window.adConfig = function (o) { window.adsbygoogle.push(o); }; adConfig({ preloadAdBreaks: 'on', sound: 'on' }); }).catch(() => { });
+function showAd(cb, inter, tag) {
+  const real = ADS.client && window.adBreak;
+  if (inter) { if (!real || Date.now() - lastInter < 180000) return cb(); lastInter = Date.now(); let done = false; const fin = () => { if (done) return; done = true; adOn = false; cb(); }; setTimeout(fin, 12000); adBreak({ type: 'next', name: tag, beforeAd: () => { adOn = true; }, afterAd: () => { adOn = false; }, adBreakDone: fin }); return; }
+  stat('reward_click', tag);
+  if (real) { let g = false; adBreak({ type: 'reward', name: tag, beforeReward: s => s(), beforeAd: () => { adOn = true; }, afterAd: () => { adOn = false; }, adViewed: () => { g = true; }, adDismissed: () => toast('광고를 끝까지 보면 혜택을 받을 수 있어요.'), adBreakDone: i => { adOn = false; if (g) { stat('reward_done', tag); cb(); } else if (!i || !['dismissed', 'viewed'].includes(i.breakStatus)) toast('지금은 볼 수 있는 광고가 없어요. 잠시 후 다시 시도해 주세요.'); } }); return; }
+  modal(`<div style="text-align:center"><div style="font-size:34px">🎁</div><b>광고 준비 중</b><p class="small">광고가 연결되기 전이라 지금은 무료로 받을 수 있어요.</p></div><button class="btn pri" id="adDone">받기</button><button class="btn ghost" data-close>닫기</button>`);
+  $('#adDone').onclick = () => { closeModal(); stat('reward_free', tag); cb(); };
+}
+
+// ---------- 엔딩 ----------
+function renderEnding() {
+  const k = S.ended, e = ENDS[k]; unlockEnding(k); stat('ending', k);
+  const d = store.get('_dex', {});
+  const homes = S.props.filter(p => p.kind === 'buy');
+  $('#app').innerHTML = `<div class="ending fade p${e.p}"><div class="ekick">${['', 'SUCCESS', 'LIFE', 'STRATEGY', 'CRISIS'][e.p]} · 엔딩 ${k.slice(1)}/40</div><div class="eic">${e.ic}</div><h2>${e.t}</h2><p class="story">${e.s}</p>
+    <div class="card"><h4>📋 ${esc(S.name)}의 부동산 인생 결산</h4><table class="qt"><tr><td>기간</td><td>${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년 (${Math.ceil(S.t / 2)}년)</td></tr><tr><td>나이</td><td>${ageOf(Math.min(S.t, MAXT - 1))}세</td></tr><tr><td>최종 순자산</td><td><b>${won(nw())}</b></td></tr><tr><td>보유 주택</td><td>${homes.map(p => esc(aptName(p))).join(', ') || '없음'}</td></tr><tr><td>총부채</td><td>${won(debtTotal())}</td></tr><tr><td>행복도</td><td>${S.happy}</td></tr><tr><td>갈아타기 / 청약 당첨</td><td>${S.st.flips}회 / ${S.st.chWin}회</td></tr></table></div>
+    <p class="small">엔딩 도감 ${Object.keys(d).length}/40 수집</p>
+    <button class="btn pri big" id="again">🔁 인생 다시 살기</button><button class="btn" id="dex">📖 엔딩 도감</button><button class="btn ghost" id="share">📤 결과 공유</button><a class="other" href="/">← aptgame.kr 다른 게임</a></div>`;
+  $('#again').onclick = () => { store.set('_save', null); renderSetup(); };
+  $('#dex').onclick = () => renderDexPage(renderEnding);
+  $('#share').onclick = () => { const t = `나의 첫 번째 서울 아파트 구하기 — 엔딩 ${k.slice(1)} "${e.t}" (순자산 ${won(nw())}) https://aptgame.kr/seoul/`; if (navigator.share) navigator.share({ text: t }).catch(() => { }); else { navigator.clipboard && navigator.clipboard.writeText(t); toast('결과 문구를 복사했어요'); } };
+  if (e.p !== 4) celebrate();
+}
+
+renderTitle();
+</script></body></html>
