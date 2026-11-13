@@ -44,22 +44,28 @@ function skyline() {
 // ---------- 시작 설정 ----------
 function renderSetup() {
   let mode = 'real', diff = 'd5';
+  const DIC = { d3: '🪙', d5: '💵', d10: '💴', d30: '💰' };
   const draw = () => {
-    $('#app').innerHTML = `<div class="setup fade">
-      <h2>🗓️ 2026년, 서울에 첫 직장을 얻었습니다.</h2>
-      <div class="me card"><div class="avatar">🧑‍💼</div><div><b>29세 · 무주택 · 서울 거주</b><br><span class="small">연봉 4,800만 원 · 월세 85만 원 · 청약통장 가입 5년</span></div></div>
-      <label class="lbl">이름</label><input id="nm" maxlength="8" placeholder="나" value="">
-      <label class="lbl">시장 모드</label>
-      <div class="opts">
-        <button class="opt ${mode === 'real' ? 'on' : ''}" data-m="real"><b>🏛️ 2026 현실 모드</b><span>서울 전역 토지거래허가구역. 갭투자 불가, 2년 실거주 의무, LTV 40%(생애최초 70%). 이후 시장은 가상 시나리오.</span></button>
-        <button class="opt ${mode === 'hist' ? 'on' : ''}" data-m="hist"><b>📜 역사 모드 (2015년 시작)</b><span>2015년 완화기부터 시작. 8·2, 12·16, 10·15 대책을 차례로 겪으며 갭투자도 합법적으로 체험.</span></button>
+    const nm = $('#nm') ? $('#nm').value : '';
+    $('#app').innerHTML = `<div class="setup2 fade">
+      <img class="st" src="img/setup_top.webp" alt="2026년, 서울에 첫 집을 얻었습니다!">
+      <div class="scard">
+        <div class="shead"><span class="hi">🏠</span><div>당신의 프로필을 설정하고<br><b><mark>서울 아파트 인생</mark>을 시작하세요!</b></div></div>
+        <div class="prof"><div class="pav">🧑‍💼</div><div><b>29세 · 무주택 · 서울 거주</b><small>💼 연봉 4,800만 원 &nbsp;·&nbsp; 📦 월세 85만 원 &nbsp;·&nbsp; 🎟️ 청약통장 5년</small></div></div>
+        <label class="lbl">이름</label>
+        <div class="inp"><span>👤</span><input id="nm" maxlength="8" placeholder="닉네임을 입력하세요 (예: 건축학도고니)" value="${esc(nm)}"></div>
+        <label class="lbl">시작 모드</label>
+        <button class="mopt ${mode === 'real' ? 'on' : ''}" data-m="real"><span class="mi">🏢</span><span class="mt"><b>2026 현실 모드 <em>추천</em></b><small>서울 실제 단지 가격과 정책을 반영한 가장 현실적인 모드 (금리·대출·세금·규제까지!)</small></span>${mode === 'real' ? '<i class="ck">✓</i>' : ''}</button>
+        <button class="mopt ${mode === 'hist' ? 'on' : ''}" data-m="hist"><span class="mi">🏆</span><span class="mt"><b>역사 모드 (2015년 시작)</b><small>부동산 상승기의 기회를 잡아 서울 부동산의 변화를 직접 경험하는 도전 모드 (갭투자 가능)</small></span>${mode === 'hist' ? '<i class="ck">✓</i>' : ''}</button>
+        <label class="lbl">시작 자금 (보유 현금)</label>
+        <div class="dgrid">${Object.entries(DIFFS).map(([k, d]) => `<button class="dopt ${diff === k ? 'on' : ''}" data-d="${k}"><b>${DIC[k]} ${d.n}</b><small>(${d.d.replace('현금 ', '')})</small>${diff === k ? '<i class="ck">✓</i>' : ''}</button>`).join('')}</div>
+        <button class="gobtn" id="go">▶ 다음: 첫 번째 선택 →</button>
+        <button class="backbtn" id="back">← 이전으로</button>
       </div>
-      <label class="lbl">시작 자금 (난이도)</label>
-      <div class="diffs">${Object.entries(DIFFS).map(([k, d]) => `<button class="df ${diff === k ? 'on' : ''}" data-d="${k}"><b>${d.n}</b><span>${d.d}</span></button>`).join('')}</div>
-      <button class="btn pri big" id="go">다음: 첫 번째 선택 →</button>
-      <button class="btn ghost" id="back">← 처음으로</button></div>`;
-    document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mode = b.dataset.m; const v = $('#nm').value; draw(); $('#nm').value = v; });
-    document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { diff = b.dataset.d; const v = $('#nm').value; draw(); $('#nm').value = v; });
+      <img class="sb" src="img/setup_bot.webp" alt="실제 서울 시세 반영 · 실존 단지·지역 선택 · 다양한 투자 시나리오 · 총 40가지 엔딩">
+    </div>`;
+    document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mode = b.dataset.m; draw(); });
+    document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { diff = b.dataset.d; draw(); });
     $('#back').onclick = renderTitle;
     $('#go').onclick = () => renderFirstChoice(mode, diff, $('#nm').value.trim());
   };
