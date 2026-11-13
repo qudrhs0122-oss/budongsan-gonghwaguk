@@ -18,21 +18,20 @@ function chg(id, n = 2) { const h = S.hist[id]; if (!h || h.length <= n) return 
 // ---------- 타이틀 ----------
 function renderTitle() {
   const sv = store.get('_save', null), dex = store.get('_dex', {});
-  $('#app').innerHTML = `<div class="title fade">
-    <div class="sky"><div class="sun"></div>${skyline()}</div>
-    <div class="tcard">
-      <div class="kicker">MY FIRST SEOUL APARTMENT</div>
-      <h1>나의 첫 번째<br><b>서울 아파트</b> 구하기</h1>
-      <p class="sub">월급쟁이로 시작해 서울에 내 집 한 채.<br>어떤 집을, 언제, 어떻게 샀느냐에 따라 <b>40가지 인생</b>이 갈립니다.</p>
-      <div class="chips"><span>🏙️ 서울 25개 구</span><span>🏢 실존 단지 30곳</span><span>🎬 엔딩 40종</span><span>⏳ 최대 20년</span></div>
-      ${sv && !sv.ended ? `<button class="btn pri big" id="bCont">이어하기 · ${sv.name} ${sv.startYear + Math.floor(sv.t / 2)}년</button>` : ''}
-      <button class="btn ${sv && !sv.ended ? '' : 'pri big'}" id="bNew">🏁 새 인생 시작</button>
-      <button class="btn ghost" id="bDex">📖 엔딩 도감 (${Object.keys(dex).length}/40)</button>
-      <p class="fine">게임 속 시세·수익률은 실제 공개 자료를 참고한 <b>게임용 시뮬레이션 수치</b>이며 미래 시세 예측이나 투자 권유가 아닙니다. 단지 이름은 실제 장소, 그 외 인물·사건은 가상입니다.</p>
-      <a class="other" href="/">← aptgame.kr 다른 부동산 게임</a>
-    </div></div>`;
+  const cont = sv && !sv.ended;
+  $('#app').innerHTML = `<div class="title2 fade">
+    <h1 class="sr">나의 첫 번째 서울 아파트 구하기 — 월급쟁이로 시작해 서울에 내 집 한 채, 40가지 인생</h1>
+    <img class="tt" src="img/title_top.webp" alt="나의 첫 번째 서울 아파트 구하기. 서울 25개 구, 실존 단지 30곳, 4가지 전략, 엔딩 40종">
+    <div class="tmid">
+      ${cont ? `<button class="tbtn gold" id="bCont"><span>▶ 이어하기</span><small>${esc(sv.name)} · ${sv.startYear + Math.floor(sv.t / 2)}년 ${sv.t % 2 ? '하반기' : '상반기'} (${sv.t + 1}/40턴)</small></button>` : ''}
+      <button class="tbtn ${cont ? 'sub2' : 'gold'}" id="bNew"><span>🏠 ${cont ? '새 인생 시작' : '지금, 나만의 서울 아파트 인생을 시작하세요!'} ▶</span></button>
+      <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).length}/40) ›</span></button>
+    </div>
+    <img class="tb" src="img/title_bot.webp" alt="갭투자, 분양권, 입주권, 구축 투자 — 실제 아파트 기반 시뮬레이션, 현실적인 이벤트와 위기, 총 40가지 엔딩">
+    <div class="tfoot"><p>게임 속 시세·수익률은 실제 공개 자료를 참고한 <b>게임용 시뮬레이션 수치</b>이며 미래 시세 예측이나 투자 권유가 아닙니다. 단지 이름은 실제 장소, 그 외 인물·사건은 가상입니다.</p><a href="/">← aptgame.kr 다른 부동산 게임</a></div>
+  </div>`;
   if ($('#bCont')) $('#bCont').onclick = () => { S = sv; renderGame(); };
-  $('#bNew').onclick = renderSetup;
+  $('#bNew').onclick = () => { renderSetup(); };
   $('#bDex').onclick = () => renderDexPage(renderTitle);
 }
 function skyline() {

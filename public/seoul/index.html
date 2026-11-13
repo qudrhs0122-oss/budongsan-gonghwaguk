@@ -26,6 +26,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 .kicker{font-size:11px;letter-spacing:3px;font-weight:900;color:#c26b2b}.tcard h1{font-size:31px;line-height:1.2;margin:6px 0 10px}.tcard h1 b{color:var(--pri)}
 .sub{font-size:15px;line-height:1.6;margin:0 0 12px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.chips span{background:#fff;border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:700}
 .fine{font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:14px}.other{display:block;text-align:center;margin-top:14px;color:var(--mut);font-size:13px}
+/* 새 타이틀 */
+.title2{background:#3f3f71;min-height:100vh;margin-bottom:-92px;padding-bottom:20px}.title2 img{display:block;width:100%;height:auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.tmid{padding:4px 16px 12px;display:grid;gap:12px;background:linear-gradient(#3f3f71,#494f8f)}
+.tbtn{border:0;border-radius:999px;padding:17px 10px;font-weight:900;font-size:clamp(13.5px,3.9vw,17px);white-space:nowrap;line-height:1.3;display:flex;flex-direction:column;align-items:center;transition:transform .1s}
+.tbtn:active{transform:scale(.97)}.tbtn small{font-size:12.5px;font-weight:700;opacity:.8;margin-top:2px}
+.tbtn.gold{background:linear-gradient(#ffe57a,#f7c531);color:#1f2547;box-shadow:0 0 0 3px rgba(255,236,150,.55),0 0 28px rgba(255,214,90,.75),0 5px 0 #c9921a;animation:glow 2.2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 3px rgba(255,236,150,.8),0 0 40px rgba(255,214,90,.95),0 5px 0 #c9921a}}
+.tbtn.glass,.tbtn.sub2{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.45);backdrop-filter:blur(6px);font-size:16px}
+.tfoot{background:#3f3f71;padding:6px 18px 30px;color:rgba(255,255,255,.75);font-size:11.5px;line-height:1.55;text-align:center}.tfoot a{color:#ffe08a;display:inline-block;margin-top:8px;font-size:13px}
 /* 설정 */
 .setup{padding:16px 12px 30px}.setup h2{font-size:21px;margin:6px 4px 10px}.lbl{display:block;font-weight:800;margin:14px 4px 6px;font-size:14px}
 .setup input{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);font:inherit;font-size:15px}
@@ -837,21 +847,20 @@ function chg(id, n = 2) { const h = S.hist[id]; if (!h || h.length <= n) return 
 // ---------- 타이틀 ----------
 function renderTitle() {
   const sv = store.get('_save', null), dex = store.get('_dex', {});
-  $('#app').innerHTML = `<div class="title fade">
-    <div class="sky"><div class="sun"></div>${skyline()}</div>
-    <div class="tcard">
-      <div class="kicker">MY FIRST SEOUL APARTMENT</div>
-      <h1>나의 첫 번째<br><b>서울 아파트</b> 구하기</h1>
-      <p class="sub">월급쟁이로 시작해 서울에 내 집 한 채.<br>어떤 집을, 언제, 어떻게 샀느냐에 따라 <b>40가지 인생</b>이 갈립니다.</p>
-      <div class="chips"><span>🏙️ 서울 25개 구</span><span>🏢 실존 단지 30곳</span><span>🎬 엔딩 40종</span><span>⏳ 최대 20년</span></div>
-      ${sv && !sv.ended ? `<button class="btn pri big" id="bCont">이어하기 · ${sv.name} ${sv.startYear + Math.floor(sv.t / 2)}년</button>` : ''}
-      <button class="btn ${sv && !sv.ended ? '' : 'pri big'}" id="bNew">🏁 새 인생 시작</button>
-      <button class="btn ghost" id="bDex">📖 엔딩 도감 (${Object.keys(dex).length}/40)</button>
-      <p class="fine">게임 속 시세·수익률은 실제 공개 자료를 참고한 <b>게임용 시뮬레이션 수치</b>이며 미래 시세 예측이나 투자 권유가 아닙니다. 단지 이름은 실제 장소, 그 외 인물·사건은 가상입니다.</p>
-      <a class="other" href="/">← aptgame.kr 다른 부동산 게임</a>
-    </div></div>`;
+  const cont = sv && !sv.ended;
+  $('#app').innerHTML = `<div class="title2 fade">
+    <h1 class="sr">나의 첫 번째 서울 아파트 구하기 — 월급쟁이로 시작해 서울에 내 집 한 채, 40가지 인생</h1>
+    <img class="tt" src="img/title_top.webp" alt="나의 첫 번째 서울 아파트 구하기. 서울 25개 구, 실존 단지 30곳, 4가지 전략, 엔딩 40종">
+    <div class="tmid">
+      ${cont ? `<button class="tbtn gold" id="bCont"><span>▶ 이어하기</span><small>${esc(sv.name)} · ${sv.startYear + Math.floor(sv.t / 2)}년 ${sv.t % 2 ? '하반기' : '상반기'} (${sv.t + 1}/40턴)</small></button>` : ''}
+      <button class="tbtn ${cont ? 'sub2' : 'gold'}" id="bNew"><span>🏠 ${cont ? '새 인생 시작' : '지금, 나만의 서울 아파트 인생을 시작하세요!'} ▶</span></button>
+      <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).length}/40) ›</span></button>
+    </div>
+    <img class="tb" src="img/title_bot.webp" alt="갭투자, 분양권, 입주권, 구축 투자 — 실제 아파트 기반 시뮬레이션, 현실적인 이벤트와 위기, 총 40가지 엔딩">
+    <div class="tfoot"><p>게임 속 시세·수익률은 실제 공개 자료를 참고한 <b>게임용 시뮬레이션 수치</b>이며 미래 시세 예측이나 투자 권유가 아닙니다. 단지 이름은 실제 장소, 그 외 인물·사건은 가상입니다.</p><a href="/">← aptgame.kr 다른 부동산 게임</a></div>
+  </div>`;
   if ($('#bCont')) $('#bCont').onclick = () => { S = sv; renderGame(); };
-  $('#bNew').onclick = renderSetup;
+  $('#bNew').onclick = () => { renderSetup(); };
   $('#bDex').onclick = () => renderDexPage(renderTitle);
 }
 function skyline() {

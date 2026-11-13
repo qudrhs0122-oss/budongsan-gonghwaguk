@@ -26,6 +26,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 .kicker{font-size:11px;letter-spacing:3px;font-weight:900;color:#c26b2b}.tcard h1{font-size:31px;line-height:1.2;margin:6px 0 10px}.tcard h1 b{color:var(--pri)}
 .sub{font-size:15px;line-height:1.6;margin:0 0 12px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.chips span{background:#fff;border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:700}
 .fine{font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:14px}.other{display:block;text-align:center;margin-top:14px;color:var(--mut);font-size:13px}
+/* 새 타이틀 */
+.title2{background:#3f3f71;min-height:100vh;margin-bottom:-92px;padding-bottom:20px}.title2 img{display:block;width:100%;height:auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.tmid{padding:4px 16px 12px;display:grid;gap:12px;background:linear-gradient(#3f3f71,#494f8f)}
+.tbtn{border:0;border-radius:999px;padding:17px 10px;font-weight:900;font-size:clamp(13.5px,3.9vw,17px);white-space:nowrap;line-height:1.3;display:flex;flex-direction:column;align-items:center;transition:transform .1s}
+.tbtn:active{transform:scale(.97)}.tbtn small{font-size:12.5px;font-weight:700;opacity:.8;margin-top:2px}
+.tbtn.gold{background:linear-gradient(#ffe57a,#f7c531);color:#1f2547;box-shadow:0 0 0 3px rgba(255,236,150,.55),0 0 28px rgba(255,214,90,.75),0 5px 0 #c9921a;animation:glow 2.2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 3px rgba(255,236,150,.8),0 0 40px rgba(255,214,90,.95),0 5px 0 #c9921a}}
+.tbtn.glass,.tbtn.sub2{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.45);backdrop-filter:blur(6px);font-size:16px}
+.tfoot{background:#3f3f71;padding:6px 18px 30px;color:rgba(255,255,255,.75);font-size:11.5px;line-height:1.55;text-align:center}.tfoot a{color:#ffe08a;display:inline-block;margin-top:8px;font-size:13px}
 /* 설정 */
 .setup{padding:16px 12px 30px}.setup h2{font-size:21px;margin:6px 4px 10px}.lbl{display:block;font-weight:800;margin:14px 4px 6px;font-size:14px}
 .setup input{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);font:inherit;font-size:15px}
