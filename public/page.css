@@ -35,3 +35,16 @@ th{background:#faf4ea}
 .foot nav{margin-bottom:8px}
 @media(max-width:560px){h1{font-size:23px}.apt img{width:84px}.doc{margin:10px;padding:18px 14px}}
 .adbox{margin:24px 0 4px;min-height:90px}
+
+.meta{font-size:13px;color:#8a7f6a;margin:-4px 0 14px}.crumb{font-size:13px;margin:0}.crumb a{color:#8a7f6a}
+.formula{background:#f3f6ff;border-radius:10px;padding:10px 12px;font-weight:700;color:#1f2547}
+.disclaimer{font-size:12.5px;color:#8a7f6a;background:#faf7f1;border-radius:10px;padding:10px 12px;margin-top:24px}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:14px 0}
+.lcard{display:flex;flex-direction:column;gap:4px;border:1.5px solid #eadfcc;border-radius:16px;padding:14px;text-decoration:none;color:#2a2116;background:#fffdf9}
+.lcard:hover{border-color:#e8553d}.lcard b{font-size:16px;line-height:1.4}.lcard small{font-size:13.5px;color:#6a604e;line-height:1.5}.lcard i{font-style:normal;font-size:12px;color:#8a7f6a}
+.ltag{align-self:flex-start;font-size:11.5px;font-weight:800;background:#1f2547;color:#fff;border-radius:8px;padding:1px 8px}
+.toc span{background:#f5efe4;border-radius:10px;padding:3px 10px;font-size:13px}
+.pn{display:flex;justify-content:space-between;gap:10px;margin-top:26px;font-size:14px}.pn a{text-decoration:none;font-weight:700;max-width:48%}
+.calc{background:#f8f5ee;border-radius:16px;padding:14px;margin:14px 0}.calc label{display:block;font-weight:700;font-size:14.5px;margin:8px 0}
+.calc input[type=number],.calc select{display:block;width:100%;margin-top:4px;padding:10px;border:1.5px solid #e2d6c0;border-radius:10px;font:inherit;background:#fff}
+.calc .res{background:#fff;border-radius:14px;padding:12px 14px;margin-top:12px}.calc .big{font-size:30px;font-weight:900;color:#1f2547}.calc .big small{font-size:14px;color:#8a7f6a;margin-left:6px}
