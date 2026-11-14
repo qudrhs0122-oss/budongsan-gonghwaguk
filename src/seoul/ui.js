@@ -23,14 +23,14 @@ function renderTitle() {
     <h1 class="sr">나의 첫 번째 서울 아파트 구하기 — 월급쟁이로 시작해 서울에 내 집 한 채, 40가지 인생</h1>
     <img class="tt" src="img/title_top.webp" alt="나의 첫 번째 서울 아파트 구하기. 서울 25개 구, 실존 단지 30곳, 4가지 전략, 엔딩 40종">
     <div class="tmid">
-      ${cont ? `<button class="tbtn gold" id="bCont"><span>▶ 이어하기</span><small>${esc(sv.name)} · ${sv.startYear + Math.floor(sv.t / 2)}년 ${sv.t % 2 ? '하반기' : '상반기'} (${sv.t + 1}/40턴)</small></button>` : ''}
+      ${cont ? `<button class="tbtn gold" id="bCont"><span>▶ 이어하기</span><small>${esc(sv.name)} · ${sv.startYear + Math.floor(sv.t / 2)}년 ${sv.t % 2 ? '하반기' : '상반기'} (CH ${Math.min(10, Math.floor(sv.t / 4) + 1)}/10)</small></button>` : ''}
       <button class="tbtn ${cont ? 'sub2' : 'gold'}" id="bNew"><span>🏠 ${cont ? '새 인생 시작' : '지금, 나만의 서울 아파트 인생을 시작하세요!'} ▶</span></button>
-      <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).length}/40) ›</span></button>
+      <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).filter(k => ENDS[k]).length}/40) ›</span></button>
     </div>
     <img class="tb" src="img/title_bot.webp" alt="갭투자, 분양권, 입주권, 구축 투자 — 실제 아파트 기반 시뮬레이션, 현실적인 이벤트와 위기, 총 40가지 엔딩">
     <div class="tfoot"><p>게임 속 시세·수익률은 실제 공개 자료를 참고한 <b>게임용 시뮬레이션 수치</b>이며 미래 시세 예측이나 투자 권유가 아닙니다. 단지 이름은 실제 장소, 그 외 인물·사건은 가상입니다.</p><a href="/">← aptgame.kr 다른 부동산 게임</a></div>
   </div>`;
-  if ($('#bCont')) $('#bCont').onclick = () => { S = sv; renderGame(); };
+  if ($('#bCont')) $('#bCont').onclick = () => { S = sv; migrate(); renderGame(); };
   $('#bNew').onclick = () => { renderSetup(); };
   $('#bDex').onclick = () => renderDexPage(renderTitle);
 }
@@ -43,7 +43,7 @@ function skyline() {
 
 // ---------- 시작 설정 ----------
 function renderSetup() {
-  let mode = 'real', diff = 'd5';
+  let mode = 'hist', diff = 'd5';
   const DIC = { d3: '🪙', d5: '💵', d10: '💴', d30: '💰' };
   const draw = () => {
     const nm = $('#nm') ? $('#nm').value : '';
@@ -51,12 +51,12 @@ function renderSetup() {
       <img class="st" src="img/setup_top.webp" alt="2026년, 서울에 첫 집을 얻었습니다!">
       <div class="scard">
         <div class="shead"><span class="hi">🏠</span><div>당신의 프로필을 설정하고<br><b><mark>서울 아파트 인생</mark>을 시작하세요!</b></div></div>
-        <div class="prof"><div class="pav">🧑‍💼</div><div><b>29세 · 무주택 · 서울 거주</b><small>💼 연봉 4,800만 원 &nbsp;·&nbsp; 📦 월세 85만 원 &nbsp;·&nbsp; 🎟️ 청약통장 5년</small></div></div>
+        <div class="prof"><div class="pav">🧑‍💼</div><div><b>29세 · 무주택 · 서울 거주</b><small>💼 연봉 4,800만 원 · 📦 월세 85만 원 · ❤️ 체력 90 · 🎟️ 청약통장 5년</small></div></div>
         <label class="lbl">이름</label>
         <div class="inp"><span>👤</span><input id="nm" maxlength="8" placeholder="닉네임을 입력하세요 (예: 건축학도고니)" value="${esc(nm)}"></div>
         <label class="lbl">시작 모드</label>
-        <button class="mopt ${mode === 'real' ? 'on' : ''}" data-m="real"><span class="mi">🏢</span><span class="mt"><b>2026 현실 모드 <em>추천</em></b><small>서울 실제 단지 가격과 정책을 반영한 가장 현실적인 모드 (금리·대출·세금·규제까지!)</small></span>${mode === 'real' ? '<i class="ck">✓</i>' : ''}</button>
-        <button class="mopt ${mode === 'hist' ? 'on' : ''}" data-m="hist"><span class="mi">🏆</span><span class="mt"><b>역사 모드 (2015년 시작)</b><small>부동산 상승기의 기회를 잡아 서울 부동산의 변화를 직접 경험하는 도전 모드 (갭투자 가능)</small></span>${mode === 'hist' ? '<i class="ck">✓</i>' : ''}</button>
+        <button class="mopt ${mode === 'real' ? 'on' : ''}" data-m="real"><span class="mi">🏢</span><span class="mt"><b>2026 현실 모드</b><small>지금의 10·15 대책 규제 속에서 시작하는 하드코어 모드 (LTV 40%·갭투자 금지)</small></span>${mode === 'real' ? '<i class="ck">✓</i>' : ''}</button>
+        <button class="mopt ${mode === 'hist' ? 'on' : ''}" data-m="hist"><span class="mi">🏆</span><span class="mt"><b>2015 인생 모드 <em>추천</em></b><small>2015년 29세로 시작해 2034년까지. 상승장·팬데믹·금리 인상·가상 금융위기를 차례로 겪어요</small></span>${mode === 'hist' ? '<i class="ck">✓</i>' : ''}</button>
         <label class="lbl">시작 자금 (보유 현금)</label>
         <div class="dgrid">${Object.entries(DIFFS).map(([k, d]) => `<button class="dopt ${diff === k ? 'on' : ''}" data-d="${k}"><b>${DIC[k]} ${d.n}</b><small>(${d.d.replace('현금 ', '')})</small>${diff === k ? '<i class="ck">✓</i>' : ''}</button>`).join('')}</div>
         <button class="gobtn" id="go">▶ 다음: 첫 번째 선택 →</button>
@@ -89,60 +89,112 @@ function renderFirstChoice(mode, diff, name) {
     if (b.dataset.g === 'ch') S.chBonus = 2;
     TAB = 'home'; renderGame();
     modal(`<div class="evcat">튜토리얼</div><h3>${GOALS[b.dataset.g].ic} ${GOALS[b.dataset.g].t}</h3><p>${GOALS[b.dataset.g].hint}</p>
-      <ul class="tut"><li>🗺️ <b>지도</b>에서 구를 눌러 실제 단지 매물을 보고, 살 수 있는지 자금 계산을 확인하세요.</li><li>💼 <b>내 자산</b>에서 집을 팔거나 전세로 옮기고, 대출을 갚을 수 있어요.</li><li>⏭️ 아래 <b>다음 반기</b>를 누르면 6개월이 흐르고 월급·이자·시세가 바뀝니다. 20년(40턴) 뒤 인생이 결산됩니다.</li></ul>
+      <ul class="tut"><li>💼 매 반기 <b>어떻게 벌지</b> 고르세요. 투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라요.</li><li>🏠 <b>노려볼 아파트 3곳</b>을 눌러 얼마가 부족한지 확인하세요. 돈이 모이면 바로 매수!</li><li>📈 주식으로 불릴 수도 있지만 금융위기에는 반토막 날 수 있어요.</li><li>⏭️ <b>다음 반기</b>를 누르면 6개월이 흐릅니다. 10개 챕터(20년) 뒤 40가지 엔딩 중 하나가 나와요.</li></ul>
       <p class="small">현재 규제: ${rules().name} — ${rules().note}</p><button class="btn pri" data-close>시작하기</button>`);
   });
 }
 
 // ---------- 게임 화면 ----------
+function bar(v, cls) { return `<i class="hb ${cls || ''}"><i style="width:${clamp(v, 0, 100)}%"></i></i>`; }
 function hud() {
-  const n = nw();
-  return `<div class="hud"><div class="hrow"><b class="when">${when()}</b><span>${S.name} · ${ageOf()}세${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</span><span class="tn">${S.t + 1}/${MAXT}턴</span></div>
-    <div class="hstats"><div><small>현금</small><b class="${S.cash < 0 ? 'neg' : ''}">${won(S.cash)}</b></div><div><small>순자산</small><b>${won(n)}</b></div><div><small>부채</small><b>${won(debtTotal())}</b></div><div><small>행복</small><b>${S.happy}</b><i class="hb"><i style="width:${S.happy}%"></i></i></div></div>
+  const n = nw(), hpc = S.hp < 25 ? 'bad' : S.hp < 50 ? 'mid' : '';
+  return `<div class="hud"><div class="hrow"><b class="when">${when()}</b><span>${esc(S.name)} · ${ageOf()}세${S.biz ? ' · 사장님' : ''}${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</span><span class="tn">CH ${chapterOf() + 1}/10</span></div>
+    <div class="hstats"><div><small>현금</small><b class="${S.cash < 0 ? 'neg' : ''}">${wonS(S.cash)}</b></div><div><small>순자산</small><b>${wonS(n)}</b></div><div><small>${term('체력')}</small><b class="${hpc ? 'neg' : ''}">${S.hp}</b>${bar(S.hp, 'hp ' + hpc)}</div><div><small>행복</small><b>${S.happy}</b>${bar(S.happy)}</div></div>
     <div class="prog"><i style="width:${S.t / MAXT * 100}%"></i></div></div>`;
 }
 function renderGame() {
   if (S.ended) return renderEnding();
+  migrate();
   $('#app').innerHTML = `${hud()}<div id="tab" class="fade"></div>
-    <nav class="bnav"><button data-t="home" class="${TAB === 'home' ? 'on' : ''}">🏠<span>홈</span></button><button data-t="map" class="${TAB === 'map' ? 'on' : ''}">🗺️<span>지도</span></button><button data-t="assets" class="${TAB === 'assets' ? 'on' : ''}">💼<span>내 자산</span></button><button data-t="dex" class="${TAB === 'dex' ? 'on' : ''}">📖<span>도감</span></button>
+    <nav class="bnav"><button data-t="home" class="${TAB === 'home' ? 'on' : ''}">🏠<span>이번 반기</span></button><button data-t="map" class="${TAB === 'map' ? 'on' : ''}">🗺️<span>서울 지도</span></button><button data-t="assets" class="${TAB === 'assets' ? 'on' : ''}">💼<span>자산</span></button><button data-t="dex" class="${TAB === 'dex' ? 'on' : ''}">📖<span>기록</span></button>
     <button class="next" id="bNext">다음 반기 ⏭️</button></nav>`;
   document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { TAB = b.dataset.t; MAPGU = null; renderGame(); });
   $('#bNext').onclick = onNext;
   ({ home: tabHome, map: tabMap, assets: tabAssets, dex: tabDex })[TAB]();
 }
-function tabHome() {
-  const R = rules(), f = S.lastFlow, g = GOALS[S.goal], live = liveHome();
-  const resTxt = S.res.type === 'own' ? `🏡 자가 · ${aptName(live)}` : S.res.type === 'jeonse' ? `🔑 전세 · 보증금 ${won(S.res.dep)}${S.res.loan ? ` (전세대출 ${won(S.res.loan)})` : ''}` : `📦 월세 · 월 85만 원`;
-  const ph = { up: ['상승장', '🔥', 'up'], flat: ['보합', '😐', 'flat'], down: ['하락장', '🧊', 'down'] }[S.phase];
-  const gj = gajeom();
-  $('#tab').innerHTML = `
-    <div class="card mk"><div class="mrow"><div><small>시장 분위기</small><b class="ph ${ph[2]}">${ph[1]} ${ph[0]}</b></div><div><small>기준금리</small><b>${S.rate.toFixed(2)}%</b></div><div><small>주담대</small><b>${mRate().toFixed(2)}%</b></div><div><small>서울 지수</small><b>${Math.round(S.G * 100)}</b></div></div>
-      ${spark(S.Gh.slice(-16), 300, 40)}
-      <div class="rule"><b>📜 ${esc(R.name)}</b><br>${esc(R.note)}</div></div>
-    <div class="card"><h4>🏠 지금 사는 곳</h4><p>${resTxt}</p>${S.res.type !== 'own' ? `<p class="small">무주택 ${homelessYears()}년차 · 청약 가점 ${gj.total}점</p>` : ''}
-      <div class="flow">${f ? `<div><span>지난 반기 수입</span><b>+${won(f.inc)}</b></div><div><span>생활비</span><b>−${won(f.living)}</b></div><div><span>주거비</span><b>−${won(f.housing)}</b></div><div><span>대출 원리금</span><b>−${won(f.loanPay + f.credit)}</b></div>${f.tax ? `<div><span>보유세</span><b>−${won(f.tax)}</b></div>` : ''}<div class="tot"><span>반기 저축</span><b class="${f.net < 0 ? 'neg' : 'pos'}">${f.net >= 0 ? '+' : ''}${won(f.net)}</b></div>` : `<div><span>예상 반기 수입</span><b>+${won(income() / 2)}</b></div><div><span>생활비+월세</span><b>−${won(.171)}</b></div>`}</div></div>
-    <div class="card"><h4>${g.ic} 나의 전략: ${g.t}</h4><p class="small">${g.hint}</p>${advice()}</div>
-    <div class="card ads"><h4>🎁 광고 보고 받는 도움 <small>(한 판에 각 1회)</small></h4>
-      <button class="btn adb" data-ad="report" ${S.adUsed.report ? 'disabled' : ''}>📊 부동산 전문가 분석 리포트 ${S.adUsed.report ? '✓' : ''}</button>
-      <button class="btn adb" data-ad="chart" ${S.adUsed.chart ? 'disabled' : ''}>📈 과거 시세 복기 (모든 단지 시세 그래프) ${S.adUsed.chart ? '✓' : ''}</button>
-      <button class="btn adb" data-ad="imjang" ${S.adUsed.imjang ? 'disabled' : ''}>🔍 추가 임장 기회 +2 ${S.adUsed.imjang ? '✓' : ''}</button>
-      <p class="small">광고로 이미 확정된 손실이나 규제 위반을 없앨 수는 없어요.</p></div>
-    <div class="card"><h4>📰 최근 소식</h4><ul class="log">${S.log.slice(0, 8).map(l => `<li><i>${when(l.t)}</i>${esc(l.s)}</li>`).join('')}</ul></div>`;
-  document.querySelectorAll('[data-ad]').forEach(b => b.onclick = () => adReward(b.dataset.ad));
+function storyHead() {
+  const c = chapterOf(), own = S.props.some(p => p.kind === 'buy');
+  if (S.biz) return [`사장님이 된 지 ${Math.floor((S.t - S.biz.t) / 2) + 1}년째`, `'${BIZ_N[S.biz.lv]}'를 키워 서울 집까지 갈 수 있을까?`];
+  if (S.hp < 30) return ['몸이 보내는 위험 신호', '이대로 계속 달려도 괜찮을까? 집보다 내가 먼저 무너질 것 같다.'];
+  if (S.crisisLeft > 0) return ['모두가 공포에 질린 시장', '누군가에겐 공포, 누군가에겐 기회. 통장에 현금이 있는 사람은 웃는다.'];
+  if (own) return [['', '', '드디어 내 집이 생겼다!', '대출 이자가 빠져나가는 날', '갈아탈까, 버틸까?', '아이 방 하나 더 있었으면', '한 칸 위 동네가 보인다', '흔들리는 시장', '자산을 굳힐 시간', '20년의 끝이 보인다'][c] || '내 집에서 맞는 반기', ['', '', '“이제 대출을 갚으며 다음 목표를 세워 볼까?”', '“그래도 내 집이라 버틸 만하다.”', '“집값 뉴스가 자꾸 눈에 들어온다.”', '“가족이 늘면 집도 커져야 할까?”', '“더 좋은 동네로 갈아탈 수 있을까?”', '“지킬 것인가, 움직일 것인가.”', '“이제는 지키는 게 버는 거다.”', '“마지막 결정을 내릴 때다.”'][c] || ''];
+  return [['친구가 서울 아파트 청약을 추천했다!', '종잣돈이 조금씩 쌓인다', '부동산 앱을 켜는 시간이 늘었다', '집값이 또 올랐다', '인생의 갈림길이 한꺼번에', '가족이 늘면 집이 더 절실하다', '아직 무주택, 하지만 포기는 이르다', '위기는 기회와 함께 온다', '마지막 승부를 걸까?', '20년의 끝이 보인다'][c], ['“지금 집을 사는 게 좋을까? 아니면 돈을 더 모을까?”', '“선배는 투잡을, 친구는 주식을 권한다. 나는?”', '“이번엔 진짜 첫 집에 도전해 볼까?”', '“기다릴수록 멀어지는 기분이다.”', '“결혼, 이직, 투자… 무엇부터 해야 할까?”', '“아이 방이 있는 집에서 살고 싶다.”', '“청약, 급매, 재개발… 아직 길은 있다.”', '“모두가 팔 때 살 용기가 있을까?”', '“남은 시간이 많지 않다.”', '“결과는 곧 나온다.”'][c]];
 }
-function advice() {
-  const tips = [];
-  const cheapest = APTS.filter(a => a.kind === 'buy' && S.avail[a.id]).map(a => [a, buyQuote(a.id, 'live')]).sort((a, b) => a[1].p - b[1].p);
-  const ok = cheapest.filter(x => x[1].ok);
-  if (!S.props.length) {
-    if (ok.length) tips.push(`✅ 지금 자금으로 <b>${ok.length}곳</b>을 실거주 매수할 수 있어요. 가장 비싼 곳: ${ok[ok.length - 1][0].n}`);
-    else { const c = cheapest[0]; tips.push(`💡 가장 싼 ${c[0].n}도 현금 ${won(c[1].cashNeed - S.cash - c[1].resBack)}이 더 필요해요. 반기 저축으로 모으거나 청약을 노려 보세요.`); }
-  }
-  if (S.res.type === 'wolse' && !S.props.length && S.cash > 1.2) tips.push('💡 현금이 꽤 모였어요. 전세로 옮기면 월세가 사라집니다 (내 자산 → 거주지 바꾸기).');
-  if (S.credit > 0) tips.push('⚠️ 고금리 신용대출이 있어요. 여유 현금으로 먼저 갚는 게 좋아요.');
-  for (const p of S.props) if (p.kind === 'bun') tips.push(`📄 ${aptName(p)} 입주 ${p.mv}년 — 잔금 약 ${won(p.total * .9 - (p.prepaid || 0))}, 대출로 못 채우는 부분은 현금이 필요해요.`);
-  for (const p of S.props) if (p.kind === 'ipj') tips.push(`🏗️ ${aptName(p)} — ${STAGES[Math.min(5, p.stage)]} 단계 · 준공 때 분담금 ${won(p.dues)}${p.verified ? '' : ' · ⚠️ 권리 미검증'}`);
-  return tips.length ? `<ul class="tips">${tips.map(t => `<li>${t}</li>`).join('')}</ul>` : '';
+function scene(mood) { // 간단한 장면 일러스트 (SVG)
+  const c = chapterOf(), own = S.props.some(p => p.kind === 'buy');
+  const sky = S.crisisLeft > 0 ? ['#5b6478', '#a3a9b8'] : S.hp < 30 ? ['#3c4467', '#7b84a8'] : [['#8ec5e8', '#d9f0fb'], ['#f6b26b', '#ffe3b3'], ['#9b8cff', '#ffc8e1']][c % 3];
+  const face = mood || (S.hp < 30 ? '😫' : S.crisisLeft > 0 ? '😰' : S.biz ? '😎' : own ? '😊' : S.happy < 35 ? '😔' : '🤔');
+  const prop = S.biz ? '📦' : own ? '🏡' : S.plan.work === 'two' || S.plan.work === 'three' ? '🛵' : '🐷';
+  let b = ''; const hs = [70, 110, 85, 140, 95, 125, 80, 150, 100, 118];
+  hs.forEach((h, i) => { const x = 150 + i * 25; b += `<rect x="${x}" y="${190 - h}" width="22" height="${h}" rx="2" fill="${i % 2 ? '#e9eef7' : '#cfd9ea'}" stroke="#7d8aa5" stroke-width="1.2"/>`; for (let y = 200 - h; y < 182; y += 14) b += `<rect x="${x + 4}" y="${y}" width="5" height="7" fill="#7d8aa5" opacity=".55"/><rect x="${x + 13}" y="${y}" width="5" height="7" fill="#7d8aa5" opacity=".55"/>`; });
+  return `<svg class="scn" viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient></defs><rect width="400" height="190" fill="url(#sk)"/>
+    <ellipse cx="330" cy="40" rx="34" ry="12" fill="#fff" opacity=".8"/><ellipse cx="300" cy="46" rx="22" ry="9" fill="#fff" opacity=".7"/>${b}
+    <rect x="0" y="0" width="140" height="190" fill="#f7efe2"/><rect x="132" y="0" width="12" height="190" fill="#3d5a73"/>
+    <text x="70" y="150" font-size="110" text-anchor="middle">${face}</text><text x="350" y="182" font-size="46" text-anchor="middle">${prop}</text></svg>`;
+}
+function tabHome() {
+  const own = S.props.some(p => p.kind === 'buy'), gap = firstHomeGap(), live = liveHome();
+  let goal;
+  const pill = own ? '1주택자' : '무주택자';
+  if (own) goal = `<div class="card goal3"><div class="g3h"><span>🏡 내 집에서 다음 목표로!</span><em class="pill">${pill}</em></div><b class="g3b">${esc(aptName(live || S.props.find(p => p.kind === 'buy')))}</b><div class="g3f"><span>부동산 순자산 ${won(reNW())}</span><span>대출 ${won(debtTotal())}</span></div></div>`;
+  else if (gap.short <= 0) goal = `<div class="card goal3 ok"><div class="g3h"><span>🏠 첫 집 마련 도전!</span><em class="pill">${pill}</em></div><b class="g3b">지금 바로 첫 집을 살 수 있어요!</b><div class="gbar"><i style="width:100%"></i></div><div class="g3f"><span>아래 추천 단지를 눌러 보세요</span></div></div>`;
+  else { const have = S.cash + (S.res.type !== 'own' ? S.res.dep - S.res.loan : 0); const need = have + gap.short; goal = `<div class="card goal3"><div class="g3h"><span>🏠 첫 집 마련 도전!</span><em class="pill">${pill}</em></div><b class="g3b">첫 집 진입까지 ${won(gap.short)} 부족!</b><div class="gbar"><i style="width:${clamp(have / need * 100, 2, 100)}%"></i></div><div class="g3f"><span>내 현금 ${won(have)}</span><span>필요 자금 ${won(need)}</span></div></div>`; }
+  const [sh, sq] = storyHead();
+  const opts = workOptions();
+  if (!opts.includes(S.plan.work)) S.plan.work = opts[0];
+  const TAGW = { main: '안정', two: '도전', three: '위험', rest: '회복', biz: '모험', bizrun: '도전', bizlite: '안정', rejoin: '정리' };
+  const wcards = opts.map((k, idx) => { const w = WORK[k], pv = workPreview(k), on = S.plan.work === k;
+    const inc = k === 'main' ? '월급만' : k.startsWith('biz') && k !== 'biz' ? '사업 수익' : pv.inc ? (pv.inc > 0 ? '+' : '') + wonS(pv.inc) : '—';
+    const risk = S.hp + pv.hp <= 0 ? ' danger' : S.hp + pv.hp < 25 ? ' warnc' : '';
+    return `<button class="wopt ${on ? 'on' : ''}${risk}" data-w="${k}"><span class="wt"><span class="wi">${w.ic}</span><b>${idx + 1}. ${w.t}</b><em class="pill t-${TAGW[k]}">${on ? '✓ 선택' : TAGW[k]}</em></span><small>${w.d}</small><span class="wfx"><em class="${pv.inc > 0 ? 'pos' : pv.inc < 0 ? 'neg' : ''}">${inc}</em><em class="${pv.hp < 0 ? 'neg' : 'pos'}">체력 ${pv.hp > 0 ? '+' : ''}${pv.hp}</em><em class="${pv.hap < 0 ? 'neg' : 'pos'}">행복 ${pv.hap > 0 ? '+' : ''}${pv.hap}</em></span></button>`; }).join('');
+  const pk = picks3();
+  const pcards = pk.map(x => { const a = x.a, kind = { buy: ['구축·매매', '실거주 매수'], bun: ['분양권', '계약금 + 프리미엄'], ipj: ['재개발 입주권', '권리가액 − 이주비 대출'] }[a.kind];
+    return `<button class="pick ${x.short <= 0 ? 'ok' : ''}" data-a="${a.id}"><span class="pk">${a.kind === 'buy' ? '🏢' : a.kind === 'bun' ? '📄' : '🏗️'} ${kind[0]}</span><b>${esc(a.n)}</b><small>${GUN[a.gu].n}구 · 시세 ${wonS(price(a.id))}</small><span class="pneed">${x.short <= 0 ? '✅ 지금 매수 가능' : `${wonS(x.short)} 부족`}</span></button>`; }).join('');
+  const sv = stockValue(), si = stockIn(), sg = r2(sv - si);
+  const hint = !own && gap.short > 0 ? (S.hp >= 60 && !S.biz ? '💡 부족한 돈은 <b>투잡</b>으로 빨리 모으거나, <b>주식</b>으로 불리거나, <b>청약</b>을 노려 보세요.' : S.hp < 40 ? '💡 체력이 낮아요. 이번 반기는 <b>휴식</b>을 고르는 게 안전해요.' : '💡 꾸준한 저축이 가장 확실한 길이에요.') : '';
+  $('#tab').innerHTML = `
+    <div class="chk2"><span>${yearOf()}년 ${S.t % 2 ? '가을' : '봄'} · ${ageOf()}세</span><span>CHAPTER ${chapterOf() + 1} / 10</span></div>
+    ${goal}
+    <div class="sech"><b>오늘의 이야기</b><small>${when()}</small></div>
+    <div class="story3"><div class="scnw">${scene()}<span class="stag">${CHAPTERS[chapterOf()]}</span></div><b>${esc(sh)}</b><p>${esc(sq)}</p></div>
+    <div class="sech"><b>이번 반기, 어떻게 할까요?</b><small>체력 ${S.hp}/100</small></div>
+    <div class="wlist">${wcards}</div>${S.overwarn ? `<p class="owarn">🚑 과로 경고 ${S.overwarn}/2 — 한 번 더 쓰러지면 위험해요.</p>` : ''}
+    <div class="sech"><b>지금 노려볼 서울 아파트</b><small>눌러서 자금 계산</small></div><div class="card flat"><div class="pgrid">${pcards}</div><button class="btn sm ghost" data-goto="map">🗺️ 서울 지도에서 더 찾아보기</button>${hint ? `<p class="small">${hint}</p>` : ''}</div>
+    <div class="card"><h4>📈 주식 계좌 <small>종잣돈 불리기 · 선택</small></h4>${sv > 0 ? `<div class="stkrow"><b>${won(sv)}</b><span class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)} (${si ? pct(sg / si * 100) : '0%'})</span></div><p class="small">${Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `${STK[k].ic} ${STK[k].t} ${wonS(S.stk[k])}`).join(' · ')}</p>` : '<p class="small">아직 투자하지 않았어요. 오르면 계약금이 빨리 모이지만, 위기 때 반토막 날 수도 있어요.</p>'}<button class="btn sm" id="bStk">📈 사고팔기</button></div>
+    ${isHomeless() ? `<div class="card"><h4>🎟️ 청약 <small>내 ${term('가점')} ${gajeom().total}점</small></h4><label class="tgl"><input type="checkbox" id="chk" ${S.plan.ch ? 'checked' : ''}> 다음 반기에 청약 넣기</label><p class="small">당첨되면 계약금 10%를 바로 내야 해요. 무주택 기간과 가족이 늘수록 가점이 올라요.</p></div>` : ''}
+    <div class="card mk"><div class="mrow"><div><small>집값 분위기</small><b class="ph ${S.phase}">${{ up: '🔥 상승장', flat: '😐 보합', down: '🧊 하락장' }[S.phase]}</b></div><div><small>기준금리</small><b>${S.rate.toFixed(2)}%</b></div><div><small>서울 지수</small><b>${Math.round(S.G * 100)}</b></div></div><div class="rule"><b>📜 ${esc(rules().name)}</b><br>${esc(rules().note).replace('LTV', term('LTV')).replace('갭투자', term('갭투자'))}</div></div>
+    ${!own && gap.short > 0 && S.t >= 4 ? `<details class="card ads"><summary>🆘 막혔을 때 힌트 받기 <small>광고 · 한 판에 각 1회</small></summary>
+      <button class="btn adb" data-ad="report" ${S.adUsed.report ? 'disabled' : ''}>📊 앞으로 1년 집값 전망 ${S.adUsed.report ? '✓' : ''}</button>
+      <button class="btn adb" data-ad="chart" ${S.adUsed.chart ? 'disabled' : ''}>📈 모든 단지 과거 시세 그래프 ${S.adUsed.chart ? '✓' : ''}</button>
+      <button class="btn adb" data-ad="imjang" ${S.adUsed.imjang ? 'disabled' : ''}>🔍 임장 기회 +2 ${S.adUsed.imjang ? '✓' : ''}</button></details>` : ''}
+    <details class="card"><summary>📰 지난 소식</summary><ul class="log">${S.log.slice(0, 10).map(l => `<li><i>${when(l.t)}</i>${esc(l.s)}</li>`).join('')}</ul></details>`;
+  document.querySelectorAll('[data-w]').forEach(b => b.onclick = () => { const k = b.dataset.w;
+    if (k === 'biz') return modal(`<h3>🚀 퇴사하고 창업할까요?</h3><p>월급이 끊기고 초기 비용 500만 원이 듭니다. 사업이 커지면 월급보다 훨씬 많이 벌 수 있지만, 망하면 사업 빚이 남아요.</p><p class="small">사업 중에는 '올인 / 적당히 / 정리·재취업' 중에서 고르게 됩니다. 소득이 불안정하면 대출 한도도 줄어요.</p><button class="btn pri" id="ok">창업하기로 정했다</button><button class="btn ghost" data-close>다시 생각해 볼게요</button>`) || ($('#ok').onclick = () => { S.plan.work = 'biz'; closeModal(); save(); tabHome(); });
+    S.plan.work = k; save(); tabHome(); });
+  document.querySelectorAll('[data-a]').forEach(b => b.onclick = () => aptModal(b.dataset.a));
+  document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { TAB = b.dataset.goto; renderGame(); });
+  document.querySelectorAll('[data-ad]').forEach(b => b.onclick = () => adReward(b.dataset.ad));
+  $('#bStk').onclick = stockModal;
+  if ($('#chk')) $('#chk').onchange = e => { S.plan.ch = e.target.checked; save(); };
+}
+function stockModal() {
+  let k = 'blue';
+  const draw = () => {
+    const have = S.stk[k], max = Math.max(0, S.cash);
+    modal(`<div class="evcat">주식 계좌 · 게임용 가상 시장</div><h3>📈 종잣돈 불리기</h3>
+      <div class="stabs">${Object.entries(STK).map(([kk, v]) => `<button class="${k === kk ? 'on' : ''}" data-k="${kk}">${v.ic} ${v.t}</button>`).join('')}</div>
+      <p class="small">${STK[k].d}${k === 'lev' ? ` — ${term('레버리지')}` : ''}</p>
+      <table class="qt"><tr><td>보유 평가금</td><td>${won(have)}</td></tr><tr><td>투자 원금</td><td>${won(S.stkIn[k])}</td></tr><tr><td>보유 현금</td><td>${won(S.cash)}</td></tr></table>
+      <label class="small">금액 <b id="sv">${won(Math.min(max, .1))}</b></label><input type="range" id="sr" min="0" max="${Math.max(max, have, .01)}" step="0.01" value="${Math.min(max, .1)}">
+      <button class="btn pri" id="sb" ${max > 0 ? '' : 'disabled'}>사기</button><button class="btn" id="ss" ${have > 0 ? '' : 'disabled'}>팔기</button>
+      <p class="small">수익률은 실제 시세가 아닌 게임용 가상 시나리오예요. 금융위기가 오면 우량주 −33%, 성장주 −50%, 코인 −65%까지 빠질 수 있어요.</p><button class="btn ghost" id="sx">닫기</button>`, 'wide');
+    $('#sx').onclick = () => { closeModal(); renderGame(); };
+    document.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { k = b.dataset.k; draw(); });
+    $('#sr').oninput = e => { $('#sv').textContent = won(+e.target.value); };
+    $('#sb').onclick = () => { const v = Math.min(+$('#sr').value, S.cash); if (v <= 0) return; buyStock(k, v); save(); toast(`${STK[k].ic} ${won(v)} 매수`); draw(); };
+    $('#ss').onclick = () => { const v = Math.min(+$('#sr').value, S.stk[k]); if (v <= 0) return; sellStock(k, v); save(); toast(`${won(v)} 매도`); draw(); };
+  };
+  draw();
 }
 
 // ---------- 지도 ----------
@@ -297,28 +349,44 @@ function tabDex() { renderDexInner($('#tab'), false); }
 function renderDexPage(back) { $('#app').innerHTML = `<div class="setup fade"><button class="btn ghost sm" id="bk">← 돌아가기</button><div id="dx"></div></div>`; $('#bk').onclick = back; renderDexInner($('#dx'), true); }
 function renderDexInner(el) {
   const d = store.get('_dex', {});
-  const parts = ['', '🏆 부동산 성공', '🌱 특별한 인생', '♟️ 투자 전략·역전', '💥 실패·위기'];
-  let h = `<div class="card"><h4>🎬 엔딩 도감 ${Object.keys(d).length}/40</h4><p class="small">달성하면 이야기가 열립니다. 엔딩을 눌러 보세요.</p>`;
-  for (let pt = 1; pt <= 4; pt++) {
-    h += `<h5 class="pt">${parts[pt]}</h5><div class="dex">`;
-    for (const [k, e] of Object.entries(ENDS).filter(([, e]) => e.p === pt)) h += `<button class="de ${d[k] ? 'got' : ''}" data-e="${k}"><span>${d[k] ? e.ic : '❔'}</span><b>${k.slice(1).padStart(2, '0')}</b><small>${d[k] ? e.t : '???'}</small></button>`;
+  const cnt = {}; for (const k in d) if (ENDS[k]) cnt[ENDS[k].r] = (cnt[ENDS[k].r] || 0) + 1;
+  const tot = {}; for (const e of Object.values(ENDS)) tot[e.r] = (tot[e.r] || 0) + 1;
+  let h = `<div class="card"><h4>🎬 엔딩 도감 ${Object.keys(d).filter(k => ENDS[k]).length}/40</h4><div class="rar">${Object.entries(RARE).map(([k, [n, c]]) => `<span style="border-color:${c};color:${c}">${n} ${cnt[k] || 0}/${tot[k]}</span>`).join('')}</div><p class="small">엔딩은 집·자산·부채·체력·행복·인생의 사건으로 결정돼요. 엔딩을 눌러 보세요.</p>`;
+  for (let pt = 1; pt <= 5; pt++) {
+    h += `<h5 class="pt">${PARTS[pt]}</h5><div class="dex">`;
+    for (const [k, e] of Object.entries(ENDS).filter(([, e]) => e.p === pt)) h += `<button class="de ${d[k] ? 'got' : ''}" data-e="${k}" style="--rc:${RARE[e.r][1]}"><span>${d[k] ? e.ic : '❔'}</span><b>${k.slice(1).padStart(2, '0')}</b><small>${d[k] ? e.t : RARE[e.r][0]}</small></button>`;
     h += '</div>';
   }
   h += `</div><div class="card"><h4>🏢 아파트 도감</h4><div class="adex">${APTS.map(a => `<div class="${S && S.seen && S.seen[a.id] ? 'got' : ''}"><b>${a.n}</b><small>${GUN[a.gu].n}구 · ${a.y ? a.y + '년' : a.mv ? a.mv + '년 입주' : ''}</small></div>`).join('')}</div><p class="small">임장하거나 매수한 단지가 표시됩니다.</p></div>`;
   el.innerHTML = h;
-  el.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { const k = b.dataset.e, e = ENDS[k]; modal(d[k] ? `<div class="evcat">엔딩 ${k.slice(1)}</div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${e.d}<br>달성: ${d[k].name} · ${d[k].mode === 'hist' ? '역사' : '현실'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${e.d}</p><button class="btn" data-close>닫기</button>`); });
+  el.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { const k = b.dataset.e, e = ENDS[k], rr = RARE[e.r];
+    modal(d[k] ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 엔딩 ${k.slice(1)}</div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${k === 'e40' ? E40_HINT : e.d}<br>달성: ${esc(d[k].name)} · ${d[k].mode === 'hist' ? '2015' : '2026'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<div class="evcat" style="color:${rr[1]}">${rr[0]}</div><h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${e.d}</p><button class="btn" data-close>닫기</button>`); });
 }
 
 // ---------- 진행 ----------
 function onNext() {
-  if (S.res.type !== 'own' && !S.props.some(p => p.live) && S.t === 0 && !S.warned0) { S.warned0 = 1; }
   const r = nextTurn();
-  if (r.end) { save(); return renderEnding(); }
-  const go = () => { if (r.ev) showEvent(r.ev); else renderGame(); };
+  if (r.end) { save(); if (r.R && r.R.work && r.R.work.lines.length && S.ended === 'e16') { renderGame(); return modal(`<h3>🚑</h3><ul class="rep">${r.R.work.lines.map(m => `<li>${esc(m)}</li>`).join('')}</ul><button class="btn pri" id="ok">…</button>`) || ($('#ok').onclick = () => { closeModal(); renderEnding(); }); } return renderEnding(); }
+  const R = r.R, go = () => { if (R.crisis) return crisisModal(R.crisis, () => r.ev ? showEvent(r.ev) : renderGame()); if (r.ev) showEvent(r.ev); else renderGame(); };
   const after = () => { if (S.interAd) { S.interAd = false; showAd(go, true, 'turn_break'); } else go(); };
   renderGame();
-  modal(`<div class="evcat">${when()} 결산</div><h3>📅 6개월이 지났습니다</h3><ul class="rep">${r.msgs.map(m => `<li>${esc(m)}</li>`).join('')}${S.lastFlow ? `<li>💰 반기 저축 ${S.lastFlow.net >= 0 ? '+' : ''}${won(S.lastFlow.net)} → 현금 ${won(S.cash)}</li>` : ''}</ul><button class="btn pri" id="ok">확인</button>`);
+  const W = WORK[R.work.k], d = r2(R.nw1 - R.nw0), dc = r2(R.cash1 - R.cash0);
+  const newCh = S.t % 4 === 0, gp = firstHomeGap(), own = S.props.some(p => p.kind === 'buy');
+  const mood = S.hp < 25 ? '😫' : d >= .3 ? '🤩' : d >= 0 ? '😊' : d > -.3 ? '😕' : '😱';
+  const head = S.hp < 25 ? '몸이 버티지 못하고 있어요' : d >= .5 ? '자산이 크게 불었어요!' : d >= 0 ? '조금씩 나아가고 있어요' : '이번 반기는 쉽지 않았어요';
+  modal(`<div class="evcat">${when(S.t - 1)} 결과${newCh ? ` · 📖 CHAPTER ${chapterOf() + 1} 시작` : ''}</div><h3>${mood} ${head}</h3>
+    <div class="scnw sm">${scene(mood)}</div>
+    <div class="tbl"><div><span>${W.ic} ${W.t}</span><b class="${dc >= 0 ? 'pos' : 'neg'}">현금 ${dc >= 0 ? '+' : ''}${won(dc)}</b></div><div><span>🏠 서울 집값</span><b class="${R.g >= 0 ? 'up' : 'dn'}">${pct(R.g)}</b></div><div><span>📊 순자산</span><b class="${d >= 0 ? 'pos' : 'neg'}">${d >= 0 ? '+' : ''}${won(d)}</b></div><div><span>❤️ 체력 · 행복</span><b>${S.hp} · ${S.happy}</b></div>${!own ? `<div><span>현재 보유 현금</span><b>${won(S.cash)}</b></div><div><span>첫 집까지 부족한 금액</span><b class="${gp.short > 0 ? 'neg' : 'pos'}">${gp.short > 0 ? won(gp.short) : '없음! 지금 살 수 있어요'}</b></div>` : ''}</div>
+    <details class="more"><summary>자세한 소식 ${[...R.work.lines, ...r.msgs].length}건</summary><ul class="rep">${[...R.work.lines, ...r.msgs].map(m => `<li>${esc(m)}</li>`).join('')}${S.lastFlow ? `<li>💰 월급 ${won(S.lastFlow.inc)} − 생활비·주거비·이자 ${won(S.lastFlow.inc - S.lastFlow.net)}</li>` : ''}</ul></details>
+    <p class="nextq"><b>다음 선택:</b> ${!own && gp.short <= 0 ? '드디어 첫 집! 아파트를 보러 갈까?' : S.hp < 30 ? '이번엔 쉬어야 하지 않을까?' : !own ? '더 벌까, 불릴까, 청약을 넣을까?' : '버틸까, 갈아탈까?'}</p>
+    <button class="btn pri" id="ok">${r.ev || R.crisis ? '다음 이야기 ▶' : '확인'}</button>`);
   $('#ok').onclick = () => { closeModal(); after(); };
+}
+function crisisModal(c, next) {
+  modal(`<div class="evcat breaking">긴급 속보</div><h3>💥 ${esc(c.t)}</h3><p>${esc(c.d)}</p>
+    <div class="res3"><div><small>주식</small><b class="dn">최대 −65%</b></div><div><small>서울 아파트</small><b class="dn">약 −13%</b></div><div><small>대출 한도</small><b class="dn">LTV −10%p</b></div></div>
+    <p class="small">💡 위기에서 기회가 생깁니다. 현금을 지킨 사람에게는 급매 아파트가 기다리고 있어요. 서울 지도에서 <b>급매</b> 표시를 찾아보세요.</p><button class="btn pri" id="ok">계속</button>`, 'ev');
+  $('#ok').onclick = () => { closeModal(); next(); };
 }
 function showEvent(e) {
   const E = e.run();
@@ -328,7 +396,7 @@ function showEvent(e) {
     const c2 = crisis(); for (const m of c2) log(m);
     save();
     modal(`<h3>${esc(E.t)}</h3><p>${esc(res)}</p>${c2.map(m => `<p class="small">${esc(m)}</p>`).join('')}<button class="btn pri" id="ok">계속</button>`);
-    $('#ok').onclick = () => { closeModal(); if (S.ended) return renderEnding(); if (S.goTab) { TAB = S.goTab; S.goTab = null; } if (S.goApt) { const id = S.goApt; S.goApt = null; TAB = 'map'; renderGame(); return aptModal(id); } renderGame(); };
+    $('#ok').onclick = () => { closeModal(); if (S.ended) return renderEnding(); if (S.chPend) return cheongWinModal(); if (S.goTab) { TAB = S.goTab; S.goTab = null; } if (S.goApt) { const id = S.goApt; S.goApt = null; TAB = 'map'; renderGame(); return aptModal(id); } renderGame(); };
   });
 }
 
@@ -364,13 +432,35 @@ function renderEnding() {
   const k = S.ended, e = ENDS[k]; unlockEnding(k); stat('ending', k);
   const d = store.get('_dex', {});
   const homes = S.props.filter(p => p.kind === 'buy');
-  $('#app').innerHTML = `<div class="ending fade p${e.p}"><div class="ekick">${['', 'SUCCESS', 'LIFE', 'STRATEGY', 'CRISIS'][e.p]} · 엔딩 ${k.slice(1)}/40</div><div class="eic">${e.ic}</div><h2>${e.t}</h2><p class="story">${e.s}</p>
-    <div class="card"><h4>📋 ${esc(S.name)}의 부동산 인생 결산</h4><table class="qt"><tr><td>기간</td><td>${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년 (${Math.ceil(S.t / 2)}년)</td></tr><tr><td>나이</td><td>${ageOf(Math.min(S.t, MAXT - 1))}세</td></tr><tr><td>최종 순자산</td><td><b>${won(nw())}</b></td></tr><tr><td>보유 주택</td><td>${homes.map(p => esc(aptName(p))).join(', ') || '없음'}</td></tr><tr><td>총부채</td><td>${won(debtTotal())}</td></tr><tr><td>행복도</td><td>${S.happy}</td></tr><tr><td>갈아타기 / 청약 당첨</td><td>${S.st.flips}회 / ${S.st.chWin}회</td></tr></table></div>
+  $('#app').innerHTML = `<div class="ending fade p${e.p}"><div class="ekick"><span class="rbadge" style="background:${RARE[e.r][1]}">${RARE[e.r][0]}</span> ${PARTS[e.p].slice(2)} · 엔딩 ${k.slice(1)}/40</div><div class="eic">${e.ic}</div><h2>${e.t}</h2><p class="story">${e.s}</p>
+    <div class="card"><h4>📋 ${esc(S.name)}의 부동산 인생 결산</h4><table class="qt"><tr><td>기간</td><td>${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년 (${Math.max(1, Math.ceil(S.t / 2))}년)</td></tr><tr><td>나이</td><td>${ageOf(Math.min(S.t, MAXT - 1))}세</td></tr><tr><td>최종 순자산</td><td><b>${won(nw())}</b></td></tr><tr><td>보유 주택</td><td>${homes.map(p => esc(aptName(p))).join(', ') || '없음'}</td></tr><tr><td>총부채</td><td>${won(debtTotal())}</td></tr><tr><td>체력 / 행복</td><td>${S.hp} / ${S.happy}</td></tr><tr><td>투잡 / 쓰리잡 / 승진</td><td>${S.w.two}번 / ${S.w.three}번 / ${S.promos}번</td></tr><tr><td>주식 (평가금)</td><td>${won(stockValue())}</td></tr><tr><td>갈아타기 / 청약 당첨</td><td>${S.st.flips}회 / ${S.st.chWin}회</td></tr></table></div>
     <p class="small">엔딩 도감 ${Object.keys(d).length}/40 수집</p>
     <button class="btn pri big" id="again">🔁 인생 다시 살기</button><button class="btn" id="dex">📖 엔딩 도감</button><button class="btn ghost" id="share">📤 결과 공유</button><a class="other" href="/">← aptgame.kr 다른 게임</a></div>`;
   if (window.APT && !S.rankSent) { S.rankSent = 1; save(); APT.endCard('seoul', Math.round(nw() * 10) / 10, `엔딩 ${k.slice(1)} ${e.t}`, '#again'); }
   $('#again').onclick = () => { store.set('_save', null); renderSetup(); };
   $('#dex').onclick = () => renderDexPage(renderEnding);
   $('#share').onclick = () => { const t = `나의 첫 번째 서울 아파트 구하기 — 엔딩 ${k.slice(1)} "${e.t}" (순자산 ${won(nw())}) https://aptgame.kr/seoul/`; if (navigator.share) navigator.share({ text: t }).catch(() => { }); else { navigator.clipboard && navigator.clipboard.writeText(t); toast('결과 문구를 복사했어요'); } };
-  if (e.p !== 4) celebrate();
+  if (e.p !== 4 && k !== 'e16' && k !== 'e17' && k !== 'e21' && k !== 'e22' && k !== 'e24') celebrate();
+}
+
+function cheongWinModal() {
+  const c = S.chPend, dep = r2(c.p * .1), short = r2(dep - S.cash), room = r2(Math.max(0, Math.min(1.5, income() * 1.2) - S.credit));
+  const stock = stockValue();
+  modal(`<div class="evcat">청약 결과</div><h3>🎉 축하합니다! 청약에 당첨됐어요!</h3><div class="scnw sm">${scene('🤩').replace('🐷', '📱')}</div>
+    <p><b>${esc(c.n)}</b>에 당첨될 기회가 찾아왔습니다. 하지만 계약하려면 돈이 더 필요해요.</p>
+    <div class="tbl"><div><span>계약에 필요한 돈 (계약금 10%)</span><b>${won(dep)}</b></div><div><span>현재 보유 현금</span><b>${won(S.cash)}</b></div><div><span>부족한 금액</span><b class="neg">${won(short)}</b></div></div>
+    <p class="nextq"><b>다음 선택:</b> 계약금을 마련할까, 기회를 포기할까?</p>
+    <div class="chs">
+      ${stock >= short ? `<button class="ch" data-c="stk"><b>📈 주식을 팔아 마련한다</b><small>주식 ${won(short)} 매도</small></button>` : ''}
+      <button class="ch" data-c="cr" ${room >= short ? '' : 'disabled'}><b>🏦 신용대출로 마련한다</b><small>${room >= short ? `금리 ${(S.rate + 4).toFixed(1)}% · 이자 부담` : '신용대출 한도 부족'}</small></button>
+      <button class="ch" data-c="pa" ${S.flags.parentsLoan ? 'disabled' : ''}><b>👪 부모님께 손을 벌린다</b><small>${S.flags.parentsLoan ? '이미 한 번 도움을 받았어요' : '50% 확률 · 행복 −5'}</small></button>
+      <button class="ch" data-c="no"><b>😢 기회를 포기한다</b><small>당첨 기록은 남고 청약통장은 다시 못 써요</small></button></div>`, 'ev');
+  const done = (msg, ok) => { if (ok) winBun(c); else S.flags.chGiveUp = true; S.chPend = null; log(msg); save(); modal(`<h3>${ok ? '🖊️ 계약 완료!' : '😢 포기'}</h3><p>${esc(msg)}</p><button class="btn pri" id="ok">계속</button>`); $('#ok').onclick = () => { closeModal(); renderGame(); }; };
+  document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => {
+    const k = b.dataset.c;
+    if (k === 'stk') { for (const kk of ['coin', 'lev', 'growth', 'blue']) { const need = r2(dep - S.cash); if (need <= 0) break; if (S.stk[kk] > 0) sellStock(kk, Math.min(S.stk[kk], need + .001)); } return done(`주식을 팔아 계약금 ${won(dep)}을 냈습니다. ${yearOf() + 3}년 입주 예정!`, S.cash >= dep); }
+    if (k === 'cr') { S.credit = r2(S.credit + short + .001); S.cash = r2(S.cash + short + .001); return done(`신용대출 ${won(short)}을 받아 계약했습니다. ${yearOf() + 3}년 입주 예정!`, true); }
+    if (k === 'pa') { S.flags.parentsLoan = true; S.happy = clamp(S.happy - 5, 0, 100); if (Math.random() < .5) { S.cash = r2(S.cash + short + .001); return done('부모님이 노후 자금을 보태 주셨습니다. 꼭 갚겠다고 약속하고 계약했습니다.', true); } return done('부모님도 여유가 없으셨습니다. 결국 계약을 포기했습니다.', false); }
+    done('눈물을 머금고 계약을 포기했습니다.', false);
+  });
 }

@@ -34,6 +34,7 @@ function rules(t = S.t) {
   else if (S.mode === 'hist' && y < 2025.5) Object.assign(R, { name: '12·16 대책 이후', ltv: .4, ltvFirst: .5, ownerLoan: false, gap: true, live: false, transfer: true, bunResale: true, acqHeavy: y >= 2020.5, cap: p => p > 15 ? 0 : 99, note: '15억 초과 주택 대출 금지, 다주택 취득세 중과(2020 하반기~), 갭투자 가능' });
   else Object.assign(R, { name: '10·15 대책 (서울 전역 토지거래허가)', note: '무주택 LTV 40%(생애최초 70%), 대출 한도 6·4·2억, 유주택자 주담대 불가, 2년 실거주 의무, 갭투자 금지, 조합원 지위 양도·분양권 전매 제한' });
   if (S.relax && R.name.startsWith('10·15')) Object.assign(R, { name: '규제지역 일부 해제', ltv: .5, ltvFirst: .7, ownerLoan: true, gap: true, live: false, transfer: true, bunResale: true, cap: p => p <= 15 ? 6 : 4, note: '규제 완화: LTV 50%, 갭투자 다시 가능, 실거주 의무 해제' });
+  if (S.tightCrisis > 0) { R.ltv = Math.max(.3, R.ltv - .1); R.ltvFirst = Math.max(.5, R.ltvFirst - .1); R.note += ' · 금융위기로 은행 대출 축소(LTV −10%p)'; }
   if (S.tight) { R.ltv = Math.max(.3, R.ltv - .1); R.ltvFirst = Math.max(.5, R.ltvFirst - .1); R.note += ' · 추가 대출 규제(LTV −10%p)'; }
   return R;
 }
@@ -55,7 +56,8 @@ function aptTr(pr) { return pr.vb ? { nw: 1 } : AP[pr.aid].tr; }
 // ---------- 대출 ----------
 const mRate = () => S.rate + 1.6;              // 주담대 금리
 function pmtHalf(bal, ratePct, years = 30) { const r = ratePct / 100 / 12, n = years * 12; if (bal <= 0) return 0; return 6 * bal * r / (1 - Math.pow(1 + r, -n)); }
-function income() { return S.salary + (S.spouse ? S.spouse : 0); } // 연 소득(억)
+function income() { return S.salary + (S.spouse ? S.spouse : 0) + (S.biz ? (S.biz.inc || 0) * 2 : 0) + (S.passive || 0) * 2; } // 연 소득(억) — 대출 심사용
+const wageHalf = () => (S.salary + (S.spouse ? S.spouse : 0)) / 2;
 function annualDebtService(extra = 0, stress = 1.5) {
   let a = 0;
   for (const p of S.props) if (p.loan > 0) a += 2 * pmtHalf(p.loan, mRate() + stress);
@@ -106,7 +108,7 @@ function newGame(mode, diff, name, goal) {
   for (const a of APTS) { const p = hist ? a.p / back * rnd(.92, 1.08) : a.p; S.px[a.id] = r2(p); S.hist[a.id] = [S.px[a.id]]; }
   // 역사 모드에서 아직 분양 전/입주권 단계 전 단지는 나중에 등장
   S.avail = {}; for (const a of APTS) S.avail[a.id] = !hist || a.kind === 'buy';
-  rollFuture();
+  migrate(); rollFuture();
   log(`${when()}, ${S.name}의 서울 생활이 시작됐습니다. ${DIFFS[diff].d}, 연봉 4,800만 원, 월세 85만 원.`);
   save();
 }
@@ -153,7 +155,7 @@ function stepMarket() {
 // ---------- 한 반기 정산 ----------
 function settle() {
   const R = rules(), lines = [];
-  const inc = income() / 2;
+  const inc = wageHalf() + (S.passive || 0);
   const living = Math.max(.1, inc * .42) + (S.married >= 0 ? .03 : 0) + S.kids.length * .06; // 소득이 늘면 씀씀이도 늘어남
   let housing = 0;
   if (S.res.type === 'wolse') housing = .051;
@@ -243,7 +245,7 @@ function completeIpj(p) {
   if (!p.conv) S.px[p.aid] = v; else { p.vb = true; p.vname = AP[p.aid].n.replace(/주공 ?\d*단지|아파트|\d+단지/, '') + ' 신축 (재건축)'; p.base = v; p.G0 = S.G; }
   if (p.live) moveIntoOwned(p);
   S.st.ipjDone++; S.everOwned = true; if (!S.firstHome) S.firstHome = { t: S.t, uid: p.uid };
-  S.st.ipjProfit = v - p.buyP;
+  S.st.ipjProfit = v - p.buyP; if (p.conv) S.st.rbDone = 1;
   return [`🔑 ${aptName(p)} 준공! 조합원 입주권이 새 아파트로 바뀌었습니다. 시세 ${won(v)}.`];
 }
 function moveIntoOwned(p) {
@@ -258,12 +260,12 @@ function propEquity(p) {
   return propValue(p) - (p.loan || 0) - (p.tenant ? p.tenant.dep : 0);
 }
 function nw() {
-  let v = S.cash + (S.res.type !== 'own' ? S.res.dep - S.res.loan : 0) - S.credit;
+  let v = S.cash + stockValue() - (S.bizDebt || 0) + (S.res.type !== 'own' ? S.res.dep - S.res.loan : 0) - S.credit;
   for (const p of S.props) v += propEquity(p);
   return r2(v);
 }
 function reNW() { let v = 0; for (const p of S.props) v += propEquity(p); return r2(v); }
-function debtTotal() { let d = S.credit + S.res.loan; for (const p of S.props) d += (p.loan || 0); return r2(d); }
+function debtTotal() { let d = S.credit + S.res.loan + (S.bizDebt || 0); for (const p of S.props) d += (p.loan || 0); return r2(d); }
 
 // 위기: 현금이 마이너스면 신용대출 → 급매 → 파산
 function crisis() {
@@ -271,13 +273,14 @@ function crisis() {
   if (S.cash >= 0) return msgs;
   const room = Math.max(0, Math.min(1.5, income() * 1.2) - S.credit);
   if (room > 0) { const take = r2(Math.min(room, -S.cash + .05)); S.credit = r2(S.credit + take); S.cash = r2(S.cash + take); msgs.push(`🏦 현금이 바닥나 신용대출 ${won(take)}을 받았습니다. (금리 ${(S.rate + 4).toFixed(1)}%)`); S.st.crisis++; }
+  if (S.cash < 0 && stockValue() > 0) { for (const k of ['coin', 'lev', 'growth', 'blue']) { if (S.cash >= 0) break; if (S.stk[k] > 0) sellStock(k, Math.min(S.stk[k], -S.cash + .05)); } msgs.push('📉 모자란 돈을 메우려 주식을 팔았습니다.'); }
   if (S.cash < 0 && S.res.type === 'jeonse') { const back = r2(S.res.dep - S.res.loan); S.cash = r2(S.cash + back); S.res = { type: 'wolse', dep: 0, loan: 0 }; msgs.push(`📦 전세 보증금을 빼서 보증금 없는 월세로 옮겼습니다.`); }
   while (S.cash < 0 && S.props.length) {
     const p = S.props.slice().sort((a, b) => (b.live ? 0 : 1) - (a.live ? 0 : 1))[S.props.length - 1];
     const got = sellProp(p, true);
     msgs.push(`🚨 돈이 모자라 ${aptName(p)}을(를) 급매로 처분했습니다. (${won(got)})`); S.flags.forcedSale = true;
   }
-  if (S.cash < 0) { S.ended = 'e39'; msgs.push('💥 더 이상 버틸 수 없습니다…'); }
+  if (S.cash < 0) { S.ended = (S.biz || S.flags.bizFail) ? 'e17' : S.flags.levLiq ? 'e22' : S.flags.forcedSale ? 'e31' : 'e25'; msgs.push('💥 더 이상 버틸 수 없습니다…'); }
   return msgs;
 }
 
@@ -304,6 +307,7 @@ function doBuy(aid, mode, loanUse) {
   S.cash = r2(S.cash - cashNeed);
   if (!S.everOwned && mode === 'live') S.firstHome = { t: S.t, uid: pr.uid };
   S.everOwned = true;
+  if (S.crisisT != null && S.t >= S.crisisT && S.t - S.crisisT <= 2) { pr.crisisBuy = true; pr.lowBuy = true; S.st.crisisBuy++; }
   if (S.phase === 'down' || (S.Gh.length > 3 && S.G < Math.max(...S.Gh) * .9)) pr.lowBuy = true;
   if (S.Gh.length > 2 && S.G >= Math.max(...S.Gh) * .98 && S.phase === 'up') pr.peakBuy = true;
   if (a.y && a.y < 2000) pr.old = true;
