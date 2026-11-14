@@ -16,7 +16,7 @@ const SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('he
 const DATA_FILE = path.join(__dirname, 'accounts.json');
 const GH_TOKEN = process.env.GH_TOKEN || '';
 const GH_REPO = process.env.GH_REPO || '';
-const GH_PATH = 'accounts.json', GH_BRANCH = 'data';
+const GH_PATH = 'accounts.json', GH_BRANCH = process.env.GH_BRANCH || 'main';
 const SESSION_DAYS = 60;
 
 const GAMES = {
