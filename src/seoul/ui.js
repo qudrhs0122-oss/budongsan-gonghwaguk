@@ -135,7 +135,7 @@ function sceneLive() { // 지금 고른 행동을 보여 주는 움직이는 장
   else if (k === 'bizlite') { act = `<g class="bob">${T(80, 156, 66, '🧑‍💼')}</g>${T(130, 168, 28, '☕')}<g class="steam">${T(130, 138, 16, '〰️')}</g>`; cap = '여유롭게 가게 운영 중'; }
   else { act = `<g class="walk">${T(40, 166, 60, '🚶')}</g>`; cap = '다시 회사로 출근'; }
   const extra = (S.plan.ch && isHomeless() ? `<g class="tix">${T(372, 100, 24, '🎟️')}</g>` : '') + (own ? `${T(352, 178, 42, '🏡')}<g class="smoke">${T(366, 128, 16, '💨')}</g>` : '') + (crisisNow ? `<g class="shake">${T(300, 100, 30, '📉')}</g>` : '') + (S.hp < 30 && k !== 'three' ? `<g class="drip">${T(118, 104, 18, '💦')}</g>` : '');
-  return { svg: `<svg class="scn live" viewBox="0 58 400 132" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="skl${c}${night ? 'n' : ''}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient></defs><rect y="50" width="400" height="140" fill="url(#skl${c}${night ? 'n' : ''})"/>
+  return { svg: `<svg class="scn live" viewBox="0 58 400 132" preserveAspectRatio="xMinYMid slice"><defs><linearGradient id="skl${c}${night ? 'n' : ''}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient></defs><rect y="50" width="400" height="140" fill="url(#skl${c}${night ? 'n' : ''})"/>
     <g class="cloud" fill="#fff" opacity="${night ? .25 : .9}"><ellipse cx="230" cy="80" rx="22" ry="8"/><ellipse cx="248" cy="75" rx="16" ry="10"/></g><g class="cloud c2" fill="#fff" opacity="${night ? .2 : .85}"><ellipse cx="320" cy="72" rx="26" ry="9"/><ellipse cx="342" cy="67" rx="16" ry="10"/></g>${b}
     <g fill="${night ? '#2c5a3a' : '#8fd89b'}"><ellipse cx="40" cy="198" rx="90" ry="32"/><ellipse cx="380" cy="198" rx="70" ry="26"/></g><g fill="${night ? '#24492f' : '#6cc27c'}"><ellipse cx="170" cy="200" rx="70" ry="20"/><ellipse cx="300" cy="202" rx="60" ry="18"/></g>${act}${extra}</svg>`, cap };
 }
@@ -174,8 +174,7 @@ function tabHome() {
   const hint = !own && gap.short > 0 ? (S.hp >= 60 && !S.biz ? '💡 부족한 돈은 <b>투잡</b>으로 빨리 모으거나, <b>주식</b>으로 불리거나, <b>청약</b>을 노려 보세요.' : S.hp < 40 ? '💡 체력이 낮아요. 이번 반기는 <b>휴식</b>을 고르는 게 안전해요.' : '💡 꾸준한 저축이 가장 확실한 길이에요.') : '';
   $('#tab').innerHTML = `
     ${goal}
-    <div class="sech"><b>📖 오늘의 이야기</b><small>${when()}</small></div>
-    <div class="story3"><div class="scnw">${(L => L.svg + `<span class="stag">${CHAPTERS[chapterOf()]} · ${L.cap}</span>`)(sceneLive())}</div><b>✨ ${esc(sh)}</b><p class="qbox">${esc(sq)}</p></div>
+    ${storyCard()}
     <div class="sech"><b>🎮 이번 반기, 어떻게 할까요?</b><em class="pill hpp">⚡ 체력 ${S.hp}/100</em></div>
     <div class="wlist g3">${wcards}${opts.length < 6 ? (isHomeless() ? `<button class="wopt xt ${S.plan.ch ? 'on' : ''}" id="chT">${S.plan.ch ? '<i class="wck">✓</i>' : '<em class="pill t-도전">추첨</em>'}<span class="wib wb-청약"><span class="wi2">🎟️</span></span><b>청약 넣기</b><span class="wfx"><em>🏢 가점 ${gajeom().total}점</em><em>${S.plan.ch ? '✅ 신청함' : '👆 눌러서 신청'}</em></span></button>` : `<button class="wopt xt" id="stkT"><em class="pill t-도전">투자</em><span class="wib wb-도전"><span class="wi2">📈</span></span><b>주식 계좌</b><span class="wfx"><em>🪙 ${wonS(stockValue())}</em></span></button>`) : ''}</div><p class="wdesc"><span>${WORK[S.plan.work].ic}</span> <b>${WORK[S.plan.work].t}</b> — ${WORK[S.plan.work].d}</p>${S.overwarn ? `<p class="owarn">🚑 과로 경고 ${S.overwarn}/2 — 한 번 더 쓰러지면 위험해요.</p>` : ''}
     <div class="card aptsec"><div class="asech"><b>🏙️ 지금 노려볼 서울 아파트</b><em class="pill calc">눌러서 자금 계산 🧮</em></div><div class="pgrid">${pcards}</div><button class="mapbtn" data-goto="map"><span>🗺️</span> 서울 지도에서 더 찾아보기 <i>›</i></button>${hint ? `<p class="small">${hint}</p>` : ''}</div>
@@ -191,6 +190,7 @@ function tabHome() {
     if (k === 'biz') return modal(`<h3>🚀 퇴사하고 창업할까요?</h3><p>월급이 끊기고 초기 비용 500만 원이 듭니다. 사업이 커지면 월급보다 훨씬 많이 벌 수 있지만, 망하면 사업 빚이 남아요.</p><p class="small">사업 중에는 '올인 / 적당히 / 정리·재취업' 중에서 고르게 됩니다. 소득이 불안정하면 대출 한도도 줄어요.</p><button class="btn pri" id="ok">창업하기로 정했다</button><button class="btn ghost" data-close>다시 생각해 볼게요</button>`) || ($('#ok').onclick = () => { S.plan.work = 'biz'; closeModal(); save(); tabHome(); });
     S.plan.work = k; save(); tabHome(); });
   document.querySelectorAll('[data-a]').forEach(b => b.onclick = () => aptModal(b.dataset.a));
+  document.querySelectorAll('[data-cta]').forEach(b => b.onclick = () => storyAction(b.dataset.cta));
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { TAB = b.dataset.goto; renderGame(); });
   document.querySelectorAll('[data-ad]').forEach(b => b.onclick = () => adReward(b.dataset.ad));
   $('#bStk').onclick = stockModal;

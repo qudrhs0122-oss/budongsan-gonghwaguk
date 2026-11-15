@@ -244,6 +244,22 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .pneed2{margin:4px 6px 0;background:#fdeceb;color:#e0393e;border-radius:10px;padding:3px 4px;font-weight:900;font-size:12px;text-align:center}.pick2.ok .pneed2{background:#e7f6ec;color:#167a3e}
 .mapbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;border:1.5px solid #ddd5f3;background:linear-gradient(#fff,#f5f2ff);border-radius:22px;padding:10px;font:inherit;font-weight:900;font-size:14.5px;color:#2d2850;box-shadow:0 3px 8px rgba(120,100,180,.15)}.mapbtn span{font-size:20px}.mapbtn i{font-style:normal;font-size:18px;margin-left:4px}
 .wlist.g3 .wfx{gap:3px}.wlist.g3 .wfx em{font-size:10px;padding:1px 5px;white-space:nowrap}.pick2 small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ===== 오늘의 이야기 카드 ===== */
+.sty{position:relative;display:flex;margin:12px 12px 0;border-radius:20px;overflow:hidden;background:linear-gradient(100deg,#f4f6ff 0%,#eef1ff 45%,#e8ecff 100%);box-shadow:0 4px 14px rgba(110,110,180,.16);min-height:150px}
+.sty.orange{background:linear-gradient(100deg,#fff6ee,#fdeee2)}.sty.red{background:linear-gradient(100deg,#fff4f4,#f6eef8)}.sty.green{background:linear-gradient(100deg,#f1faf2,#e9f5ee)}.sty.purple{background:linear-gradient(100deg,#f6f2ff,#eee9ff)}
+.stx{position:relative;z-index:2;flex:0 0 56%;padding:10px 4px 10px 12px;display:flex;flex-direction:column;gap:4px}
+.slab{align-self:flex-start;background:#2c3478;color:#fff;font-weight:800;font-size:11.5px;border-radius:12px;padding:3px 10px}
+.stx b{font-size:16.5px;line-height:1.32;letter-spacing:-.02em;word-break:keep-all;color:#1d1f3f}
+.kw{background:none;font-weight:900;position:relative;padding:0 1px}.kw::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:4px;border-radius:4px;background:#ffcf3f;opacity:.85}
+.kw.blue{color:#2f5bea}.kw.purple{color:#6b46d8}.kw.orange{color:#ea6a12}.kw.red{color:#e0393e}.kw.green{color:#1e9a4a}
+.stx p{margin:0;font-size:12.5px;line-height:1.45;color:#4a4660}
+.scta{align-self:flex-start;margin-top:3px;border:0;background:#fff;color:#2c3478;font:inherit;font-weight:900;font-size:12.5px;border-radius:14px;padding:5px 11px;box-shadow:0 2px 6px rgba(60,60,140,.15)}
+.sart{position:absolute;right:0;top:0;bottom:0;width:52%;z-index:1}
+.sart img,.sart svg{width:100%;height:100%;object-fit:cover;object-position:60% 30%;display:block}
+.sart::before{content:"";position:absolute;inset:0 auto 0 0;width:38%;z-index:2;background:linear-gradient(90deg,var(--fade,#eef1ff),transparent)}
+.sty.orange .sart::before{--fade:#fdf0e5}.sty.red .sart::before{--fade:#f9eff5}.sty.green .sart::before{--fade:#ebf6ef}.sty.purple .sart::before{--fade:#f0ebff}.sty.blue .sart::before{--fade:#eef1ff}
+.sart.anim svg{transform:none}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
