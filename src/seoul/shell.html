@@ -361,9 +361,29 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .dxe .dxim{position:relative;display:block;width:100%;aspect-ratio:25/16;border-radius:10px;overflow:hidden;margin:16px 0 4px;background:#ece8f4}.dxe .dxim img{display:block;width:100%;height:100%;object-fit:cover}
 .dxe .dxim.lock img{filter:blur(7px) grayscale(1) brightness(1.15);transform:scale(1.15)}.dxe .dxim i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:22px}
 .dxe .dxi{display:none}.dxg{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}
+
+/* ===== 시작 화면 · 영화식 전환 ===== */
+.splash{position:fixed;inset:0;z-index:300;background:#0b1236;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform .6s cubic-bezier(.7,0,.3,1)}
+.splash .spbg{position:absolute;inset:-30px;background:url(img/splash.webp) center/cover;filter:blur(24px) brightness(.55);opacity:0;transition:opacity .5s}
+.splash img{position:relative;height:100%;max-width:100%;object-fit:contain;transform:translateY(100%);transition:transform .6s cubic-bezier(.2,.9,.3,1)}
+.splash.in img{transform:none}.splash.in .spbg{opacity:1}
+.splash.out{transform:translateY(-100%)}
+.cine{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;background:rgba(10,8,30,0);animation:cbg .5s forwards;overflow:hidden;cursor:pointer}
+@keyframes cbg{to{background:rgba(10,8,30,.62)}}
+.cine .lb{position:absolute;left:0;right:0;height:14vh;background:#000;transition:transform .45s}.cine .lb.t{top:0;animation:lbt .45s cubic-bezier(.2,.9,.3,1) both}.cine .lb.b{bottom:0;animation:lbb .45s cubic-bezier(.2,.9,.3,1) both}
+@keyframes lbt{from{transform:translateY(-100%)}}@keyframes lbb{from{transform:translateY(100%)}}
+.cband{position:relative;width:100%;padding:22px 20px;text-align:center;color:#fff;background:linear-gradient(90deg,transparent,rgba(40,30,110,.92) 18%,rgba(40,30,110,.92) 82%,transparent);animation:cin .6s .2s cubic-bezier(.2,.9,.3,1) both}
+@keyframes cin{from{transform:translateX(-110%)}}
+.cband .cnk{font-size:13px;font-weight:900;letter-spacing:6px;color:#ffd66b;animation:fd .5s .55s both}
+.cband .cnt{font-size:30px;font-weight:900;margin:6px 0 4px;letter-spacing:1px;text-shadow:0 3px 12px rgba(0,0,0,.4);animation:fd .5s .7s both}
+.cband .cns{font-size:13px;opacity:.85;animation:fd .5s .85s both}
+.cine.out{animation:cbgo .5s forwards}.cine.out .cband{animation:cout .45s cubic-bezier(.7,0,.8,.4) forwards}.cine.out .lb.t{transform:translateY(-100%)}.cine.out .lb.b{transform:translateY(100%)}
+@keyframes cout{to{transform:translateX(110%)}}@keyframes cbgo{from{background:rgba(10,8,30,.62)}to{background:rgba(10,8,30,0)}}
+.slr{animation:slr .38s cubic-bezier(.2,.9,.3,1)}.sll{animation:sll .38s cubic-bezier(.2,.9,.3,1)}
+@keyframes slr{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}@keyframes sll{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
 /*__JS__*/
-renderTitle();
+renderTitle(); splash();
 </script></body></html>

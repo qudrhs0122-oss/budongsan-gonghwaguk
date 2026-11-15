@@ -76,6 +76,9 @@ function renderSetup() {
 }
 function startLife(mode, diff, name, gender) {
   newGame(mode, diff, name, null); S.gender = gender || 'm'; save(); TAB = 'home'; renderGame();
+  cine({ k: 'CHAPTER 1', t: CHAPTERS[0], s: `${yearOf()}년 · 29세 · 월세방에서 시작` }, () => tutorialModal());
+}
+function tutorialModal() {
   const R = [
     ['월세방에서 시작하는 20년.', `어떤 인생을 살지는 매 반기의 선택과, 중간중간 찾아오는 <mark>인생의 갈림길</mark>에서 정해져요.`],
     ['💼 매 반기 어떻게 벌지 고르세요.', '투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라가요.'],
@@ -88,6 +91,26 @@ function startLife(mode, diff, name, gender) {
     <div class="tutrule">📄 현재 규제: ${rules().name} — ${rules().note}</div><button class="btn pri tutgo" data-close>시작하기</button>`, 'tutm');
 }
 
+
+// ---------- 시작 화면 · 영화식 전환 ----------
+function splash(done) {
+  const o = document.createElement('div'); o.className = 'splash';
+  o.innerHTML = `<div class="spbg"></div><img alt="나의 첫 번째 서울 아파트 구하기" src="img/splash.webp">`;
+  document.body.appendChild(o);
+  let gone = false; const out = () => { if (gone) return; gone = true; o.classList.add('out'); setTimeout(() => { o.remove(); done && done(); }, 650); };
+  const img = o.querySelector('img'), go = () => { o.classList.add('in'); setTimeout(out, 1900); };
+  if (img.complete) go(); else { img.onload = go; img.onerror = out; setTimeout(() => o.classList.contains('in') || go(), 1200); }
+  o.onclick = out;
+}
+function cine({ k, t, s, ms = 2300 }, done) {
+  const o = document.createElement('div'); o.className = 'cine';
+  o.innerHTML = `<i class="lb t"></i><i class="lb b"></i><div class="cband"><div class="cnk">${k}</div><div class="cnt">${t}</div>${s ? `<div class="cns">${s}</div>` : ''}</div>`;
+  document.body.appendChild(o);
+  let fin = false; const end = () => { if (fin) return; fin = true; o.classList.add('out'); setTimeout(() => { o.remove(); done && done(); }, 520); };
+  o.onclick = end; setTimeout(end, ms);
+}
+const cineChapter = done => cine({ k: `CHAPTER ${chapterOf() + 1}`, t: CHAPTERS[chapterOf()], s: `${yearOf()}년 · ${29 + Math.floor(S.t / 2)}세` }, done);
+const TAB_ORD = ['home', 'map', 'assets', 'dex'];
 // ---------- 게임 화면 ----------
 function bar(v, cls) { return `<i class="hb ${cls || ''}"><i style="width:${clamp(v, 0, 100)}%"></i></i>`; }
 function hudSky() {
@@ -104,7 +127,8 @@ function hud() {
 function renderGame() {
   if (S.ended) return renderEnding();
   migrate();
-  $('#app').innerHTML = `${hud()}<div id="tab" class="fade"></div>
+  const ti = TAB_ORD.indexOf(TAB), pi = renderGame.prev == null ? ti : TAB_ORD.indexOf(renderGame.prev), sl = ti > pi ? 'slr' : ti < pi ? 'sll' : 'fade'; renderGame.prev = TAB;
+  $('#app').innerHTML = `${hud()}<div id="tab" class="${sl}"></div>
     <nav class="bnav"><button data-t="home" class="${TAB === 'home' ? 'on' : ''}">🏠<span>이번 반기</span></button><button data-t="map" class="${TAB === 'map' ? 'on' : ''}">🗺️<span>서울 지도</span></button><button data-t="assets" class="${TAB === 'assets' ? 'on' : ''}">💼<span>자산</span></button><button data-t="dex" class="${TAB === 'dex' ? 'on' : ''}">📖<span>기록</span></button>
     <button class="next" id="bNext">다음 반기 <span>▶▶</span></button></nav>`;
   document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { TAB = b.dataset.t; MAPGU = null; renderGame(); });
@@ -546,8 +570,8 @@ function evScene(E) { const [k, fx] = evKey(E); return evBanner(k, fx); }
 function onNext() {
   if (!onNext.go) { onNext.go = 1; return playWorkAnim(() => { onNext(); onNext.go = 0; }); }
   const r = nextTurn();
-  if (r.end) { save(); if (r.R && r.R.work && r.R.work.lines.length && S.ended === 'e16') { renderGame(); return modal(`<h3>🚑</h3><ul class="rep">${r.R.work.lines.map(m => `<li>${esc(m)}</li>`).join('')}</ul><button class="btn pri" id="ok">…</button>`) || ($('#ok').onclick = () => { closeModal(); renderEnding(); }); } return renderEnding(); }
-  const R = r.R, go = () => { if (R.crisis) return crisisModal(R.crisis, () => r.ev ? showEvent(r.ev) : renderGame()); if (r.ev) showEvent(r.ev); else renderGame(); };
+  if (r.end) { save(); if (r.R && r.R.work && r.R.work.lines.length && S.ended === 'e16') { renderGame(); return modal(`<h3>🚑</h3><ul class="rep">${r.R.work.lines.map(m => `<li>${esc(m)}</li>`).join('')}</ul><button class="btn pri" id="ok">…</button>`) || ($('#ok').onclick = () => { closeModal(); endCine(); }); } return endCine(); }
+  const R = r.R, ev = () => r.ev ? (r.ev.id === 'cross' ? cine({ k: '🔀 인생의 갈림길', t: '선택의 순간', s: `${yearOf()}년 · ${29 + Math.floor(S.t / 2)}세` }, () => showEvent(r.ev)) : showEvent(r.ev)) : renderGame(), go = () => { if (R.crisis) return crisisModal(R.crisis, ev); ev(); };
   const after = () => { if (S.interAd) { S.interAd = false; showAd(go, true, 'turn_break'); } else go(); };
   renderGame();
   const W = WORK[R.work.k], d = r2(R.nw1 - R.nw0), dc = r2(R.cash1 - R.cash0);
@@ -573,7 +597,7 @@ function onNext() {
     <details class="more"><summary>자세한 소식 ${[...R.work.lines, ...r.msgs].length}건</summary><ul class="rep">${[...R.work.lines, ...r.msgs].map(m => `<li>${esc(m)}</li>`).join('')}${S.lastFlow ? `<li>💰 월급 ${won(S.lastFlow.inc)} − 생활비·주거비·이자 ${won(S.lastFlow.inc - S.lastFlow.net)}</li>` : ''}</ul></details>
     <p class="nextq"><b>다음 선택:</b> ${!own && gp.short <= 0 ? '드디어 첫 집! 아파트를 보러 갈까?' : S.hp < 30 ? '이번엔 쉬어야 하지 않을까?' : !own ? '더 벌까, 불릴까, 청약을 넣을까?' : '버틸까, 갈아탈까?'}</p>
     <button class="btn pri" id="ok">${r.ev || R.crisis ? '다음 이야기 ▶' : '확인'}</button>`);
-  $('#ok').onclick = () => { closeModal(); after(); };
+  $('#ok').onclick = () => { closeModal(); newCh ? cineChapter(after) : after(); };
 }
 function crisisModal(c, next) {
   modal(`<div class="evcat breaking">긴급 속보</div>${evBanner('crisis', ['📉', '⚠️', '💥'])}<h3>💥 ${esc(c.t)}</h3><p>${esc(c.d)}</p>
@@ -589,7 +613,7 @@ function showEvent(e) {
     const c2 = crisis(); for (const m of c2) log(m);
     save();
     modal(`<h3>${esc(E.t)}</h3><p>${esc(res)}</p>${c2.map(m => `<p class="small">${esc(m)}</p>`).join('')}<button class="btn pri" id="ok">계속</button>`);
-    $('#ok').onclick = () => { closeModal(); if (S.ended) return renderEnding(); if (S.chPend) return cheongWinModal(); if (S.goTab) { TAB = S.goTab; S.goTab = null; } if (S.goApt) { const id = S.goApt; S.goApt = null; TAB = 'map'; renderGame(); return aptModal(id); } renderGame(); };
+    $('#ok').onclick = () => { closeModal(); if (S.ended) return endCine(); if (S.chPend) return cheongWinModal(); if (S.goTab) { TAB = S.goTab; S.goTab = null; } if (S.goApt) { const id = S.goApt; S.goApt = null; TAB = 'map'; renderGame(); return aptModal(id); } renderGame(); };
   });
 }
 
@@ -621,6 +645,7 @@ function showAd(cb, inter, tag) {
 }
 
 // ---------- 엔딩 ----------
+function endCine() { cine({ k: 'THE END', t: `${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년`, s: '당신의 부동산 인생, 그 결말은…', ms: 2600 }, renderEnding); }
 function renderEnding() {
   const k = S.ended, e = ENDS[k]; unlockEnding(k); stat('ending', k);
   const d = store.get('_dex', {});

@@ -361,6 +361,26 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .dxe .dxim{position:relative;display:block;width:100%;aspect-ratio:25/16;border-radius:10px;overflow:hidden;margin:16px 0 4px;background:#ece8f4}.dxe .dxim img{display:block;width:100%;height:100%;object-fit:cover}
 .dxe .dxim.lock img{filter:blur(7px) grayscale(1) brightness(1.15);transform:scale(1.15)}.dxe .dxim i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:22px}
 .dxe .dxi{display:none}.dxg{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}
+
+/* ===== 시작 화면 · 영화식 전환 ===== */
+.splash{position:fixed;inset:0;z-index:300;background:#0b1236;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform .6s cubic-bezier(.7,0,.3,1)}
+.splash .spbg{position:absolute;inset:-30px;background:url(img/splash.webp) center/cover;filter:blur(24px) brightness(.55);opacity:0;transition:opacity .5s}
+.splash img{position:relative;height:100%;max-width:100%;object-fit:contain;transform:translateY(100%);transition:transform .6s cubic-bezier(.2,.9,.3,1)}
+.splash.in img{transform:none}.splash.in .spbg{opacity:1}
+.splash.out{transform:translateY(-100%)}
+.cine{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;background:rgba(10,8,30,0);animation:cbg .5s forwards;overflow:hidden;cursor:pointer}
+@keyframes cbg{to{background:rgba(10,8,30,.62)}}
+.cine .lb{position:absolute;left:0;right:0;height:14vh;background:#000;transition:transform .45s}.cine .lb.t{top:0;animation:lbt .45s cubic-bezier(.2,.9,.3,1) both}.cine .lb.b{bottom:0;animation:lbb .45s cubic-bezier(.2,.9,.3,1) both}
+@keyframes lbt{from{transform:translateY(-100%)}}@keyframes lbb{from{transform:translateY(100%)}}
+.cband{position:relative;width:100%;padding:22px 20px;text-align:center;color:#fff;background:linear-gradient(90deg,transparent,rgba(40,30,110,.92) 18%,rgba(40,30,110,.92) 82%,transparent);animation:cin .6s .2s cubic-bezier(.2,.9,.3,1) both}
+@keyframes cin{from{transform:translateX(-110%)}}
+.cband .cnk{font-size:13px;font-weight:900;letter-spacing:6px;color:#ffd66b;animation:fd .5s .55s both}
+.cband .cnt{font-size:30px;font-weight:900;margin:6px 0 4px;letter-spacing:1px;text-shadow:0 3px 12px rgba(0,0,0,.4);animation:fd .5s .7s both}
+.cband .cns{font-size:13px;opacity:.85;animation:fd .5s .85s both}
+.cine.out{animation:cbgo .5s forwards}.cine.out .cband{animation:cout .45s cubic-bezier(.7,0,.8,.4) forwards}.cine.out .lb.t{transform:translateY(-100%)}.cine.out .lb.b{transform:translateY(100%)}
+@keyframes cout{to{transform:translateX(110%)}}@keyframes cbgo{from{background:rgba(10,8,30,.62)}to{background:rgba(10,8,30,0)}}
+.slr{animation:slr .38s cubic-bezier(.2,.9,.3,1)}.sll{animation:sll .38s cubic-bezier(.2,.9,.3,1)}
+@keyframes slr{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}@keyframes sll{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
@@ -1574,6 +1594,9 @@ function renderSetup() {
 }
 function startLife(mode, diff, name, gender) {
   newGame(mode, diff, name, null); S.gender = gender || 'm'; save(); TAB = 'home'; renderGame();
+  cine({ k: 'CHAPTER 1', t: CHAPTERS[0], s: `${yearOf()}년 · 29세 · 월세방에서 시작` }, () => tutorialModal());
+}
+function tutorialModal() {
   const R = [
     ['월세방에서 시작하는 20년.', `어떤 인생을 살지는 매 반기의 선택과, 중간중간 찾아오는 <mark>인생의 갈림길</mark>에서 정해져요.`],
     ['💼 매 반기 어떻게 벌지 고르세요.', '투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라가요.'],
@@ -1586,6 +1609,26 @@ function startLife(mode, diff, name, gender) {
     <div class="tutrule">📄 현재 규제: ${rules().name} — ${rules().note}</div><button class="btn pri tutgo" data-close>시작하기</button>`, 'tutm');
 }
 
+
+// ---------- 시작 화면 · 영화식 전환 ----------
+function splash(done) {
+  const o = document.createElement('div'); o.className = 'splash';
+  o.innerHTML = `<div class="spbg"></div><img alt="나의 첫 번째 서울 아파트 구하기" src="img/splash.webp">`;
+  document.body.appendChild(o);
+  let gone = false; const out = () => { if (gone) return; gone = true; o.classList.add('out'); setTimeout(() => { o.remove(); done && done(); }, 650); };
+  const img = o.querySelector('img'), go = () => { o.classList.add('in'); setTimeout(out, 1900); };
+  if (img.complete) go(); else { img.onload = go; img.onerror = out; setTimeout(() => o.classList.contains('in') || go(), 1200); }
+  o.onclick = out;
+}
+function cine({ k, t, s, ms = 2300 }, done) {
+  const o = document.createElement('div'); o.className = 'cine';
+  o.innerHTML = `<i class="lb t"></i><i class="lb b"></i><div class="cband"><div class="cnk">${k}</div><div class="cnt">${t}</div>${s ? `<div class="cns">${s}</div>` : ''}</div>`;
+  document.body.appendChild(o);
+  let fin = false; const end = () => { if (fin) return; fin = true; o.classList.add('out'); setTimeout(() => { o.remove(); done && done(); }, 520); };
+  o.onclick = end; setTimeout(end, ms);
+}
+const cineChapter = done => cine({ k: `CHAPTER ${chapterOf() + 1}`, t: CHAPTERS[chapterOf()], s: `${yearOf()}년 · ${29 + Math.floor(S.t / 2)}세` }, done);
+const TAB_ORD = ['home', 'map', 'assets', 'dex'];
 // ---------- 게임 화면 ----------
 function bar(v, cls) { return `<i class="hb ${cls || ''}"><i style="width:${clamp(v, 0, 100)}%"></i></i>`; }
 function hudSky() {
@@ -1602,7 +1645,8 @@ function hud() {
 function renderGame() {
   if (S.ended) return renderEnding();
   migrate();
-  $('#app').innerHTML = `${hud()}<div id="tab" class="fade"></div>
+  const ti = TAB_ORD.indexOf(TAB), pi = renderGame.prev == null ? ti : TAB_ORD.indexOf(renderGame.prev), sl = ti > pi ? 'slr' : ti < pi ? 'sll' : 'fade'; renderGame.prev = TAB;
+  $('#app').innerHTML = `${hud()}<div id="tab" class="${sl}"></div>
     <nav class="bnav"><button data-t="home" class="${TAB === 'home' ? 'on' : ''}">🏠<span>이번 반기</span></button><button data-t="map" class="${TAB === 'map' ? 'on' : ''}">🗺️<span>서울 지도</span></button><button data-t="assets" class="${TAB === 'assets' ? 'on' : ''}">💼<span>자산</span></button><button data-t="dex" class="${TAB === 'dex' ? 'on' : ''}">📖<span>기록</span></button>
     <button class="next" id="bNext">다음 반기 <span>▶▶</span></button></nav>`;
   document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { TAB = b.dataset.t; MAPGU = null; renderGame(); });
@@ -2044,8 +2088,8 @@ function evScene(E) { const [k, fx] = evKey(E); return evBanner(k, fx); }
 function onNext() {
   if (!onNext.go) { onNext.go = 1; return playWorkAnim(() => { onNext(); onNext.go = 0; }); }
   const r = nextTurn();
-  if (r.end) { save(); if (r.R && r.R.work && r.R.work.lines.length && S.ended === 'e16') { renderGame(); return modal(`<h3>🚑</h3><ul class="rep">${r.R.work.lines.map(m => `<li>${esc(m)}</li>`).join('')}</ul><button class="btn pri" id="ok">…</button>`) || ($('#ok').onclick = () => { closeModal(); renderEnding(); }); } return renderEnding(); }
-  const R = r.R, go = () => { if (R.crisis) return crisisModal(R.crisis, () => r.ev ? showEvent(r.ev) : renderGame()); if (r.ev) showEvent(r.ev); else renderGame(); };
+  if (r.end) { save(); if (r.R && r.R.work && r.R.work.lines.length && S.ended === 'e16') { renderGame(); return modal(`<h3>🚑</h3><ul class="rep">${r.R.work.lines.map(m => `<li>${esc(m)}</li>`).join('')}</ul><button class="btn pri" id="ok">…</button>`) || ($('#ok').onclick = () => { closeModal(); endCine(); }); } return endCine(); }
+  const R = r.R, ev = () => r.ev ? (r.ev.id === 'cross' ? cine({ k: '🔀 인생의 갈림길', t: '선택의 순간', s: `${yearOf()}년 · ${29 + Math.floor(S.t / 2)}세` }, () => showEvent(r.ev)) : showEvent(r.ev)) : renderGame(), go = () => { if (R.crisis) return crisisModal(R.crisis, ev); ev(); };
   const after = () => { if (S.interAd) { S.interAd = false; showAd(go, true, 'turn_break'); } else go(); };
   renderGame();
   const W = WORK[R.work.k], d = r2(R.nw1 - R.nw0), dc = r2(R.cash1 - R.cash0);
@@ -2071,7 +2115,7 @@ function onNext() {
     <details class="more"><summary>자세한 소식 ${[...R.work.lines, ...r.msgs].length}건</summary><ul class="rep">${[...R.work.lines, ...r.msgs].map(m => `<li>${esc(m)}</li>`).join('')}${S.lastFlow ? `<li>💰 월급 ${won(S.lastFlow.inc)} − 생활비·주거비·이자 ${won(S.lastFlow.inc - S.lastFlow.net)}</li>` : ''}</ul></details>
     <p class="nextq"><b>다음 선택:</b> ${!own && gp.short <= 0 ? '드디어 첫 집! 아파트를 보러 갈까?' : S.hp < 30 ? '이번엔 쉬어야 하지 않을까?' : !own ? '더 벌까, 불릴까, 청약을 넣을까?' : '버틸까, 갈아탈까?'}</p>
     <button class="btn pri" id="ok">${r.ev || R.crisis ? '다음 이야기 ▶' : '확인'}</button>`);
-  $('#ok').onclick = () => { closeModal(); after(); };
+  $('#ok').onclick = () => { closeModal(); newCh ? cineChapter(after) : after(); };
 }
 function crisisModal(c, next) {
   modal(`<div class="evcat breaking">긴급 속보</div>${evBanner('crisis', ['📉', '⚠️', '💥'])}<h3>💥 ${esc(c.t)}</h3><p>${esc(c.d)}</p>
@@ -2087,7 +2131,7 @@ function showEvent(e) {
     const c2 = crisis(); for (const m of c2) log(m);
     save();
     modal(`<h3>${esc(E.t)}</h3><p>${esc(res)}</p>${c2.map(m => `<p class="small">${esc(m)}</p>`).join('')}<button class="btn pri" id="ok">계속</button>`);
-    $('#ok').onclick = () => { closeModal(); if (S.ended) return renderEnding(); if (S.chPend) return cheongWinModal(); if (S.goTab) { TAB = S.goTab; S.goTab = null; } if (S.goApt) { const id = S.goApt; S.goApt = null; TAB = 'map'; renderGame(); return aptModal(id); } renderGame(); };
+    $('#ok').onclick = () => { closeModal(); if (S.ended) return endCine(); if (S.chPend) return cheongWinModal(); if (S.goTab) { TAB = S.goTab; S.goTab = null; } if (S.goApt) { const id = S.goApt; S.goApt = null; TAB = 'map'; renderGame(); return aptModal(id); } renderGame(); };
   });
 }
 
@@ -2119,6 +2163,7 @@ function showAd(cb, inter, tag) {
 }
 
 // ---------- 엔딩 ----------
+function endCine() { cine({ k: 'THE END', t: `${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년`, s: '당신의 부동산 인생, 그 결말은…', ms: 2600 }, renderEnding); }
 function renderEnding() {
   const k = S.ended, e = ENDS[k]; unlockEnding(k); stat('ending', k);
   const d = store.get('_dex', {});
@@ -2156,5 +2201,5 @@ function cheongWinModal() {
   });
 }
 
-renderTitle();
+renderTitle(); splash();
 </script></body></html>
