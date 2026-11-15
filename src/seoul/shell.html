@@ -146,6 +146,31 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .owarn{margin:8px 14px 0;font-size:13px;font-weight:800;color:#b45309}.card.flat{margin-top:0}
 .tbl{background:#f4f1ea;border-radius:14px;padding:6px 14px;margin:8px 0}.tbl div{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #e6dfd2;font-size:14px}.tbl div:last-child{border:0}.tbl span{color:#5a5245}.tbl b{text-align:right}
 .nextq{font-size:14.5px;margin:10px 0 2px}details.more summary{font-size:13px;color:var(--mut);cursor:pointer;margin-top:4px}
+
+/* ===== UX v3 (시안 반영) ===== */
+:root{--bg:#fbf4ee}
+.hud2{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#8d8fd8 0%,#b3b0ea 62%,#d9d2f2 100%);color:#fff;padding:12px 12px 10px;border-radius:0 0 22px 22px;overflow:hidden}
+.hsky{position:absolute;right:58px;top:6px;width:120px;height:100px;opacity:.95;pointer-events:none}
+.h2top{position:relative;display:flex;justify-content:space-between;align-items:flex-start}.h2when{display:block;font-size:22px;font-weight:900;letter-spacing:-.02em;text-shadow:0 1px 2px rgba(60,50,140,.25)}.h2who{font-size:13px;opacity:.95}
+.h2ch{background:rgba(255,255,255,.35);border-radius:16px;padding:5px 12px;font-weight:900;font-size:14px}
+.h2stats{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.h2stats div{border-radius:14px;padding:7px 8px;color:var(--ink);box-shadow:0 2px 6px rgba(70,60,140,.12);border:1.5px solid rgba(255,255,255,.8)}
+.h2stats .c1{background:#fdeee9}.h2stats .c2{background:#eaf1ff}.h2stats .c3{background:#eaf8ee}.h2stats .c4{background:#fff1e8}
+.h2stats small{display:block;font-size:11px;color:#5a5470;font-weight:700}.h2stats b{font-size:15.5px;font-weight:900;white-space:nowrap}.h2stats .term{color:#5a5470}
+.hb{display:block;height:5px;background:#e3e0ee;border-radius:5px;margin-top:4px;overflow:hidden}.hb i{display:block;height:100%;border-radius:5px;background:#22c55e}.hb.hap i{background:#f5b72f}
+.seg{position:relative;display:grid;grid-template-columns:repeat(10,1fr);gap:2px;margin-top:9px;background:rgba(255,255,255,.4);border-radius:8px;padding:2px}.seg i{height:6px;background:rgba(255,255,255,.55);border-radius:4px;overflow:hidden}.seg i.done{background:#4f7bf0}.seg i.cur{background:#dfe6ff}.seg i u{display:block;height:100%;background:#4f7bf0;border-radius:4px}
+.chk2{align-items:center}.chk2 .pill{background:#f1e7dc;color:#6a5a48}
+.goal3{border:0;box-shadow:0 4px 14px rgba(150,110,80,.12);border-radius:20px}.g3t{background:#fdf0e3;border-radius:14px;padding:4px 10px}.pill.gp{background:#e7f6ec;color:#167a3e}
+.g3b mark{background:linear-gradient(transparent 58%,#ffd0d0 58%);color:inherit;padding:0 2px}.goal3 .gbar{background:#dfe6fb}.goal3 .gbar i{background:linear-gradient(90deg,#4f7bf0,#6aa0ff)}
+.g3f{font-size:13px;align-items:center}.g3f b.bl{color:#2f5bea}.g3f b.rd{color:#e5484d}.g3f span+span{border-left:1.5px solid #e6dfd2;padding-left:10px}
+.scnw{border:0;box-shadow:0 4px 14px rgba(120,110,170,.18);border-radius:20px}.stag{border-radius:14px;padding:5px 12px}
+.story3 b{font-size:17.5px}.qbox{background:#f5ece2;border-radius:12px;padding:8px 12px!important;margin-top:6px!important}
+.pill.hpp{background:#e9f7ec;color:#167a3e}
+.wlist .wopt{border:2px solid #efe6da;border-radius:18px;box-shadow:0 2px 8px rgba(150,110,80,.06)}.wlist .wopt.on{border-color:#4f7bf0;background:#fff;box-shadow:0 4px 14px rgba(79,123,240,.18)}
+.wt .wi{width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:24px;background:#fff4e6;flex:none}.wi.wb-안정,.wi.wb-회복{background:#e9f7ec}.wi.wb-도전{background:#eaf0ff}.wi.wb-위험,.wi.wb-모험{background:#fdecec}
+.wopt.on .pill{background:linear-gradient(#5a86f5,#3f6ae8);color:#fff;border-radius:14px;padding:5px 12px}
+.bnav{border-radius:22px 22px 0 0;padding:8px 10px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(120,110,170,.12)}
+.bnav button{font-size:22px;padding:6px 0}.bnav button span{font-size:11.5px;color:#3a3550}.bnav button.on{background:#eeeaff}
+.bnav .next{flex:2;border-radius:18px;background:linear-gradient(90deg,#3f6ae8,#5a86f5);box-shadow:0 4px 12px rgba(63,106,232,.35);font-size:16px;flex-direction:row;justify-content:center;gap:6px}.bnav .next span{font-size:14px;color:#ffe066}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
