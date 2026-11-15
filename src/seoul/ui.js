@@ -152,6 +152,57 @@ function scene(mood) { // 장면 일러스트 (SVG)
     <text x="88" y="160" font-size="108" text-anchor="middle">${face}</text><text x="352" y="176" font-size="46" text-anchor="middle">${prop}</text>
     <g fill="#ffcc4d"><rect x="132" y="40" width="4" height="14" rx="2" transform="rotate(25 134 47)"/><rect x="144" y="48" width="4" height="12" rx="2" transform="rotate(55 146 54)"/></g></svg>`;
 }
+
+// ---------- 차트 도우미 ----------
+function lineChart(arr, { w = 300, h = 70, color = '#6b5ad8', fill = true, fmt = v => wonS(v), label = '' } = {}) {
+  if (!arr || arr.length < 2) return `<div class="nochart">${label ? label + ' · ' : ''}한 반기가 지나면 그래프가 그려져요</div>`;
+  const a = arr.slice(-20), mn = Math.min(...a), mx = Math.max(...a), pad = 6, sx = (w - pad * 2) / (a.length - 1), sy = mx > mn ? (h - 22) / (mx - mn) : 0;
+  const P = a.map((v, i) => [pad + i * sx, h - 12 - (v - mn) * sy]);
+  const d = P.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('');
+  const last = P[P.length - 1], gid = 'lg' + Math.random().toString(36).slice(2, 7);
+  return `<svg class="lchart" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".28"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    ${[.25, .5, .75].map(f => `<line x1="0" x2="${w}" y1="${(h - 12) * f}" y2="${(h - 12) * f}" stroke="#ece8f3" stroke-width="1"/>`).join('')}
+    ${fill ? `<path d="${d}L${last[0]},${h - 12}L${pad},${h - 12}Z" fill="url(#${gid})"/>` : ''}<path d="${d}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="3.6" fill="#fff" stroke="${color}" stroke-width="2.2" vector-effect="non-scaling-stroke"/>
+    <text x="${w - 2}" y="${h - 1}" font-size="9" text-anchor="end" fill="#8a849c">${fmt(a[a.length - 1])}</text><text x="2" y="${h - 1}" font-size="9" fill="#8a849c">${fmt(a[0])}</text></svg>`;
+}
+function hbars(rows, max) { // rows: [label, value, color, text]
+  const m = max || Math.max(...rows.map(r => Math.abs(r[1])), .0001);
+  return `<div class="hbars">${rows.map(([l, v, c, t]) => `<div class="hbr"><span class="hl">${l}</span><span class="ht"><i style="width:${Math.max(2, Math.abs(v) / m * 100)}%;background:${c}"></i></span><b style="color:${c}">${t}</b></div>`).join('')}</div>`;
+}
+function gauge(label, v, dv, color) {
+  return `<div class="gau"><div class="gh"><span>${label}</span><b>${v}<small>/100</small>${dv ? `<em class="${dv > 0 ? 'pos' : 'neg'}">${dv > 0 ? '▲' : '▼'}${Math.abs(dv)}</em>` : ''}</b></div><div class="gt"><i style="width:${v}%;background:${color}"></i></div></div>`;
+}
+function stockCard() {
+  const sv = stockValue(), si = stockIn(), sg = r2(sv - si), pr = si ? sg / si * 100 : 0;
+  if (sv <= 0) return `<div class="card ccard"><div class="chd"><b>📈 주식 계좌</b><em class="pill">선택</em></div><p class="small">아직 투자하지 않았어요. 오르면 계약금이 빨리 모이지만, 금융위기 때는 반토막 날 수도 있어요.</p>${lineChart(S.hs, { label: '평가금' })}<button class="btn sm" id="bStk">📈 주식 사기</button></div>`;
+  const cols = { blue: '#5b7fe8', growth: '#8b6cf5', coin: '#f2b632', lev: '#e5484d' };
+  const seg = Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `<i style="width:${(S.stk[k] / sv * 100).toFixed(1)}%;background:${cols[k]}" title="${STK[k].t}"></i>`).join('');
+  return `<div class="card ccard"><div class="chd"><b>📈 주식 계좌</b><em class="pill ${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '▲' : '▼'} ${Math.abs(pr).toFixed(1)}%</em></div>
+    <div class="kpi"><div><small>평가금</small><b>${won(sv)}</b></div><div><small>투자 원금</small><b>${won(si)}</b></div><div><small>평가손익</small><b class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)}</b></div></div>
+    ${lineChart(S.hs, { color: sg >= 0 ? '#e5484d' : '#3b82f6' })}
+    <div class="segbar">${seg}</div><div class="seglg">${Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `<span><i style="background:${cols[k]}"></i>${STK[k].t} ${wonS(S.stk[k])}</span>`).join('')}</div>
+    <button class="btn sm" id="bStk">📈 사고팔기</button></div>`;
+}
+function gajeomCard() {
+  const g = gajeom();
+  return `<div class="card ccard"><div class="chd"><b>🎟️ 내 청약 ${term('가점')}</b><em class="pill ${S.plan.ch ? 'up' : ''}">${S.plan.ch ? '✅ 다음 반기 신청됨' : '미신청'}</em></div>
+    <div class="ring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18" fill="none" stroke="#eee9f7" stroke-width="6"/><circle cx="22" cy="22" r="18" fill="none" stroke="#7c5cf0" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(g.total / 84 * 113).toFixed(1)} 113" transform="rotate(-90 22 22)"/></svg><div><b>${g.total}<small>/84점</small></b><span>${g.total >= 65 ? '인기 단지도 노려볼 만해요' : g.total >= 45 ? '중간 수준이에요' : '가점이 낮아요 · 추첨·특공을 노려요'}</span></div></div>
+    ${hbars([['🏠 무주택 기간', g.h, '#5b7fe8', `${g.h}/32`], ['👪 부양가족', g.fam, '#3f9c58', `${g.fam}/35`], ['📒 통장 기간', g.acc, '#f2a03a', `${g.acc}/17`]], 35)}
+    <p class="small">청약 신청은 위 선택지의 <b>🎟️ 청약 넣기</b>에서 할 수 있어요.</p></div>`;
+}
+function marketCard() {
+  const R = rules(), ph = { up: ['🔥', '상승장', '#e5484d'], flat: ['😐', '보합', '#8a849c'], down: ['🧊', '하락장', '#3b82f6'] }[S.phase];
+  const g1 = S.Gh.length >= 2 ? (S.G / S.Gh[Math.max(0, S.Gh.length - 3)] - 1) * 100 : 0;
+  return `<div class="card ccard"><div class="chd"><b>📊 서울 부동산 시장</b><em class="pill" style="color:${ph[2]}">${ph[0]} ${ph[1]}</em></div>
+    <div class="kpi"><div><small>서울 지수</small><b>${Math.round(S.G * 100)}</b><em class="${g1 >= 0 ? 'up' : 'dn'}">${pct(g1)} /1년</em></div><div><small>기준금리</small><b>${S.rate.toFixed(2)}%</b></div><div><small>현재 규제</small><b class="sm2">${esc(R.name.replace(/^\d{4}\s*/, ''))}</b></div></div>
+    <div class="ch2"><div><small>🏠 서울 집값 지수</small>${lineChart(S.Gh.map(v => v * 100), { color: '#e5484d', h: 64, fmt: v => Math.round(v) })}</div><div><small>🏦 기준금리</small>${lineChart(S.hr, { color: '#3b82f6', h: 64, fill: false, fmt: v => v.toFixed(2) + '%' })}</div></div>
+    <div class="rule"><b>📜 ${esc(R.name)}</b><br>${esc(R.note).replace('LTV', term('LTV')).replace('갭투자', term('갭투자'))}</div></div>`;
+}
+function newsCard() {
+  const L = S.log.slice(0, 5);
+  return `<div class="card ccard"><div class="chd"><b>📰 지난 소식</b><em class="pill">${L.length}건</em></div><ul class="tline">${L.map((l, i) => `<li class="${i ? '' : 'new'}"><i></i><small>${when(l.t)}</small><span>${esc(l.s)}</span></li>`).join('') || '<li><span>아직 소식이 없어요.</span></li>'}</ul></div>`;
+}
 function tabHome() {
   const own = S.props.some(p => p.kind === 'buy'), gap = firstHomeGap(), live = liveHome();
   let goal;
@@ -178,14 +229,14 @@ function tabHome() {
     <div class="sech"><b>🎮 이번 반기, 어떻게 할까요?</b><em class="pill hpp">⚡ 체력 ${S.hp}/100</em></div>
     <div class="wlist g3">${wcards}${opts.length < 6 ? (isHomeless() ? `<button class="wopt xt ${S.plan.ch ? 'on' : ''}" id="chT">${S.plan.ch ? '<i class="wck">✓</i>' : '<em class="pill t-도전">추첨</em>'}<span class="wib wb-청약"><span class="wi2">🎟️</span></span><b>청약 넣기</b><span class="wfx"><em>🏢 가점 ${gajeom().total}점</em><em>${S.plan.ch ? '✅ 신청함' : '👆 눌러서 신청'}</em></span></button>` : `<button class="wopt xt" id="stkT"><em class="pill t-도전">투자</em><span class="wib wb-도전"><span class="wi2">📈</span></span><b>주식 계좌</b><span class="wfx"><em>🪙 ${wonS(stockValue())}</em></span></button>`) : ''}</div><p class="wdesc"><span>${WORK[S.plan.work].ic}</span> <b>${WORK[S.plan.work].t}</b> — ${WORK[S.plan.work].d}</p>${S.overwarn ? `<p class="owarn">🚑 과로 경고 ${S.overwarn}/2 — 한 번 더 쓰러지면 위험해요.</p>` : ''}
     <div class="card aptsec"><div class="asech"><b>🏙️ 지금 노려볼 서울 아파트</b><em class="pill calc">눌러서 자금 계산 🧮</em></div><div class="pgrid">${pcards}</div><button class="mapbtn" data-goto="map"><span>🗺️</span> 서울 지도에서 더 찾아보기 <i>›</i></button>${hint ? `<p class="small">${hint}</p>` : ''}</div>
-    <div class="card"><h4>📈 주식 계좌 <small>종잣돈 불리기 · 선택</small></h4>${sv > 0 ? `<div class="stkrow"><b>${won(sv)}</b><span class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)} (${si ? pct(sg / si * 100) : '0%'})</span></div><p class="small">${Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `${STK[k].ic} ${STK[k].t} ${wonS(S.stk[k])}`).join(' · ')}</p>` : '<p class="small">아직 투자하지 않았어요. 오르면 계약금이 빨리 모이지만, 위기 때 반토막 날 수도 있어요.</p>'}<button class="btn sm" id="bStk">📈 사고팔기</button></div>
-    ${isHomeless() ? `<div class="card"><h4>🎟️ 청약 <small>내 ${term('가점')} ${gajeom().total}점</small></h4><label class="tgl"><input type="checkbox" id="chk" ${S.plan.ch ? 'checked' : ''}> 다음 반기에 청약 넣기</label><p class="small">당첨되면 계약금 10%를 바로 내야 해요. 무주택 기간과 가족이 늘수록 가점이 올라요.</p></div>` : ''}
-    <div class="card mk"><div class="mrow"><div><small>집값 분위기</small><b class="ph ${S.phase}">${{ up: '🔥 상승장', flat: '😐 보합', down: '🧊 하락장' }[S.phase]}</b></div><div><small>기준금리</small><b>${S.rate.toFixed(2)}%</b></div><div><small>서울 지수</small><b>${Math.round(S.G * 100)}</b></div></div><div class="rule"><b>📜 ${esc(rules().name)}</b><br>${esc(rules().note).replace('LTV', term('LTV')).replace('갭투자', term('갭투자'))}</div></div>
+    ${stockCard()}
+    ${isHomeless() ? gajeomCard() : ''}
+    ${marketCard()}
     ${!own && gap.short > 0 && S.t >= 4 ? `<details class="card ads"><summary>🆘 막혔을 때 힌트 받기 <small>광고 · 한 판에 각 1회</small></summary>
       <button class="btn adb" data-ad="report" ${S.adUsed.report ? 'disabled' : ''}>📊 앞으로 1년 집값 전망 ${S.adUsed.report ? '✓' : ''}</button>
       <button class="btn adb" data-ad="chart" ${S.adUsed.chart ? 'disabled' : ''}>📈 모든 단지 과거 시세 그래프 ${S.adUsed.chart ? '✓' : ''}</button>
       <button class="btn adb" data-ad="imjang" ${S.adUsed.imjang ? 'disabled' : ''}>🔍 임장 기회 +2 ${S.adUsed.imjang ? '✓' : ''}</button></details>` : ''}
-    <details class="card"><summary>📰 지난 소식</summary><ul class="log">${S.log.slice(0, 10).map(l => `<li><i>${when(l.t)}</i>${esc(l.s)}</li>`).join('')}</ul></details>`;
+    ${newsCard()}`;
   document.querySelectorAll('[data-w]').forEach(b => b.onclick = () => { const k = b.dataset.w;
     if (k === 'biz') return modal(`<h3>🚀 퇴사하고 창업할까요?</h3><p>월급이 끊기고 초기 비용 500만 원이 듭니다. 사업이 커지면 월급보다 훨씬 많이 벌 수 있지만, 망하면 사업 빚이 남아요.</p><p class="small">사업 중에는 '올인 / 적당히 / 정리·재취업' 중에서 고르게 됩니다. 소득이 불안정하면 대출 한도도 줄어요.</p><button class="btn pri" id="ok">창업하기로 정했다</button><button class="btn ghost" data-close>다시 생각해 볼게요</button>`) || ($('#ok').onclick = () => { S.plan.work = 'biz'; closeModal(); save(); tabHome(); });
     S.plan.work = k; save(); tabHome(); });
@@ -423,9 +474,22 @@ function onNext() {
   const newCh = S.t % 4 === 0, gp = firstHomeGap(), own = S.props.some(p => p.kind === 'buy');
   const mood = S.hp < 25 ? '😫' : d >= .3 ? '🤩' : d >= 0 ? '😊' : d > -.3 ? '😕' : '😱';
   const head = S.hp < 25 ? '몸이 버티지 못하고 있어요' : d >= .5 ? '자산이 크게 불었어요!' : d >= 0 ? '조금씩 나아가고 있어요' : '이번 반기는 쉽지 않았어요';
+  const F = S.lastFlow || { inc: 0, living: 0, housing: 0, loanPay: 0, credit: 0, tax: 0, net: 0 }, side = R.work.inc || 0, stk = R.stk ? R.stk.diff : 0;
+  const hp0 = clamp(S.hp - (WORK[R.work.k] ? hpCost(R.work.k) : 0), 0, 100);
+  const flow = [['💼 월급', F.inc, '#3f9c58', '+' + wonS(F.inc)]];
+  if (side) flow.push([side > 0 ? '🛵 부업·사업' : '🛵 부업·사업 손실', side, side > 0 ? '#3f9c58' : '#e5484d', (side > 0 ? '+' : '') + wonS(side)]);
+  if (stk) flow.push(['📈 주식 평가', stk, stk > 0 ? '#e5484d' : '#3b82f6', (stk > 0 ? '+' : '') + wonS(stk)]);
+  flow.push(['🍚 생활비', -F.living, '#f2a03a', '−' + wonS(F.living)]);
+  if (F.housing) flow.push(['🏠 주거비', -F.housing, '#f2a03a', '−' + wonS(F.housing)]);
+  if (F.loanPay + F.credit) flow.push(['🏦 대출 상환·이자', -(F.loanPay + F.credit), '#e5484d', '−' + wonS(F.loanPay + F.credit)]);
+  if (F.tax) flow.push(['🧾 보유세', -F.tax, '#e5484d', '−' + wonS(F.tax)]);
+  const have = S.cash + (S.res.type !== 'own' ? S.res.dep - S.res.loan : 0);
   modal(`<div class="evcat">${when(S.t - 1)} 결과${newCh ? ` · 📖 CHAPTER ${chapterOf() + 1} 시작` : ''}</div><h3>${mood} ${head}</h3>
-    <div class="scnw sm">${scene(mood)}</div>
-    <div class="tbl"><div><span>${W.ic} ${W.t}</span><b class="${dc >= 0 ? 'pos' : 'neg'}">현금 ${dc >= 0 ? '+' : ''}${won(dc)}</b></div><div><span>🏠 서울 집값</span><b class="${R.g >= 0 ? 'up' : 'dn'}">${pct(R.g)}</b></div><div><span>📊 순자산</span><b class="${d >= 0 ? 'pos' : 'neg'}">${d >= 0 ? '+' : ''}${won(d)}</b></div><div><span>❤️ 체력 · 행복</span><b>${S.hp} · ${S.happy}</b></div>${!own ? `<div><span>현재 보유 현금</span><b>${won(S.cash)}</b></div><div><span>첫 집까지 부족한 금액</span><b class="${gp.short > 0 ? 'neg' : 'pos'}">${gp.short > 0 ? won(gp.short) : '없음! 지금 살 수 있어요'}</b></div>` : ''}</div>
+    <div class="kpi3"><div class="${dc >= 0 ? 'pos' : 'neg'}"><span>💰</span><small>현금</small><b>${dc >= 0 ? '+' : ''}${wonS(dc)}</b></div><div class="${d >= 0 ? 'pos' : 'neg'}"><span>📊</span><small>순자산</small><b>${d >= 0 ? '+' : ''}${wonS(d)}</b></div><div class="${R.g >= 0 ? 'up' : 'dn'}"><span>🏠</span><small>서울 집값</small><b>${pct(R.g)}</b></div></div>
+    <div class="rsec"><div class="rsh">💸 이번 반기 돈의 흐름 <small>남은 돈 <b class="${dc >= 0 ? 'pos' : 'neg'}">${dc >= 0 ? '+' : ''}${won(dc)}</b></small></div>${hbars(flow)}</div>
+    <div class="rsec two">${gauge('⚡ 체력', S.hp, S.hp - hp0, S.hp < 25 ? '#e5484d' : '#22c55e')}${gauge('❤️ 행복', S.happy, 0, '#f5b72f')}</div>
+    ${!own ? `<div class="rsec"><div class="rsh">🏠 첫 집까지 <small>${gp.short > 0 ? `<b class="neg">${won(gp.short)} 부족</b>` : '<b class="pos">지금 살 수 있어요!</b>'}</small></div><div class="gt big"><i style="width:${clamp(have / Math.max(.01, have + gp.short) * 100, 2, 100)}%;background:linear-gradient(90deg,#4f7bf0,#7c5cf0)"></i></div><div class="g3f"><span>💰 내 돈 <b class="bl">${won(have)}</b></span><span>🎯 필요 <b class="rd">${won(have + gp.short)}</b></span></div></div>` : ''}
+    <div class="rsec"><div class="rsh">📈 순자산 추이</div>${lineChart(S.hn)}</div>
     <details class="more"><summary>자세한 소식 ${[...R.work.lines, ...r.msgs].length}건</summary><ul class="rep">${[...R.work.lines, ...r.msgs].map(m => `<li>${esc(m)}</li>`).join('')}${S.lastFlow ? `<li>💰 월급 ${won(S.lastFlow.inc)} − 생활비·주거비·이자 ${won(S.lastFlow.inc - S.lastFlow.net)}</li>` : ''}</ul></details>
     <p class="nextq"><b>다음 선택:</b> ${!own && gp.short <= 0 ? '드디어 첫 집! 아파트를 보러 갈까?' : S.hp < 30 ? '이번엔 쉬어야 하지 않을까?' : !own ? '더 벌까, 불릴까, 청약을 넣을까?' : '버틸까, 갈아탈까?'}</p>
     <button class="btn pri" id="ok">${r.ev || R.crisis ? '다음 이야기 ▶' : '확인'}</button>`);

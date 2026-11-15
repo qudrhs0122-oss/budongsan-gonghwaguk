@@ -36,6 +36,7 @@ function nextTurn() {
   S.imjang = Math.min(3, S.imjang + 1);
   S.t++;
   R.cash1 = S.cash; R.nw1 = nw();
+  (S.hn ??= []).push(r2(R.nw1)); (S.hs ??= []).push(stockValue()); (S.hr ??= []).push(S.rate); (S.hc ??= []).push(r2(S.cash)); for (const k of ['hn', 'hs', 'hr', 'hc']) if (S[k].length > 40) S[k].shift();
   for (const m of [...R.work.lines, ...msgs]) log(m);
   if (S.ended) return { msgs, end: true, R };
   if (S.st.interestBad >= 4 && debtTotal() > income() * 6) { S.ended = S.biz || S.flags.bizFail ? 'e17' : 'e25'; return { msgs, end: true, R }; }
