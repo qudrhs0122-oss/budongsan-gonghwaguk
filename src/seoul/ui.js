@@ -125,6 +125,26 @@ function storyHead() {
   if (own) return [['', '', '드디어 내 집이 생겼다!', '대출 이자가 빠져나가는 날', '갈아탈까, 버틸까?', '아이 방 하나 더 있었으면', '한 칸 위 동네가 보인다', '흔들리는 시장', '자산을 굳힐 시간', '20년의 끝이 보인다'][c] || '내 집에서 맞는 반기', ['', '', '“이제 대출을 갚으며 다음 목표를 세워 볼까?”', '“그래도 내 집이라 버틸 만하다.”', '“집값 뉴스가 자꾸 눈에 들어온다.”', '“가족이 늘면 집도 커져야 할까?”', '“더 좋은 동네로 갈아탈 수 있을까?”', '“지킬 것인가, 움직일 것인가.”', '“이제는 지키는 게 버는 거다.”', '“마지막 결정을 내릴 때다.”'][c] || ''];
   return [['친구가 서울 아파트 청약을 추천했다!', '종잣돈이 조금씩 쌓인다', '부동산 앱을 켜는 시간이 늘었다', '집값이 또 올랐다', '인생의 갈림길이 한꺼번에', '가족이 늘면 집이 더 절실하다', '아직 무주택, 하지만 포기는 이르다', '위기는 기회와 함께 온다', '마지막 승부를 걸까?', '20년의 끝이 보인다'][c], ['“지금 집을 사는 게 좋을까? 아니면 돈을 더 모을까?”', '“선배는 투잡을, 친구는 주식을 권한다. 나는?”', '“이번엔 진짜 첫 집에 도전해 볼까?”', '“기다릴수록 멀어지는 기분이다.”', '“결혼, 이직, 투자… 무엇부터 해야 할까?”', '“아이 방이 있는 집에서 살고 싶다.”', '“청약, 급매, 재개발… 아직 길은 있다.”', '“모두가 팔 때 살 용기가 있을까?”', '“남은 시간이 많지 않다.”', '“결과는 곧 나온다.”'][c]];
 }
+function sceneLive() { // 지금 고른 행동을 보여 주는 움직이는 장면
+  const c = chapterOf(), own = S.props.some(p => p.kind === 'buy'), k = S.plan.work;
+  const night = k === 'three', crisisNow = S.crisisLeft > 0;
+  const sky = night ? ['#1e2457', '#4b4f99'] : crisisNow ? ['#7b8296', '#c4c8d4'] : [['#9fd3f5', '#e6f6ff'], ['#ffc48a', '#fff0d6'], ['#b8a8ff', '#ffd7ea']][c % 3];
+  let b = ''; const hs = [70, 96, 82, 130, 104, 150, 92, 118, 84, 108];
+  hs.forEach((h, i) => { const x = 150 + i * 23; b += `<rect x="${x}" y="${178 - h}" width="21" height="${h}" rx="3" fill="${night ? (i % 2 ? '#2f3672' : '#3a4282') : i % 2 ? '#f4f6ff' : '#dfe4fb'}" stroke="${night ? '#5c64b0' : '#b5bde6'}" stroke-width="1"/>`; let n = 0; for (let y = 188 - h; y < 170; y += 13) { n++; b += `<rect class="${(i + n) % 3 === 0 ? 'tw' : ''}" style="animation-delay:${((i * 7 + n * 3) % 10) / 4}s" x="${x + 4}" y="${y}" width="5" height="6" rx="1" fill="${night ? '#ffd76a' : '#9aa6dc'}" opacity="${night ? .9 : .6}"/><rect x="${x + 12}" y="${y}" width="5" height="6" rx="1" fill="${night ? '#ffd76a' : '#9aa6dc'}" opacity="${night ? .35 : .6}"/>`; } });
+  const T = (x, y, sz, t, cls = '', st = '') => `<text class="${cls}" style="${st}" x="${x}" y="${y}" font-size="${sz}" text-anchor="middle">${t}</text>`;
+  let act = '', cap = '';
+  if (k === 'main') { act = `<g class="bob">${T(84, 150, 74, '🧑‍💻')}</g>${T(130, 168, 26, '☕')}<g class="steam">${T(130, 140, 16, '〰️')}</g><g class="spark">${T(40, 92, 20, '✨')}</g><g class="spark d2">${T(128, 96, 16, '⭐')}</g>`; cap = '열심히 일하는 중'; }
+  else if (k === 'two') { act = `<g class="ride"><g class="bob2">${T(0, 172, 56, '🛵')}${T(-6, 128, 24, '📦')}</g></g><g class="coin">${T(90, 120, 24, '🪙')}</g><g class="coin d2">${T(130, 110, 20, '🪙')}</g>`; cap = '퇴근 후 배달 중'; }
+  else if (k === 'three') { act = `${T(160, 92, 26, '🌙')}<g class="spark">${T(196, 76, 12, '⭐')}</g><g class="spark d2">${T(140, 72, 10, '⭐')}</g><g class="swap s1">${T(86, 160, 64, '🧑‍💼')}</g><g class="swap s2">${T(86, 160, 64, '🛵')}</g><g class="swap s3">${T(86, 160, 64, '🧑‍🍳')}</g><g class="drip">${T(116, 112, 18, '💦')}</g>`; cap = '낮엔 회사, 밤엔 부업 2개'; }
+  else if (k === 'rest') { act = `${T(84, 166, 70, '🛌')}<g class="zz">${T(118, 110, 22, 'Z')}</g><g class="zz d2">${T(132, 92, 17, 'z')}</g><g class="zz d3">${T(142, 76, 13, 'z')}</g>${T(165, 92, 26, '☀️', 'spin')}`; cap = '푹 쉬면서 재충전'; }
+  else if (k === 'biz' || k === 'bizrun') { act = `<g class="${k === 'bizrun' ? 'run' : 'bob'}">${T(80, 156, 66, k === 'bizrun' ? '🏃' : '🧑‍💼')}</g><g class="stack">${T(128, 172, 28, '📦')}</g><g class="stack d2">${T(128, 146, 28, '📦')}</g><g class="stack d3">${T(128, 120, 28, '📦')}</g>${T(165, 100, 22, '🏪')}`; cap = k === 'biz' ? '내 가게 오픈 준비 중' : '사업 키우는 중'; }
+  else if (k === 'bizlite') { act = `<g class="bob">${T(80, 156, 66, '🧑‍💼')}</g>${T(130, 168, 28, '☕')}<g class="steam">${T(130, 138, 16, '〰️')}</g>`; cap = '여유롭게 가게 운영 중'; }
+  else { act = `<g class="walk">${T(40, 166, 60, '🚶')}</g>`; cap = '다시 회사로 출근'; }
+  const extra = (S.plan.ch && isHomeless() ? `<g class="tix">${T(372, 100, 24, '🎟️')}</g>` : '') + (own ? `${T(352, 178, 42, '🏡')}<g class="smoke">${T(366, 128, 16, '💨')}</g>` : '') + (crisisNow ? `<g class="shake">${T(300, 100, 30, '📉')}</g>` : '') + (S.hp < 30 && k !== 'three' ? `<g class="drip">${T(118, 104, 18, '💦')}</g>` : '');
+  return { svg: `<svg class="scn live" viewBox="0 58 400 132" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="skl${c}${night ? 'n' : ''}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient></defs><rect y="50" width="400" height="140" fill="url(#skl${c}${night ? 'n' : ''})"/>
+    <g class="cloud" fill="#fff" opacity="${night ? .25 : .9}"><ellipse cx="230" cy="80" rx="22" ry="8"/><ellipse cx="248" cy="75" rx="16" ry="10"/></g><g class="cloud c2" fill="#fff" opacity="${night ? .2 : .85}"><ellipse cx="320" cy="72" rx="26" ry="9"/><ellipse cx="342" cy="67" rx="16" ry="10"/></g>${b}
+    <g fill="${night ? '#2c5a3a' : '#8fd89b'}"><ellipse cx="40" cy="198" rx="90" ry="32"/><ellipse cx="380" cy="198" rx="70" ry="26"/></g><g fill="${night ? '#24492f' : '#6cc27c'}"><ellipse cx="170" cy="200" rx="70" ry="20"/><ellipse cx="300" cy="202" rx="60" ry="18"/></g>${act}${extra}</svg>`, cap };
+}
 function scene(mood) { // 장면 일러스트 (SVG)
   const c = chapterOf(), own = S.props.some(p => p.kind === 'buy');
   const sky = S.crisisLeft > 0 ? ['#7b8296', '#c4c8d4'] : S.hp < 30 ? ['#5b628f', '#a7acd0'] : [['#9fd3f5', '#e6f6ff'], ['#ffc48a', '#fff0d6'], ['#b8a8ff', '#ffd7ea']][c % 3];
@@ -161,7 +181,7 @@ function tabHome() {
   $('#tab').innerHTML = `
     ${goal}
     <div class="sech"><b>📖 오늘의 이야기</b><small>${when()}</small></div>
-    <div class="story3"><div class="scnw">${scene()}<span class="stag">${CHAPTERS[chapterOf()]}</span></div><b>✨ ${esc(sh)}</b><p class="qbox">${esc(sq)}</p></div>
+    <div class="story3"><div class="scnw">${(L => L.svg + `<span class="stag">${CHAPTERS[chapterOf()]} · ${L.cap}</span>`)(sceneLive())}</div><b>✨ ${esc(sh)}</b><p class="qbox">${esc(sq)}</p></div>
     <div class="sech"><b>🎮 이번 반기, 어떻게 할까요?</b><em class="pill hpp">⚡ 체력 ${S.hp}/100</em></div>
     <div class="wlist g3">${wcards}${opts.length < 6 ? (isHomeless() ? `<button class="wopt xt ${S.plan.ch ? 'on' : ''}" id="chT"><em class="pill t-도전">${S.plan.ch ? '✓' : '추첨'}</em><span class="wi wb-도전">🎟️</span><b>청약 넣기</b><span class="wfx"><em>가점 ${gajeom().total}점</em><em>${S.plan.ch ? '신청함' : '눌러서 신청'}</em></span></button>` : `<button class="wopt xt" id="stkT"><em class="pill t-도전">투자</em><span class="wi wb-도전">📈</span><b>주식 계좌</b><span class="wfx"><em>${wonS(stockValue())}</em></span></button>`) : ''}</div><p class="wdesc">${WORK[S.plan.work].ic} <b>${WORK[S.plan.work].t}</b> — ${WORK[S.plan.work].d}</p>${S.overwarn ? `<p class="owarn">🚑 과로 경고 ${S.overwarn}/2 — 한 번 더 쓰러지면 위험해요.</p>` : ''}
     <div class="sech"><b>🏙️ 지금 노려볼 서울 아파트</b><small>눌러서 자금 계산</small></div><div class="card flat"><div class="pgrid">${pcards}</div><button class="btn sm ghost" data-goto="map">🗺️ 서울 지도에서 더 찾아보기</button>${hint ? `<p class="small">${hint}</p>` : ''}</div>
@@ -354,18 +374,26 @@ function sellModal(uid) {
 // ---------- 도감 ----------
 function tabDex() { renderDexInner($('#tab'), false); }
 function renderDexPage(back) { $('#app').innerHTML = `<div class="setup fade"><button class="btn ghost sm" id="bk">← 돌아가기</button><div id="dx"></div></div>`; $('#bk').onclick = back; renderDexInner($('#dx'), true); }
+let DEXF = 'all';
+const PART_STY = { 1: ['🏠', '#fdecef', '#f3c3cc', '#e5677d'], 2: ['💼', '#eaf7ec', '#bfe3c6', '#3f9c58'], 3: ['📈', '#e8f1ff', '#bcd2f5', '#3f6ae8'], 4: ['⚠️', '#f0ecff', '#d5cbf5', '#7a5ce0'], 5: ['🌱', '#fff3e3', '#f3d6a8', '#d08a1c'] };
+const RIC = { n: '', r: '⭐', e: '💎', l: '👑', h: '🔒' };
 function renderDexInner(el) {
-  const d = store.get('_dex', {});
-  const cnt = {}; for (const k in d) if (ENDS[k]) cnt[ENDS[k].r] = (cnt[ENDS[k].r] || 0) + 1;
-  const tot = {}; for (const e of Object.values(ENDS)) tot[e.r] = (tot[e.r] || 0) + 1;
-  let h = `<div class="card"><h4>🎬 엔딩 도감 ${Object.keys(d).filter(k => ENDS[k]).length}/40</h4><div class="rar">${Object.entries(RARE).map(([k, [n, c]]) => `<span style="border-color:${c};color:${c}">${n} ${cnt[k] || 0}/${tot[k]}</span>`).join('')}</div><p class="small">엔딩은 집·자산·부채·체력·행복·인생의 사건으로 결정돼요. 엔딩을 눌러 보세요.</p>`;
+  const d = store.get('_dex', {}), got = k => !!d[k];
+  const all = Object.keys(ENDS), have = all.filter(got).length;
+  const cnt = r => all.filter(k => ENDS[k].r === r && got(k)).length, tot = r => all.filter(k => ENDS[k].r === r).length;
+  let h = `<div class="dx"><div class="dxh"><b>🏆 엔딩 도감</b><span class="dxc">${have === 40 ? '✅ ' : ''}${have} / 40 ${have === 40 ? '완료' : ''}</span></div>
+    <div class="dxf"><button class="${DEXF === 'all' ? 'on' : ''}" data-f="all">👑 전체 ${have}/40</button>${Object.entries(RARE).map(([k, [n, c]]) => `<button class="${DEXF === k ? 'on' : ''}" data-f="${k}" style="--c:${c}">${RIC[k]} ${n} ${cnt(k)}/${tot(k)}</button>`).join('')}</div>
+    <div class="dxb"><span class="dxbi">😄</span><div><b>엔딩은 집·자산·부채·체력·행복·인생의 선택으로 결정돼요.</b><small>${have ? '지금까지 달성한 엔딩을 확인해 보세요!' : '첫 엔딩을 향해 달려 보세요!'}</small></div></div>`;
   for (let pt = 1; pt <= 5; pt++) {
-    h += `<h5 class="pt">${PARTS[pt]}</h5><div class="dex">`;
-    for (const [k, e] of Object.entries(ENDS).filter(([, e]) => e.p === pt)) h += `<button class="de ${d[k] ? 'got' : ''}" data-e="${k}" style="--rc:${RARE[e.r][1]}"><span>${d[k] ? e.ic : '❔'}</span><b>${k.slice(1).padStart(2, '0')}</b><small>${d[k] ? e.t : RARE[e.r][0]}</small></button>`;
-    h += '</div>';
+    const ks = all.filter(k => ENDS[k].p === pt && (DEXF === 'all' || ENDS[k].r === DEXF)); if (!ks.length) continue;
+    const [ic, bg, bd, ac] = PART_STY[pt], g = all.filter(k => ENDS[k].p === pt), gg = g.filter(got).length;
+    h += `<section class="dxs" style="--bg:${bg};--bd:${bd};--ac:${ac}"><div class="dxsh"><b>${ic} ${PARTS[pt].slice(2).trim()}</b><em>${gg} / ${g.length}</em></div><div class="dxg">`;
+    for (const k of ks) { const e = ENDS[k], o = got(k); h += `<button class="dxe ${o ? 'got' : ''}" data-e="${k}" style="--rc:${RARE[e.r][1]}"><span class="dxn">${k.slice(1).padStart(2, '0')}</span><span class="dxi">${o ? e.ic : '❔'}</span><b>${o ? e.t : RARE[e.r][0] + ' 엔딩'}</b></button>`; }
+    h += '</div></section>';
   }
   h += `</div><div class="card"><h4>🏢 아파트 도감</h4><div class="adex">${APTS.map(a => `<div class="${S && S.seen && S.seen[a.id] ? 'got' : ''}"><b>${a.n}</b><small>${GUN[a.gu].n}구 · ${a.y ? a.y + '년' : a.mv ? a.mv + '년 입주' : ''}</small></div>`).join('')}</div><p class="small">임장하거나 매수한 단지가 표시됩니다.</p></div>`;
   el.innerHTML = h;
+  el.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { DEXF = b.dataset.f; renderDexInner(el); });
   el.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { const k = b.dataset.e, e = ENDS[k], rr = RARE[e.r];
     modal(d[k] ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 엔딩 ${k.slice(1)}</div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${k === 'e40' ? E40_HINT : e.d}<br>달성: ${esc(d[k].name)} · ${d[k].mode === 'hist' ? '2015' : '2026'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<div class="evcat" style="color:${rr[1]}">${rr[0]}</div><h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${e.d}</p><button class="btn" data-close>닫기</button>`); });
 }
