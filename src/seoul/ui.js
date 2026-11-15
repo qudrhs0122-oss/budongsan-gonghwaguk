@@ -495,14 +495,14 @@ function renderDexInner(el) {
     const ks = all.filter(k => ENDS[k].p === pt && (DEXF === 'all' || ENDS[k].r === DEXF)); if (!ks.length) continue;
     const [ic, bg, bd, ac] = PART_STY[pt], g = all.filter(k => ENDS[k].p === pt), gg = g.filter(got).length;
     h += `<section class="dxs" style="--bg:${bg};--bd:${bd};--ac:${ac}"><div class="dxsh"><b>${ic} ${PARTS[pt].slice(2).trim()}</b><em>${gg} / ${g.length}</em></div><div class="dxg">`;
-    for (const k of ks) { const e = ENDS[k], o = got(k); h += `<button class="dxe ${o ? 'got' : ''}" data-e="${k}" style="--rc:${RARE[e.r][1]}"><span class="dxn">${k.slice(1).padStart(2, '0')}</span><span class="dxi">${o ? e.ic : '❔'}</span><b>${o ? e.t : RARE[e.r][0] + ' 엔딩'}</b></button>`; }
+    for (const k of ks) { const e = ENDS[k], o = got(k); h += `<button class="dxe ${o ? 'got' : ''}" data-e="${k}" style="--rc:${RARE[e.r][1]}"><span class="dxn">${k.slice(1).padStart(2, '0')}</span><span class="dxim ${o ? '' : 'lock'}"><img src="img/end/${k}.webp" alt="" loading="lazy">${o ? '' : '<i>❔</i>'}</span><b>${o ? e.t : RARE[e.r][0] + ' 엔딩'}</b></button>`; }
     h += '</div></section>';
   }
   h += `</div><div class="card"><h4>🏢 아파트 도감</h4><div class="adex">${APTS.map(a => `<div class="${S && S.seen && S.seen[a.id] ? 'got' : ''}"><b>${a.n}</b><small>${GUN[a.gu].n}구 · ${a.y ? a.y + '년' : a.mv ? a.mv + '년 입주' : ''}</small></div>`).join('')}</div><p class="small">임장하거나 매수한 단지가 표시됩니다.</p></div>`;
   el.innerHTML = h;
   el.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { DEXF = b.dataset.f; renderDexInner(el); });
   el.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { const k = b.dataset.e, e = ENDS[k], rr = RARE[e.r];
-    modal(d[k] ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 엔딩 ${k.slice(1)}</div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${k === 'e40' ? E40_HINT : e.d}<br>달성: ${esc(d[k].name)} · ${d[k].mode === 'hist' ? '2015' : '2026'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<div class="evcat" style="color:${rr[1]}">${rr[0]}</div><h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${e.d}</p><button class="btn" data-close>닫기</button>`); });
+    modal(d[k] ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 엔딩 ${k.slice(1)}</div><div class="eimg sm"><img src="img/end/${k}.webp" alt=""></div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${k === 'e40' ? E40_HINT : e.d}<br>달성: ${esc(d[k].name)} · ${d[k].mode === 'hist' ? '2015' : '2026'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<div class="evcat" style="color:${rr[1]}">${rr[0]}</div><h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${e.d}</p><button class="btn" data-close>닫기</button>`); });
 }
 
 // ---------- 진행 ----------
@@ -625,7 +625,7 @@ function renderEnding() {
   const k = S.ended, e = ENDS[k]; unlockEnding(k); stat('ending', k);
   const d = store.get('_dex', {});
   const homes = S.props.filter(p => p.kind === 'buy');
-  $('#app').innerHTML = `<div class="ending fade p${e.p}"><div class="ekick"><span class="rbadge" style="background:${RARE[e.r][1]}">${RARE[e.r][0]}</span> ${PARTS[e.p].slice(2)} · 엔딩 ${k.slice(1)}/40</div><div class="eic">${e.ic}</div><h2>${e.t}</h2><p class="story">${e.s}</p>
+  $('#app').innerHTML = `<div class="ending fade p${e.p}"><div class="ekick"><span class="rbadge" style="background:${RARE[e.r][1]}">${RARE[e.r][0]}</span> ${PARTS[e.p].slice(2)} · 엔딩 ${k.slice(1)}/40</div><div class="eimg"><img src="img/end/${k}.webp" alt="${esc(e.t)}"></div><h2>${e.ic} ${e.t}</h2><p class="story">${e.s}</p>
     <div class="card"><h4>📋 ${esc(S.name)}의 부동산 인생 결산</h4><table class="qt"><tr><td>기간</td><td>${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년 (${Math.max(1, Math.ceil(S.t / 2))}년)</td></tr><tr><td>나이</td><td>${ageOf(Math.min(S.t, MAXT - 1))}세</td></tr><tr><td>최종 순자산</td><td><b>${won(nw())}</b></td></tr><tr><td>보유 주택</td><td>${homes.map(p => esc(aptName(p))).join(', ') || '없음'}</td></tr><tr><td>총부채</td><td>${won(debtTotal())}</td></tr><tr><td>체력 / 행복</td><td>${S.hp} / ${S.happy}</td></tr><tr><td>투잡 / 쓰리잡 / 승진</td><td>${S.w.two}번 / ${S.w.three}번 / ${S.promos}번</td></tr><tr><td>주식 (평가금)</td><td>${won(stockValue())}</td></tr><tr><td>갈아타기 / 청약 당첨</td><td>${S.st.flips}회 / ${S.st.chWin}회</td></tr></table></div>
     <p class="small">엔딩 도감 ${Object.keys(d).length}/40 수집</p>
     <button class="btn pri big" id="again">🔁 인생 다시 살기</button><button class="btn" id="dex">📖 엔딩 도감</button><button class="btn ghost" id="share">📤 결과 공유</button><a class="other" href="/">← aptgame.kr 다른 게임</a></div>`;
