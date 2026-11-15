@@ -5,7 +5,7 @@
 //   SESSION_SECRET       세션 쿠키 서명용 임의 문자열 (없으면 서버 재시작 때마다 로그아웃됨)
 //   SITE_ORIGIN          기본 https://aptgame.kr
 //   GH_TOKEN, GH_REPO    (선택) 랭킹 데이터를 GitHub 저장소 data 브랜치에 영구 보관 (예: qudrhs0122-oss/aptgame-data)
-// 저장하는 정보: 카카오 회원번호를 서명키로 해시한 값(원본 번호 저장 안 함), 랭킹 닉네임, 게임별 최고 점수
+// 저장하는 정보: 카카오 회원번호를 서명키로 해시한 값(원본 번호 저장 안 함), 랭킹 닉네임, 게임별 최고 점수, 게임별 엔딩 도감
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -25,7 +25,7 @@ const GAMES = {
   seoul: { n: '나의 첫 번째 서울 아파트 구하기', unit: '억', min: -1000, max: 5000 },
 };
 
-let DB = { users: {}, scores: {} };
+let DB = { users: {}, scores: {}, dex: {} };
 let ghSha = null;
 
 function weekKey(d = new Date()) {
@@ -55,7 +55,7 @@ async function load() {
       try { DB = JSON.parse(Buffer.from(r.j.content, 'base64').toString('utf8')); } catch (e) {}
     }
   }
-  DB.users = DB.users || {}; DB.scores = DB.scores || {};
+  DB.users = DB.users || {}; DB.scores = DB.scores || {}; DB.dex = DB.dex || {};
 }
 let saveT = null, dirtyGH = false, ghT = null;
 function save() {
@@ -167,7 +167,7 @@ async function handle(req, res, p, url, json, body) {
 
   if (p === '/api/me' && req.method === 'GET') {
     const u = userOf(req);
-    json(res, 200, { ready: !!process.env.KAKAO_REST_KEY, user: u ? { nick: u.nick, created: u.created, best: Object.fromEntries(Object.keys(GAMES).map(g => [g, (DB.scores[g] || {})[u.uid] ? DB.scores[g][u.uid].best : null])) } : null });
+    json(res, 200, { ready: !!process.env.KAKAO_REST_KEY, user: u ? { id: u.uid.slice(1, 13), nick: u.nick, created: u.created, best: Object.fromEntries(Object.keys(GAMES).map(g => [g, (DB.scores[g] || {})[u.uid] ? DB.scores[g][u.uid].best : null])) } : null });
     return true;
   }
   if (p === '/api/me' && req.method === 'POST') {
@@ -179,7 +179,7 @@ async function handle(req, res, p, url, json, body) {
   }
   if (p === '/api/me/delete' && req.method === 'POST') {
     const u = userOf(req); if (!u) { json(res, 401, { ok: false }); return true; }
-    delete DB.users[u.uid]; Object.values(DB.scores).forEach(t => delete t[u.uid]); save();
+    delete DB.users[u.uid]; delete DB.dex[u.uid]; Object.values(DB.scores).forEach(t => delete t[u.uid]); save();
     setCookie(res, '', 0); json(res, 200, { ok: true }); return true;
   }
   if (p === '/api/score' && req.method === 'POST') {
@@ -190,6 +190,20 @@ async function handle(req, res, p, url, json, body) {
     if (!r) { json(res, 400, { ok: false }); return true; }
     const bd = board(String(b.g), 'week', u.uid);
     json(res, 200, { ok: true, ...r, weekRank: bd.me && bd.me.rank, weekTotal: bd.total }); return true;
+  }
+  if (p === '/api/dex') { // 계정별 엔딩 도감
+    const u = userOf(req); if (!u) { json(res, 401, { ok: false, error: 'login' }); return true; }
+    const g = String((req.method === 'GET' ? url.searchParams.get('g') : '') || ''), mine = DB.dex[u.uid] = DB.dex[u.uid] || {};
+    if (req.method === 'GET') { if (!GAMES[g]) { json(res, 400, { ok: false }); return true; } json(res, 200, { ok: true, dex: mine[g] || {} }); return true; }
+    const b = await body(req), gg = String(b.g || ''); if (!GAMES[gg] || !b.d || typeof b.d !== 'object') { json(res, 400, { ok: false }); return true; }
+    const d = mine[gg] = mine[gg] || {}; let add = 0;
+    for (const [k, v] of Object.entries(b.d).slice(0, 120)) {
+      if (!/^[\w-]{1,16}$/.test(k) || Object.keys(d).length >= 120) continue;
+      const t = Math.min(Date.now(), Number(v && v.t) || Date.now());
+      if (!d[k] || t < d[k].t) { d[k] = { t, name: String(v && v.name || '').replace(/[<>]/g, '').slice(0, 12), mode: v && v.mode === 'hist' ? 'hist' : 'real', nw: Number.isFinite(+(v && v.nw)) ? Math.round(+v.nw * 100) / 100 : null }; add++; }
+    }
+    if (add) save();
+    json(res, 200, { ok: true, dex: d }); return true;
   }
   if (p === '/api/board') {
     const g = String(url.searchParams.get('g') || 'seoul'); if (!GAMES[g]) { json(res, 400, { ok: false }); return true; }

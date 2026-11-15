@@ -105,9 +105,9 @@ function endingCands() {
   return C;
 }
 function chooseEnding() {
-  const C = endingCands(), got = store.get('_dex', {});
+  const C = endingCands(), got = dexGet();
   const top = Math.max(...C.map(k => RANK[ENDS[k].r]));
   const best = C.filter(k => RANK[ENDS[k].r] === top);
   return best.find(k => !got[k]) || best[0];
 }
-function unlockEnding(k) { const d = store.get('_dex', {}); if (!d[k]) d[k] = { t: Date.now(), name: S.name, nw: nw(), mode: S.mode }; store.set('_dex', d); }
+function unlockEnding(k) { dexAdd(k, { t: Date.now(), name: S.name, nw: nw(), mode: S.mode }); }

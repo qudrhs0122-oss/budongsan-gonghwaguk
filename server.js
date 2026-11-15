@@ -226,7 +226,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 카카오 로그인 · 계정 랭킹
-  if (p.startsWith('/auth/') || p === '/api/me' || p === '/api/me/delete' || p === '/api/score' || p === '/api/board') {
+  if (p.startsWith('/auth/') || p === '/api/me' || p === '/api/me/delete' || p === '/api/score' || p === '/api/board' || p === '/api/dex') {
     if (await accounts.handle(req, res, p, url, json, body)) return;
   }
 

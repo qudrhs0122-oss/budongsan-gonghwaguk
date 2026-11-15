@@ -16,20 +16,51 @@ function spark(arr, w = 120, h = 34) {
 function chg(id, n = 2) { const h = S.hist[id]; if (!h || h.length <= n) return 0; return (h[h.length - 1] / h[h.length - 1 - n] - 1) * 100; }
 
 // ---------- 타이틀 ----------
+// ---------- 계정별 엔딩 도감 ----------
+let ACC = null, ACC_READY = false, ACC_DONE = false;
+const DEXK = () => ACC ? '_dex_' + ACC.id : '_dex';
+const dexGet = () => store.get(DEXK(), {});
+function dexAdd(k, rec) {
+  const d = dexGet(); if (d[k]) return; d[k] = rec; store.set(DEXK(), d);
+  if (ACC && window.APT) APT.dexPut('seoul', { [k]: rec });
+}
+async function accInit() {
+  for (let i = 0; i < 30 && !window.APT; i++) await new Promise(r => setTimeout(r, 100));
+  if (!window.APT) { ACC_DONE = true; return; }
+  const m = await APT.me(); ACC_READY = !!m.ready; ACC = m.user && m.user.id ? { id: m.user.id, nick: m.user.nick } : null;
+  if (ACC) {
+    const d = dexGet();
+    if (!store.get('_dexMoved_' + ACC.id, false)) { // 로그인 전 이 기기에서 모은 엔딩은 처음 로그인한 계정으로 한 번 옮김
+      const g = store.get('_dex', {}); for (const k in g) if (!d[k]) d[k] = g[k];
+      store.set('_dexMoved_' + ACC.id, true);
+    }
+    const r = await APT.dexGet('seoul');
+    if (r.ok) for (const [k, v] of Object.entries(r.dex || {})) if (!d[k] || v.t < d[k].t) d[k] = v;
+    store.set(DEXK(), d);
+    const up = Object.fromEntries(Object.entries(d).filter(([k]) => !(r.dex || {})[k]));
+    if (Object.keys(up).length) APT.dexPut('seoul', up);
+  }
+  ACC_DONE = true;
+}
 function renderTitle() {
-  const sv = store.get('_save', null), dex = store.get('_dex', {});
+  const sv = store.get('_save', null), dex = dexGet(), gate = ACC_DONE && !ACC && ACC_READY && !sessionStorage.getItem('apt_guest');
   const cont = sv && !sv.ended;
   $('#app').innerHTML = `<div class="title2 fade">
     <h1 class="sr">나의 첫 번째 서울 아파트 구하기 — 월급쟁이로 시작해 서울에 내 집 한 채, 40가지 인생</h1>
     <img class="tt" src="img/title_top.webp" alt="나의 첫 번째 서울 아파트 구하기. 서울 25개 구, 실존 단지 30곳, 4가지 전략, 엔딩 40종">
     <div class="tmid">
+      ${gate ? `<div class="tlogin"><b>🔐 카카오로 로그인하고 시작하세요</b><p>모은 엔딩이 내 계정에 저장돼서, 폰을 바꾸거나 다른 기기에서도 그대로 볼 수 있어요.</p>
+        <a class="tkakao" href="${APT.loginUrl('/seoul/')}">${APT.KAKAO_SVG}카카오로 시작하기</a><button class="tguest" id="bGuest">로그인 없이 이 기기에서만 하기</button></div>` : `
+      ${ACC ? `<div class="tacc">👤 <b>${esc(ACC.nick)}</b>님의 엔딩 도감 · <a href="${APT.logoutUrl('/seoul/')}">로그아웃</a></div>` : ACC_DONE && ACC_READY ? `<div class="tacc">게스트로 플레이 중 · <a href="${APT.loginUrl('/seoul/')}">카카오 로그인하고 엔딩 저장 ›</a></div>` : ''}
       ${cont ? `<button class="tbtn gold" id="bCont"><span>▶ 이어하기</span><small>${esc(sv.name)} · ${sv.startYear + Math.floor(sv.t / 2)}년 ${sv.t % 2 ? '하반기' : '상반기'} (CH ${Math.min(10, Math.floor(sv.t / 4) + 1)}/10)</small></button>` : ''}
       <button class="tbtn ${cont ? 'sub2' : 'gold'}" id="bNew"><span>🏠 ${cont ? '새 인생 시작' : '지금, 나만의 서울 아파트 인생을 시작하세요!'} ▶</span></button>
-      <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).filter(k => ENDS[k]).length}/40) ›</span></button>
+      <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).filter(k => ENDS[k]).length}/40) ›</span></button>`}
     </div>
     <img class="tb" src="img/title_bot.webp" alt="갭투자, 분양권, 입주권, 구축 투자 — 실제 아파트 기반 시뮬레이션, 현실적인 이벤트와 위기, 총 40가지 엔딩">
     <div class="tfoot"><p>게임 속 시세·수익률은 실제 공개 자료를 참고한 <b>게임용 시뮬레이션 수치</b>이며 미래 시세 예측이나 투자 권유가 아닙니다. 단지 이름은 실제 장소, 그 외 인물·사건은 가상입니다.</p><a href="/">← aptgame.kr 다른 부동산 게임</a></div>
   </div>`;
+  if ($('#bGuest')) $('#bGuest').onclick = () => { sessionStorage.setItem('apt_guest', '1'); renderTitle(); };
+  if (gate) return;
   if ($('#bCont')) $('#bCont').onclick = () => { S = sv; migrate(); renderGame(); };
   $('#bNew').onclick = () => { renderSetup(); };
   $('#bDex').onclick = () => renderDexPage(renderTitle);
@@ -514,7 +545,7 @@ let DEXF = 'all';
 const PART_STY = { 1: ['🏠', '#fdecef', '#f3c3cc', '#e5677d'], 2: ['💼', '#eaf7ec', '#bfe3c6', '#3f9c58'], 3: ['📈', '#e8f1ff', '#bcd2f5', '#3f6ae8'], 4: ['⚠️', '#f0ecff', '#d5cbf5', '#7a5ce0'], 5: ['🌱', '#fff3e3', '#f3d6a8', '#d08a1c'] };
 const RIC = { n: '', r: '⭐', e: '💎', l: '👑', h: '🔒' };
 function renderDexInner(el) {
-  const d = store.get('_dex', {}), got = k => !!d[k];
+  const d = dexGet(), got = k => !!d[k];
   const all = Object.keys(ENDS), have = all.filter(got).length;
   const cnt = r => all.filter(k => ENDS[k].r === r && got(k)).length, tot = r => all.filter(k => ENDS[k].r === r).length;
   let h = `<div class="dx"><div class="dxh"><b>🏆 엔딩 도감</b><span class="dxc">${have === 40 ? '✅ ' : ''}${have} / 40 ${have === 40 ? '완료' : ''}</span></div>
@@ -673,7 +704,7 @@ function showAd(cb, inter, tag) {
 function endCine() { cine({ k: 'THE END', t: `${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년`, s: '당신의 부동산 인생, 그 결말은…', ms: 2600 }, renderEnding); }
 function renderEnding() {
   const k = S.ended, e = ENDS[k]; unlockEnding(k); stat('ending', k);
-  const d = store.get('_dex', {});
+  const d = dexGet();
   const homes = S.props.filter(p => p.kind === 'buy');
   $('#app').innerHTML = `<div class="ending fade p${e.p}"><div class="ekick"><span class="rbadge" style="background:${RARE[e.r][1]}">${RARE[e.r][0]}</span> ${PARTS[e.p].slice(2)} · 엔딩 ${k.slice(1)}/40</div><div class="eimg"><img src="img/end/${k}.webp" alt="${esc(e.t)}"></div><h2>${e.ic} ${e.t}</h2><p class="story">${e.s}</p>
     <div class="card"><h4>📋 ${esc(S.name)}의 부동산 인생 결산</h4><table class="qt"><tr><td>기간</td><td>${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년 (${Math.max(1, Math.ceil(S.t / 2))}년)</td></tr><tr><td>나이</td><td>${ageOf(Math.min(S.t, MAXT - 1))}세</td></tr><tr><td>최종 순자산</td><td><b>${won(nw())}</b></td></tr><tr><td>보유 주택</td><td>${homes.map(p => esc(aptName(p))).join(', ') || '없음'}</td></tr><tr><td>총부채</td><td>${won(debtTotal())}</td></tr><tr><td>체력 / 행복</td><td>${S.hp} / ${S.happy}</td></tr><tr><td>투잡 / 쓰리잡 / 승진</td><td>${S.w.two}번 / ${S.w.three}번 / ${S.promos}번</td></tr><tr><td>주식 (평가금)</td><td>${won(stockValue())}</td></tr><tr><td>갈아타기 / 청약 당첨</td><td>${S.st.flips}회 / ${S.st.chWin}회</td></tr></table></div>

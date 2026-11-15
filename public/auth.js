@@ -66,7 +66,11 @@
     else { a.className = 'apt-chip out'; a.href = loginUrl(); a.textContent = '카카오 로그인'; }
     nav.appendChild(a);
   }
-  window.APT = { me, endCard, loginUrl, toast, fmt, esc, GAME_NAME };
+  // 계정별 엔딩 도감
+  const dexGet = g => fetch(BASE + '/api/dex?g=' + g, { credentials: 'include', cache: 'no-store' }).then(r => r.json()).catch(() => ({ ok: false }));
+  const dexPut = (g, d) => fetch(BASE + '/api/dex', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ g, d }) }).then(r => r.json()).catch(() => ({ ok: false }));
+  const logoutUrl = next => BASE + '/auth/logout?next=' + encodeURIComponent(next || location.pathname);
+  window.APT = { me, endCard, loginUrl, logoutUrl, toast, fmt, esc, GAME_NAME, dexGet, dexPut, KAKAO_SVG };
   const go = () => { flushPending(); headerChip(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
 })();
