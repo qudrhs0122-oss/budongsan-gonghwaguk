@@ -127,6 +127,7 @@ function hud() {
 function renderGame() {
   if (S.ended) return renderEnding();
   migrate();
+  if (NEXTACT) setTimeout(() => { if (NEXTACT && !$('#modal').classList.contains('on') && !document.querySelector('.cine')) { const f = NEXTACT; NEXTACT = null; f(); } }, 30);
   const ti = TAB_ORD.indexOf(TAB), pi = renderGame.prev == null ? ti : TAB_ORD.indexOf(renderGame.prev), sl = ti > pi ? 'slr' : ti < pi ? 'sll' : 'fade'; renderGame.prev = TAB;
   $('#app').innerHTML = `${hud()}<div id="tab" class="${sl}"></div>
     <nav class="bnav"><button data-t="home" class="${TAB === 'home' ? 'on' : ''}">🏠<span>이번 반기</span></button><button data-t="map" class="${TAB === 'map' ? 'on' : ''}">🗺️<span>서울 지도</span></button><button data-t="assets" class="${TAB === 'assets' ? 'on' : ''}">💼<span>자산</span></button><button data-t="dex" class="${TAB === 'dex' ? 'on' : ''}">📖<span>기록</span></button>
@@ -283,7 +284,7 @@ function tabHome() {
   if ($('#chT')) $('#chT').onclick = () => { S.plan.ch = !S.plan.ch; save(); tabHome(); toast(S.plan.ch ? '🎟️ 다음 반기에 청약을 넣어요' : '청약 신청을 취소했어요'); };
   if ($('#stkT')) $('#stkT').onclick = stockModal;
 }
-let STKSEL = null;
+let STKSEL = null, NEXTACT = null;
 function stockModal() {
   stockInit();
   const KN = { blue: ['🏛️ 우량주·지수', '변동 작음'], growth: ['🚀 성장주', '크게 오르내림'], coin: ['🪙 가상자산', '초고위험'], lev: ['🎢 레버리지', '강제 청산 위험'] };
@@ -588,16 +589,36 @@ function onNext() {
   if (F.loanPay + F.credit) flow.push(['🏦 대출 상환·이자', -(F.loanPay + F.credit), '#e5484d', '−' + wonS(F.loanPay + F.credit)]);
   if (F.tax) flow.push(['🧾 보유세', -F.tax, '#e5484d', '−' + wonS(F.tax)]);
   const have = S.cash + (S.res.type !== 'own' ? S.res.dep - S.res.loan : 0);
-  modal(`<div class="evcat">${when(S.t - 1)} 결과${newCh ? ` · 📖 CHAPTER ${chapterOf() + 1} 시작` : ''}</div><h3>${mood} ${head}</h3>
-    <div class="kpi3"><div class="${dc >= 0 ? 'pos' : 'neg'}"><span>💰</span><small>현금</small><b>${dc >= 0 ? '+' : ''}${wonS(dc)}</b></div><div class="${d >= 0 ? 'pos' : 'neg'}"><span>📊</span><small>순자산</small><b>${d >= 0 ? '+' : ''}${wonS(d)}</b></div><div class="${R.g >= 0 ? 'up' : 'dn'}"><span>🏠</span><small>서울 집값</small><b>${pct(R.g)}</b></div></div>
-    <div class="rsec"><div class="rsh">💸 이번 반기 돈의 흐름 <small>남은 돈 <b class="${dc >= 0 ? 'pos' : 'neg'}">${dc >= 0 ? '+' : ''}${won(dc)}</b></small></div>${hbars(flow)}</div>
-    <div class="rsec two">${gauge('⚡ 체력', S.hp, S.hp - hp0, S.hp < 25 ? '#e5484d' : '#22c55e')}${gauge('❤️ 행복', S.happy, 0, '#f5b72f')}</div>
-    ${!own ? `<div class="rsec"><div class="rsh">🏠 첫 집까지 <small>${gp.short > 0 ? `<b class="neg">${won(gp.short)} 부족</b>` : '<b class="pos">지금 살 수 있어요!</b>'}</small></div><div class="gt big"><i style="width:${clamp(have / Math.max(.01, have + gp.short) * 100, 2, 100)}%;background:linear-gradient(90deg,#4f7bf0,#7c5cf0)"></i></div><div class="g3f"><span>💰 내 돈 <b class="bl">${won(have)}</b></span><span>🎯 필요 <b class="rd">${won(have + gp.short)}</b></span></div></div>` : ''}
-    <div class="rsec"><div class="rsh">📈 순자산 추이</div>${lineChart(S.hn)}</div>
-    <details class="more"><summary>자세한 소식 ${[...R.work.lines, ...r.msgs].length}건</summary><ul class="rep">${[...R.work.lines, ...r.msgs].map(m => `<li>${esc(m)}</li>`).join('')}${S.lastFlow ? `<li>💰 월급 ${won(S.lastFlow.inc)} − 생활비·주거비·이자 ${won(S.lastFlow.inc - S.lastFlow.net)}</li>` : ''}</ul></details>
-    <p class="nextq"><b>다음 선택:</b> ${!own && gp.short <= 0 ? '드디어 첫 집! 아파트를 보러 갈까?' : S.hp < 30 ? '이번엔 쉬어야 하지 않을까?' : !own ? '더 벌까, 불릴까, 청약을 넣을까?' : '버틸까, 갈아탈까?'}</p>
-    <button class="btn pri" id="ok">${r.ev || R.crisis ? '다음 이야기 ▶' : '확인'}</button>`);
-  $('#ok').onclick = () => { closeModal(); newCh ? cineChapter(after) : after(); };
+  const job = S.biz ? '사장님' : ['평범한 직장인', '대리', '과장', '차장', '부장', '임원'][Math.min(S.promos || 0, 5)];
+  const sub = !own && gp.short <= 0 ? '드디어 첫 집을 살 수 있어요!' : own ? '내 집에서 다음 목표로!' : chapterOf() < 2 ? '서울 내 집 마련을 향한 첫걸음!' : '서울 내 집 마련, 조금만 더!';
+  const lv = liveHome(), news = r.msgs.filter(m => !/^📈 주식 계좌/.test(m));
+  const all = [...R.work.lines, ...r.msgs], mkt = news.length ? news : [S.phase === 'up' ? '서울 아파트 매매가, 상승세 이어져' : S.phase === 'down' ? '서울 아파트 매매가, 하락 조정 중' : '서울 아파트 매매가, 보합세', `기준금리 ${S.rate.toFixed(2)}%`];
+  const stat = (cls, ic, l, v, extra = '') => `<div class="rst ${cls}"><small>${ic} ${l}</small><b>${v}</b>${extra}</div>`;
+  const dl = (cls, ic, l, v) => `<div class="rdl ${cls}"><span>${ic}</span><small>${l}</small><b>${v}</b></div>`;
+  modal(`<div class="rhero"><img class="rhimg" src="img/res/hero.webp" alt=""><span class="rch">📖 CH ${chapterOf() + 1}/10</span>
+      <div class="rhwhen">📅 ${yearOf()}년 <em>${halfOf(S.t)}</em></div><div class="rhsub">${sub}</div>
+      <div class="rhwho"><img src="${gimg('face')}" alt=""><div><b>${esc(S.name || '나')}, ${ageOf()}세</b><small>💼 ${job}${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</small></div></div></div>
+    <div class="rstats">${stat('c1', '💰', '현금', wonS(S.cash))}${stat('c2', '📊', '순자산', wonS(nw()))}${stat('c3', '⚡', '체력', `${S.hp}<i>/100</i>`, bar(S.hp, 'hp'))}${stat('c4', '❤️', '행복', `${S.happy}<i>/100</i>`, bar(S.happy, 'hap'))}</div>
+    <div class="rrow"><div class="rcard rres"><div class="rrib">🏆 ${when(S.t - 1)} 결과</div><div class="rhead">${mood} <b>${head}</b></div>
+        <div class="rdls">${dl(dc >= 0 ? 'pos' : 'neg', '💰', '현금', (dc >= 0 ? '+' : '') + wonS(dc))}${dl(d >= 0 ? 'pos2' : 'neg', '📊', '순자산', (d >= 0 ? '+' : '') + wonS(d))}${dl(R.g >= 0 ? 'up' : 'dn', '🏠', '서울 집값', pct(R.g))}</div></div>
+      <div class="rcard rhome"><img src="img/res/apt.webp" alt=""><div class="rhb"><b>📍 ${own ? '나의 집' : '나의 첫 집까지'}</b>${own ? `<small>${esc(aptName(lv || S.props.find(p => p.kind === 'buy')))}</small>` : `<div class="gt"><i style="width:${clamp(have / Math.max(.01, have + gp.short) * 100, 3, 100)}%"></i></div><small class="${gp.short > 0 ? 'neg' : 'pos'}">${gp.short > 0 ? won(gp.short) + ' 부족' : '지금 살 수 있어요!'}</small>`}</div></div></div>
+    <div class="rcard"><div class="rsh">🪙 이번 반기 돈의 흐름 <span class="rleft ${dc >= 0 ? 'pos' : 'neg'}">남은 돈 <b>${dc >= 0 ? '+' : ''}${wonS(dc)}</b></span></div>${hbars(flow)}</div>
+    <div class="rrow2"><div class="rcard"><div class="rsh">📈 순자산 추이 <span class="rtag">${wonS(nw())}</span></div>${lineChart(S.hn, { w: 200, h: 80 })}</div>
+      <details class="rcard rnews"><summary><div class="rsh">📰 시장 소식 <span class="rnew">${all.length ? '신규 ' + all.length + '건' : '조용한 반기'}</span></div><ul>${mkt.slice(0, 2).map(m => `<li>${esc(m)}</li>`).join('')}</ul><small class="rmore">눌러서 전체 보기 ›</small></summary><ul class="rep">${all.map(m => `<li>${esc(m)}</li>`).join('')}${S.lastFlow ? `<li>💰 월급 ${won(S.lastFlow.inc)} − 생활비·주거비·이자 ${won(S.lastFlow.inc - S.lastFlow.net)}</li>` : ''}</ul></details></div>
+    <div class="rcard rnext"><div class="rsh">🪧 다음 선택! 어떻게 할까요?</div><div class="rnx">
+      <button data-nx="earn" class="n1"><img src="img/res/earn.webp" alt=""><b>더 벌까?</b><small>투잡 · 이직 · 창업</small></button>
+      <button data-nx="grow" class="n2"><img src="img/res/grow.webp" alt=""><b>불릴까?</b><small>주식 · 코인 · 재테크</small></button>
+      <button data-nx="home" class="n3"><img src="img/res/cheong.webp" alt=""><b>${own ? '갈아탈까?' : '청약을 넣을까?'}</b><small>${own ? '매도 · 매수 · 갈아타기' : '분양 · 재개발 · 재건축'}</small></button></div></div>
+    <button class="btn rgo" id="ok">${r.ev || R.crisis ? '다음 이야기' : '다음 반기로'} <span>»</span></button>`, 'rpage');
+  const proceed = () => { closeModal(); newCh ? cineChapter(after) : after(); };
+  $('#ok').onclick = proceed;
+  document.querySelectorAll('[data-nx]').forEach(b => b.onclick = () => {
+    const k = b.dataset.nx;
+    NEXTACT = k === 'grow' ? () => { STKSEL = null; stockModal(); }
+      : k === 'home' ? () => { if (!own && isHomeless()) { S.plan.ch = true; save(); TAB = 'home'; renderGame(); toast('🎟️ 이번 반기 청약 신청! 아래 청약 타일에 체크됐어요'); } else { TAB = 'map'; renderGame(); toast('🗺️ 지도에서 노릴 아파트를 골라보세요'); } }
+      : () => { TAB = 'home'; renderGame(); const w = $('.wlist'); w && w.scrollIntoView({ behavior: 'smooth', block: 'center' }); toast('💼 이번 반기 일하는 방식을 골라보세요'); };
+    proceed();
+  });
 }
 function crisisModal(c, next) {
   modal(`<div class="evcat breaking">긴급 속보</div>${evBanner('crisis', ['📉', '⚠️', '💥'])}<h3>💥 ${esc(c.t)}</h3><p>${esc(c.d)}</p>
