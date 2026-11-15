@@ -219,14 +219,34 @@ function stockModal() {
 }
 
 // ---------- 지도 ----------
+const TIERC = { 1: '#f9c6d4', 2: '#f8d2ae', 3: '#f8e6a3', 4: '#cdeac0', 5: '#c8dbf5' };
+function skyStrip(w, h) { // 지도 아래 강변 풍경
+  let b = ''; const xs = [10, 30, 46, 70, 92, 120, 150, 176, 200, 228, 252, 276, 300, 322, 350];
+  xs.forEach((x, i) => { const ht = 16 + ((i * 37) % 30), wd = 12 + (i % 3) * 3; b += `<rect x="${x}" y="${h - 14 - ht}" width="${wd}" height="${ht}" rx="1.5" fill="${i % 2 ? '#c4cdf0' : '#d8dff7'}"/>`; for (let y = h - 10 - ht; y < h - 18; y += 6) b += `<rect x="${x + 3}" y="${y}" width="${wd - 6}" height="2" fill="#fff" opacity=".7"/>`; });
+  b += `<path d="M${w - 50},${h - 14} L${w - 46},${h - 78} L${w - 42},${h - 14}Z" fill="#b9c6ea"/>`;
+  const trees = Array.from({ length: 14 }, (_, i) => `<circle cx="${8 + i * 28}" cy="${h - 12 - (i % 2) * 3}" r="${9 + (i % 3)}" fill="${i % 2 ? '#8fcf86' : '#a7dc9b'}"/>`).join('');
+  return `<g opacity=".9">${b}</g><rect x="0" y="${h - 12}" width="${w}" height="12" fill="#9fd0f0"/><path d="M0,${h - 12} H${w}" stroke="#7bbbe6" stroke-width="2"/>${trees}`;
+}
+function seoulSVG(cnt, okGu) {
+  const M = SEOUL_MAP, H = M.h + 40;
+  const shapes = GU.map(g => { const p = M.g[g.id]; if (!p) return ''; const ok = okGu[g.id];
+    return `<g class="gg ${ok ? 'ok' : ''} ${cnt[g.id] ? '' : 'none'}" data-gu="${g.id}"><path d="${p.d}" fill="${TIERC[g.t]}" stroke="${ok ? '#18a33a' : '#fff'}" stroke-width="${ok ? 3 : 1.6}" stroke-linejoin="round"/></g>`; }).join('');
+  const labels = GU.map(g => { const p = M.g[g.id]; if (!p) return ''; const fs = g.n.length >= 3 ? 10.5 : 11.5;
+    return `<g class="gl" data-gu="${g.id}"><text x="${p.x}" y="${p.y + 3}" font-size="${fs}" text-anchor="middle">${g.n}${g.n.endsWith('구') ? '' : '구'}</text>${cnt[g.id] ? `<g transform="translate(${p.x + (g.n.length + 1) * 6.2 + 3},${p.y - 9})"><circle r="6.5" fill="#6b5ad8"/><text y="3" font-size="8.5" fill="#fff" text-anchor="middle" font-weight="800">${cnt[g.id]}</text></g>` : ''}</g>`; }).join('');
+  return `<svg class="smap" viewBox="-6 -6 ${M.w + 12} ${H}"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#6a5fb0" flood-opacity=".25"/></filter></defs>
+    <g transform="translate(0,${H - 92})">${skyStrip(M.w, 86)}</g>
+    <g filter="url(#sh)">${shapes}</g>
+    <path d="${M.han}" fill="none" stroke="#9fd2f5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".95"/><path d="${M.han}" fill="none" stroke="#c8e7fb" stroke-width="4" stroke-dasharray="6 9" stroke-linecap="round" opacity=".9"/>
+    <g class="okl2">${GU.filter(g => okGu[g.id]).map(g => `<path d="${M.g[g.id].d}" fill="none" stroke="#18a33a" stroke-width="3" stroke-linejoin="round"/>`).join('')}</g>${labels}</svg>`;
+}
 function tabMap() {
   if (MAPGU) return mapList(MAPGU);
-  const cnt = {}; for (const a of APTS) if (S.avail[a.id]) cnt[a.gu] = (cnt[a.gu] || 0) + 1;
-  const okGu = {}; for (const a of APTS) if (S.avail[a.id] && a.kind === 'buy' && buyQuote(a.id, 'live').ok) okGu[a.gu] = 1;
-  $('#tab').innerHTML = `<div class="card"><h4>🗺️ 서울 25개 구 <small>구를 눌러 매물 보기</small></h4>
-    <div class="seoul">${GU.map(g => `<button class="gu t${g.t} ${okGu[g.id] ? 'ok' : ''} ${cnt[g.id] ? '' : 'none'}" style="grid-row:${g.r + 1};grid-column:${g.c + 1}" data-gu="${g.id}">${g.n}${cnt[g.id] ? `<i>${cnt[g.id]}</i>` : ''}</button>`).join('')}<div class="han"></div></div>
-    <div class="legend"><span class="t1">1급지</span><span class="t2">2</span><span class="t3">3</span><span class="t4">4</span><span class="t5">5급지</span><span class="okl">초록 테두리 = 지금 살 수 있는 단지 있음</span></div></div>
-    <div class="card"><div class="filt">${[['all', '전체'], ['buy', '매매'], ['bun', '분양권'], ['ipj', '입주권']].map(([k, l]) => `<button class="${FILTER === k ? 'on' : ''}" data-f="${k}">${l}</button>`).join('')}<label><input type="checkbox" id="okOnly" ${ONLYOK ? 'checked' : ''}> 살 수 있는 곳만</label></div>
+  const cnt = {}; for (const a of APTS) if (S.avail[a.id] && (FILTER === 'all' || a.kind === FILTER)) cnt[a.gu] = (cnt[a.gu] || 0) + 1;
+  const okGu = {}; for (const a of APTS) if (S.avail[a.id] && (FILTER === 'all' || a.kind === FILTER) && canAfford(a)) okGu[a.gu] = 1;
+  $('#tab').innerHTML = `<div class="card mapc"><div class="mhead"><span class="mic">🏙️</span><div><b>서울 25개 구</b><small>📍 구를 눌러 매물 보기</small></div></div>
+    ${seoulSVG(cnt, okGu)}
+    <div class="mleg">${[1, 2, 3, 4, 5].map(t => `<span style="background:${TIERC[t]}">${t}급지</span>`).join('')}<em><i></i>초록 테두리 = 지금 살 수 있는 단지 있음</em></div></div>
+    <div class="card"><div class="filt2">${[['all', '전체'], ['buy', '매매'], ['bun', '분양권'], ['ipj', '입주권']].map(([k, l]) => `<button class="${FILTER === k ? 'on' : ''}" data-f="${k}">${l}</button>`).join('')}<label><input type="checkbox" id="okOnly" ${ONLYOK ? 'checked' : ''}> 살 수 있는 곳만</label></div>
     <div id="alist">${aptRows(APTS.filter(a => S.avail[a.id] && (FILTER === 'all' || a.kind === FILTER)).sort((a, b) => price(a.id) - price(b.id)))}</div></div>`;
   document.querySelectorAll('[data-gu]').forEach(b => b.onclick = () => { MAPGU = b.dataset.gu; tabMap(); });
   document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { FILTER = b.dataset.f; tabMap(); });

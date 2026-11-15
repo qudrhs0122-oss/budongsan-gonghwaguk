@@ -260,6 +260,19 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .sart::before{content:"";position:absolute;inset:0 auto 0 0;width:38%;z-index:2;background:linear-gradient(90deg,var(--fade,#eef1ff),transparent)}
 .sty.orange .sart::before{--fade:#fdf0e5}.sty.red .sart::before{--fade:#f9eff5}.sty.green .sart::before{--fade:#ebf6ef}.sty.purple .sart::before{--fade:#f0ebff}.sty.blue .sart::before{--fade:#eef1ff}
 .sart.anim svg{transform:none}
+
+/* ===== 서울 지도 (실제 구 경계) ===== */
+.mapc{background:linear-gradient(180deg,#fff,#f8f6ff);border-radius:22px;padding:12px 10px 10px}
+.mhead{display:flex;align-items:center;gap:10px;margin:0 4px 4px}.mic{width:44px;height:44px;border-radius:50%;background:linear-gradient(#ece8ff,#dcd5fb);display:flex;align-items:center;justify-content:center;font-size:24px}
+.mhead b{display:block;font-size:21px;font-weight:900;letter-spacing:-.02em}.mhead small{color:#6a6585;font-size:12.5px}
+.smap{width:100%;height:auto;display:block}
+.smap .gg{cursor:pointer;transition:transform .15s}.smap .gg path{transition:filter .15s}.smap .gg:active path,.smap .gg:hover path{filter:brightness(.95)}
+.smap .gg.none path{opacity:.72}.smap .gl{cursor:pointer}.smap .gl text{font-weight:900;fill:#2b2a45;paint-order:stroke;stroke:#fff;stroke-width:2.6px;stroke-linejoin:round}
+.smap .gl g text{stroke:none}.smap .okl2{pointer-events:none}
+.mleg{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:8px;padding:8px;background:#fff;border-radius:14px;box-shadow:0 1px 5px rgba(0,0,0,.06)}.mleg span{border-radius:10px;padding:3px 9px;font-size:12px;font-weight:800;color:#3a3550}
+.mleg em{font-style:normal;font-size:11.5px;color:#18a33a;font-weight:800;display:flex;align-items:center;gap:4px;margin-left:auto}.mleg em i{width:14px;height:14px;border:2.5px solid #18a33a;border-radius:4px}
+.filt2{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:8px}.filt2 button{border:1.5px solid #d9d3ea;background:#fff;border-radius:18px;padding:7px 15px;font:inherit;font-weight:800;font-size:14px;color:#3a3550}.filt2 button.on{background:#3b3466;color:#fff;border-color:#3b3466}
+.filt2 label{margin-left:auto;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px}.filt2 input{width:18px;height:18px}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
