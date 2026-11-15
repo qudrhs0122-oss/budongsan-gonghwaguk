@@ -223,6 +223,27 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .dxe .dxi{font-size:28px;margin-top:6px}.dxe b{font-size:12px;line-height:1.3;word-break:keep-all;text-align:center}.dxe:not(.got){opacity:.6}.dxe:not(.got) b{color:#8a8398}
 .story3 .scnw,.story3 .scn{height:118px}.story3 .stag{left:auto;right:8px;top:7px;bottom:auto}
 .dxg{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:5px}.dxe{padding:7px 3px 6px}.dxe .dxi{font-size:24px;margin-top:8px}.dxe b{font-size:11.5px}.dxe .dxn{font-size:10px}
+
+/* ===== 선택지·아파트 카드 시안 v2 ===== */
+.wlist.g3 .wopt{background:linear-gradient(180deg,#fff,#fbf9ff);border:2px solid #efeaf7;border-radius:20px;box-shadow:0 3px 10px rgba(120,100,180,.08);padding:8px 4px 8px}
+.wlist.g3 .wopt.on{border-color:#7c5cf0;background:linear-gradient(180deg,#f3efff,#fff);box-shadow:0 4px 14px rgba(124,92,240,.2)}
+.wck{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:linear-gradient(#8b6cf5,#6b4be0);color:#fff;font-style:normal;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(107,75,224,.4)}
+.wib{position:relative;width:72px;height:46px;display:flex;align-items:flex-end;justify-content:center;margin-top:4px}
+.wib::before{content:"";position:absolute;left:4px;right:4px;bottom:0;height:26px;border-radius:50%;background:#eef0ff}
+.wib.wb-안정::before,.wib.wb-회복::before{background:#e5f5ea}.wib.wb-도전::before{background:#e6efff}.wib.wb-위험::before{background:#efe9ff}.wib.wb-모험::before{background:#fbe7f0}.wib.wb-청약::before{background:#ffe4ef}
+.wi2{position:relative;font-size:32px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12))}
+.wlist.g3 .wopt b{font-size:15px;font-weight:900;margin-top:2px}
+.wlist.g3 .wfx em{border-radius:10px;padding:2px 6px;font-size:10.5px}.wfx em.pos{background:#eaf7ec;color:#167a3e}.wfx em.neg{background:#fdecec;color:#d23a3f}.wfx em:not(.pos):not(.neg){background:#f5efe2;color:#5a4a2a}
+.wdesc{background:#fff;border-radius:14px;padding:7px 12px;margin:7px 12px 0;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.aptsec{background:linear-gradient(180deg,#f7f3ff,#fff 60%);border:1.5px solid #ece6fa;border-radius:22px;padding:12px 10px 12px;margin-top:12px}
+.asech{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0 2px 8px}.asech b{font-size:15.5px}.pill.calc{background:#fff;border:1.5px solid #e4def2;color:#4a4560;font-size:11px}
+.pick2{border:0;background:#fff;border-radius:16px;padding:0 0 7px;display:flex;flex-direction:column;gap:2px;text-align:left;overflow:hidden;box-shadow:0 2px 8px rgba(100,90,150,.12);min-width:0}
+.pick2 .pimg{position:relative;display:block;line-height:0}.pick2 .pimg svg{width:100%;height:58px;display:block}
+.pick2 .pimg em{position:absolute;left:5px;top:5px;line-height:1.3;font-style:normal;background:#6b5ad8;color:#fff;font-size:10px;font-weight:800;border-radius:8px;padding:1px 6px}
+.pick2 b{font-size:13px;line-height:1.25;margin:5px 7px 0;word-break:keep-all}.pick2 small{font-size:10.5px;color:#6a6585;margin:0 7px}
+.pneed2{margin:4px 6px 0;background:#fdeceb;color:#e0393e;border-radius:10px;padding:3px 4px;font-weight:900;font-size:12px;text-align:center}.pick2.ok .pneed2{background:#e7f6ec;color:#167a3e}
+.mapbtn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:10px;border:1.5px solid #ddd5f3;background:linear-gradient(#fff,#f5f2ff);border-radius:22px;padding:10px;font:inherit;font-weight:900;font-size:14.5px;color:#2d2850;box-shadow:0 3px 8px rgba(120,100,180,.15)}.mapbtn span{font-size:20px}.mapbtn i{font-style:normal;font-size:18px;margin-left:4px}
+.wlist.g3 .wfx{gap:3px}.wlist.g3 .wfx em{font-size:10px;padding:1px 5px;white-space:nowrap}.pick2 small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
