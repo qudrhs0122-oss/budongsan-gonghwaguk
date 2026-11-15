@@ -18,12 +18,15 @@ function chg(id, n = 2) { const h = S.hist[id]; if (!h || h.length <= n) return 
 // ---------- 타이틀 ----------
 // ---------- 계정별 엔딩 도감 ----------
 let ACC = null, ACC_READY = false, ACC_DONE = false;
+const KAKAO_IC = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#000" d="M12 3C6.48 3 2 6.53 2 10.88c0 2.8 1.86 5.25 4.66 6.64l-.95 3.48c-.08.3.26.54.52.37l4.15-2.74c.53.06 1.07.1 1.62.1 5.52 0 10-3.53 10-7.85C22 6.53 17.52 3 12 3z"/></svg>';
+const loginHref = () => '/auth/kakao?next=' + encodeURIComponent('/seoul/'), logoutHref = () => '/auth/logout?next=' + encodeURIComponent('/seoul/');
 const DEXK = () => ACC ? '_dex_' + ACC.id : '_dex';
 const dexGet = () => store.get(DEXK(), {});
 function dexAdd(k, rec) {
   const d = dexGet(); if (d[k]) return; d[k] = rec; store.set(DEXK(), d);
-  if (ACC && window.APT) APT.dexPut('seoul', { [k]: rec });
+  if (ACC) dexApi('POST', { g: 'seoul', d: { [k]: rec } });
 }
+const dexApi = (m, b) => fetch(m === 'GET' ? '/api/dex?g=seoul' : '/api/dex', { method: m, credentials: 'include', cache: 'no-store', ...(b ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) } : {}) }).then(r => r.json()).catch(() => ({ ok: false }));
 async function accInit() {
   for (let i = 0; i < 30 && !window.APT; i++) await new Promise(r => setTimeout(r, 100));
   if (!window.APT) { ACC_DONE = true; return; }
@@ -34,11 +37,11 @@ async function accInit() {
       const g = store.get('_dex', {}); for (const k in g) if (!d[k]) d[k] = g[k];
       store.set('_dexMoved_' + ACC.id, true);
     }
-    const r = await APT.dexGet('seoul');
+    const r = await dexApi('GET');
     if (r.ok) for (const [k, v] of Object.entries(r.dex || {})) if (!d[k] || v.t < d[k].t) d[k] = v;
     store.set(DEXK(), d);
     const up = Object.fromEntries(Object.entries(d).filter(([k]) => !(r.dex || {})[k]));
-    if (Object.keys(up).length) APT.dexPut('seoul', up);
+    if (Object.keys(up).length) dexApi('POST', { g: 'seoul', d: up });
   }
   ACC_DONE = true;
 }
@@ -49,9 +52,9 @@ function renderTitle() {
     <h1 class="sr">나의 첫 번째 서울 아파트 구하기 — 월급쟁이로 시작해 서울에 내 집 한 채, 40가지 인생</h1>
     <img class="tt" src="img/title_top.webp" alt="나의 첫 번째 서울 아파트 구하기. 서울 25개 구, 실존 단지 30곳, 4가지 전략, 엔딩 40종">
     <div class="tmid">
-      ${gate ? `<div class="tlogin"><b>🔐 카카오로 로그인하고 시작하세요</b><p>모은 엔딩이 내 계정에 저장돼서, 폰을 바꾸거나 다른 기기에서도 그대로 볼 수 있어요.</p>
-        <a class="tkakao" href="${APT.loginUrl('/seoul/')}">${APT.KAKAO_SVG}카카오로 시작하기</a><button class="tguest" id="bGuest">로그인 없이 이 기기에서만 하기</button></div>` : `
-      ${ACC ? `<div class="tacc">👤 <b>${esc(ACC.nick)}</b>님의 엔딩 도감 · <a href="${APT.logoutUrl('/seoul/')}">로그아웃</a></div>` : ACC_DONE && ACC_READY ? `<div class="tacc">게스트로 플레이 중 · <a href="${APT.loginUrl('/seoul/')}">카카오 로그인하고 엔딩 저장 ›</a></div>` : ''}
+      ${gate ? `<div class="tlogin"><b>🔐 카카오계정으로 접속해 주세요</b><p>모은 엔딩이 내 계정에 저장돼서, 폰을 바꾸거나 다른 기기에서도 그대로 볼 수 있어요.</p>
+        <a class="tkakao" href="${loginHref()}">${KAKAO_IC}카카오계정으로 접속하기</a><button class="tguest" id="bGuest">로그인 없이 이 기기에서만 하기</button></div>` : `
+      ${ACC ? `<div class="tacc">👤 <b>${esc(ACC.nick)}</b>님의 엔딩 도감 · <a href="${logoutHref()}">로그아웃</a></div>` : ACC_DONE && ACC_READY ? `<div class="tacc">게스트로 플레이 중 · <a href="${loginHref()}">카카오계정으로 접속하고 엔딩 저장 ›</a></div>` : ''}
       ${cont ? `<button class="tbtn gold" id="bCont"><span>▶ 이어하기</span><small>${esc(sv.name)} · ${sv.startYear + Math.floor(sv.t / 2)}년 ${sv.t % 2 ? '하반기' : '상반기'} (CH ${Math.min(10, Math.floor(sv.t / 4) + 1)}/10)</small></button>` : ''}
       <button class="tbtn ${cont ? 'sub2' : 'gold'}" id="bNew"><span>🏠 ${cont ? '새 인생 시작' : '지금, 나만의 서울 아파트 인생을 시작하세요!'} ▶</span></button>
       <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).filter(k => ENDS[k]).length}/40) ›</span></button>`}
