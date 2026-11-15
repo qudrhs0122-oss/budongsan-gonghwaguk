@@ -1,4 +1,6 @@
 // ===================== 인생 시스템: 노동 · 체력 · 창업 · 주식 · 경제위기 · 챕터 =====================
+const GEN = () => (typeof S !== 'undefined' && S && S.gender) || 'm';
+const gimg = k => `img/${GEN()}/${k}.webp`;
 const CHAPTERS = ['사회초년생', '종잣돈 모으기', '첫 집 도전', '버티는 시간', '인생의 갈림길', '가족과 집', '갈아타기', '위기와 기회', '자산 굳히기', '최종 결산'];
 const chapterOf = (t = S.t) => Math.min(9, Math.floor(t / 4));
 const GANGNAM = ['gangnam', 'seocho', 'songpa'];
@@ -6,7 +8,7 @@ const GANGNAM = ['gangnam', 'seocho', 'songpa'];
 // 저장 데이터 보정 (이전 버전 세이브 호환)
 function migrate() {
   if (!S) return;
-  S.hp ??= 90; S.career ??= 0; S.promos ??= 0; S.biz ??= null; S.bizDebt ??= 0;
+  S.gender ??= 'm'; S.hp ??= 90; S.career ??= 0; S.promos ??= 0; S.biz ??= null; S.bizDebt ??= 0;
   S.w ??= { main: 0, two: 0, three: 0, rest: 0, biz: 0 };
   S.plan ??= { work: 'main', ch: false };
   S.stk ??= { blue: 0, growth: 0, coin: 0, lev: 0 }; S.stkIn ??= { blue: 0, growth: 0, coin: 0, lev: 0 };

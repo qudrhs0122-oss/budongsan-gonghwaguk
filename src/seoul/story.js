@@ -21,21 +21,21 @@ const STORIES = [
   { id: 'buy3', img: 'buy', c: 'purple', w: () => !isHomeless() && S.st.homeTurns >= 4 ? 2.5 : 0, h: '더 좋은 동네로 [갈아탈까]?', q: '실거주 2년을 채웠다. 한 칸 위 동네가 자꾸 눈에 들어온다.', cta: ['🗺️ 상급지 찾아보기', 'map'] },
   { id: 'own1', img: 'buy', c: 'green', w: () => S.firstHome && S.t - S.firstHome.t <= 2 ? 8 : 0, h: '드디어 [내 집]이 생겼다!', q: '현관문 비밀번호를 내 마음대로 바꿨다. 이게 행복이구나.', cta: null },
   // 그림 없이 움직이는 장면으로 보여 주는 이야기
-  { id: 'rent', c: 'orange', w: () => S.res.type === 'wolse' && S.t >= 3 ? 1.5 : 0, h: '집주인이 [월세]를 올린다고 한다', q: '매달 나가는 돈이 아깝다. 전세로 옮길까, 아예 사 버릴까?', cta: ['💼 거주지 바꾸기', 'assets'] },
-  { id: 'jeonse', c: 'orange', w: () => S.res.type === 'jeonse' ? 1.5 : 0, h: '[전세 만기]가 다가온다', q: '보증금은 무사히 돌려받을 수 있을까?', cta: null },
-  { id: 'hp', c: 'red', w: () => S.hp < 35 ? 9 : 0, h: '몸이 보내는 [위험 신호]', q: '이대로 계속 달려도 괜찮을까? 집보다 내가 먼저 무너질 것 같다.', cta: ['🛌 이번엔 쉬기', 'w:rest'] },
-  { id: 'biz', c: 'orange', w: () => S.biz ? 6 : 0, h: () => `사장님이 된 지 [${Math.floor((S.t - S.biz.t) / 2) + 1}년째]`, q: () => `'${BIZ_N[S.biz.lv]}'를 키워 서울 집까지 갈 수 있을까?`, cta: ['📦 사업에 올인', 'w:bizrun'] },
-  { id: 'crisis', c: 'red', w: () => S.crisisLeft > 0 ? 10 : 0, h: '모두가 [공포]에 질린 시장', q: '누군가에겐 공포, 누군가에겐 기회. 급매가 나왔다는데…', cta: ['🗺️ 급매 찾기', 'map'] },
-  { id: 'up', c: 'red', w: () => S.phase === 'up' ? 2 : 0, h: '서울 집값이 또 [올랐다]', q: '기다릴수록 멀어지는 기분이다. 영끌이라도 해야 할까?', cta: ['🏠 살 수 있는 집 보기', 'pick'] },
-  { id: 'down', c: 'blue', w: () => S.phase === 'down' ? 2.5 : 0, h: '[하락장], 기회일까 함정일까?', q: '집값이 떨어지고 있다. 지금 사면 바닥일까?', cta: ['🏠 매물 보기', 'pick'] },
-  { id: 'rate', c: 'red', w: () => S.rate >= 3 ? 2 : 0, h: '[금리]가 또 오른다는 뉴스', q: () => `기준금리 ${S.rate.toFixed(2)}%. 대출 이자가 무섭다.`, cta: null },
-  { id: 'single', c: 'purple', w: () => S.married < 0 && ageOf() >= 33 ? 1.5 : 0, h: '부모님이 [결혼]은 언제 하냐고 물으신다', q: '집도 없는데 결혼은 무슨… 아니, 둘이면 더 빨리 살 수 있을까?', cta: null },
-  { id: 'couple', c: 'purple', w: () => S.married >= 0 && isHomeless() ? 3 : 0, h: '둘이 함께 그리는 [우리 집]', q: '맞벌이 소득이면 대출이 더 나올까? 신혼부부 특별공급도 있다던데.', cta: ['🎟️ 청약 넣기', 'ch'] },
-  { id: 'kids', c: 'green', w: () => S.kids.length > 0 ? 2 : 0, h: '아이 방이 있는 [넓은 집]', q: '아이가 크면서 집이 점점 좁아진다.', cta: ['🗺️ 넓은 집 찾기', 'map'] },
-  { id: 'debt', c: 'red', w: () => !isHomeless() && debtTotal() > income() * 3 ? 2 : 0, h: '[대출 이자]가 빠져나가는 날', q: '그래도 내 집이라 버틸 만하다. 조금씩 갚아 볼까?', cta: ['💼 대출 갚기', 'assets'] },
-  { id: 'tired', c: 'orange', w: () => S.w.two + S.w.three >= 4 && S.hp < 60 ? 3 : 0, h: () => `부업 [${S.w.two + S.w.three}번째], 이대로 괜찮을까?`, q: '통장은 불어나는데 거울 속 얼굴은 점점 지쳐 간다.', cta: ['🛌 한 번 쉬기', 'w:rest'] },
-  { id: 'late', c: 'purple', w: () => S.t >= MAXT - 8 ? 3 : 0, h: () => `20년의 끝까지 [${Math.ceil((MAXT - S.t) / 2)}년]`, q: '마지막 승부를 걸까, 지금을 지킬까?', cta: null },
-  { id: 'save', c: 'green', w: () => .8, h: '통장 잔고가 [조금씩] 늘고 있다', q: '티끌 모아 태산. 오늘도 커피 대신 텀블러.', cta: null },
+  { id: 'rent', img: 'st_rent', c: 'orange', w: () => S.res.type === 'wolse' && S.t >= 3 ? 1.5 : 0, h: '집주인이 [월세]를 올린다고 한다', q: '매달 나가는 돈이 아깝다. 전세로 옮길까, 아예 사 버릴까?', cta: ['💼 거주지 바꾸기', 'assets'] },
+  { id: 'jeonse', img: 'st_jeonse', c: 'orange', w: () => S.res.type === 'jeonse' ? 1.5 : 0, h: '[전세 만기]가 다가온다', q: '보증금은 무사히 돌려받을 수 있을까?', cta: null },
+  { id: 'hp', img: 'st_tired', c: 'red', w: () => S.hp < 35 ? 9 : 0, h: '몸이 보내는 [위험 신호]', q: '이대로 계속 달려도 괜찮을까? 집보다 내가 먼저 무너질 것 같다.', cta: ['🛌 이번엔 쉬기', 'w:rest'] },
+  { id: 'biz', img: 'st_boss', c: 'orange', w: () => S.biz ? 6 : 0, h: () => `사장님이 된 지 [${Math.floor((S.t - S.biz.t) / 2) + 1}년째]`, q: () => `'${BIZ_N[S.biz.lv]}'를 키워 서울 집까지 갈 수 있을까?`, cta: ['📦 사업에 올인', 'w:bizrun'] },
+  { id: 'crisis', img: 'st_crisis', c: 'red', w: () => S.crisisLeft > 0 ? 10 : 0, h: '모두가 [공포]에 질린 시장', q: '누군가에겐 공포, 누군가에겐 기회. 급매가 나왔다는데…', cta: ['🗺️ 급매 찾기', 'map'] },
+  { id: 'up', img: 'st_up', c: 'red', w: () => S.phase === 'up' ? 2 : 0, h: '서울 집값이 또 [올랐다]', q: '기다릴수록 멀어지는 기분이다. 영끌이라도 해야 할까?', cta: ['🏠 살 수 있는 집 보기', 'pick'] },
+  { id: 'down', img: 'st_down', c: 'blue', w: () => S.phase === 'down' ? 2.5 : 0, h: '[하락장], 기회일까 함정일까?', q: '집값이 떨어지고 있다. 지금 사면 바닥일까?', cta: ['🏠 매물 보기', 'pick'] },
+  { id: 'rate', img: 'st_rate', c: 'red', w: () => S.rate >= 3 ? 2 : 0, h: '[금리]가 또 오른다는 뉴스', q: () => `기준금리 ${S.rate.toFixed(2)}%. 대출 이자가 무섭다.`, cta: null },
+  { id: 'single', img: 'st_parents', c: 'purple', w: () => S.married < 0 && ageOf() >= 33 ? 1.5 : 0, h: '부모님이 [결혼]은 언제 하냐고 물으신다', q: '집도 없는데 결혼은 무슨… 아니, 둘이면 더 빨리 살 수 있을까?', cta: null },
+  { id: 'couple', img: 'st_couple', c: 'purple', w: () => S.married >= 0 && isHomeless() ? 3 : 0, h: '둘이 함께 그리는 [우리 집]', q: '맞벌이 소득이면 대출이 더 나올까? 신혼부부 특별공급도 있다던데.', cta: ['🎟️ 청약 넣기', 'ch'] },
+  { id: 'kids', img: 'st_kids', c: 'green', w: () => S.kids.length > 0 ? 2 : 0, h: '아이 방이 있는 [넓은 집]', q: '아이가 크면서 집이 점점 좁아진다.', cta: ['🗺️ 넓은 집 찾기', 'map'] },
+  { id: 'debt', img: 'st_loan', c: 'red', w: () => !isHomeless() && debtTotal() > income() * 3 ? 2 : 0, h: '[대출 이자]가 빠져나가는 날', q: '그래도 내 집이라 버틸 만하다. 조금씩 갚아 볼까?', cta: ['💼 대출 갚기', 'assets'] },
+  { id: 'tired', img: 'st_side_tired', c: 'orange', w: () => S.w.two + S.w.three >= 4 && S.hp < 60 ? 3 : 0, h: () => `부업 [${S.w.two + S.w.three}번째], 이대로 괜찮을까?`, q: '통장은 불어나는데 거울 속 얼굴은 점점 지쳐 간다.', cta: ['🛌 한 번 쉬기', 'w:rest'] },
+  { id: 'late', img: 'st_late', c: 'purple', w: () => S.t >= MAXT - 8 ? 3 : 0, h: () => `20년의 끝까지 [${Math.ceil((MAXT - S.t) / 2)}년]`, q: '마지막 승부를 걸까, 지금을 지킬까?', cta: null },
+  { id: 'save', img: 'st_save', c: 'green', w: () => .8, h: '통장 잔고가 [조금씩] 늘고 있다', q: '티끌 모아 태산. 오늘도 커피 대신 텀블러.', cta: null },
 ];
 function pickStory() {
   if (S.story && S.story.t === S.t && STORIES.find(x => x.id === S.story.id)) return STORIES.find(x => x.id === S.story.id);
@@ -51,7 +51,9 @@ function pickStory() {
 function storyCard() {
   const st = pickStory(), v = f => typeof f === 'function' ? f() : f;
   const h = esc(v(st.h)).replace(/\[(.+?)\]/, `<mark class="kw ${st.c}">$1</mark>`);
-  const art = st.img ? `<img src="img/st_${st.img}.webp" alt="">` : sceneLive().svg;
+  const LEGF = { cheong: 'ev_cheong', promo: 'ev_job', side: 'ev_side', stock: 'ev_stock', bun: 'ev_rebuild', buy: 'ev_key' };
+  const src = !st.img ? '' : st.img.startsWith('st_') ? gimg(st.img) : GEN() === 'f' ? gimg(LEGF[st.img]) : `img/st_${st.img}.webp`;
+  const art = src ? `<img src="${src}" alt="">` : sceneLive().svg;
   return `<div class="sty ${st.c}"><div class="stx"><span class="slab">📖 오늘의 이야기 ${S.storyN || 1}</span><b>${h}</b><p>“${esc(v(st.q))}”</p>${st.cta ? `<button class="scta" data-cta="${st.cta[1]}">${st.cta[0]} ›</button>` : ''}</div><div class="sart ${st.img ? 'pic' : 'anim'}">${art}</div></div>`;
 }
 function storyAction(a) {

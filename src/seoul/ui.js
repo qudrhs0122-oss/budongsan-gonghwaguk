@@ -43,7 +43,7 @@ function skyline() {
 
 // ---------- 시작 설정 ----------
 function renderSetup() {
-  let mode = 'hist', diff = 'd5';
+  let mode = 'hist', diff = 'd5', gender = 'm';
   const DIC = { d3: '🪙', d5: '💵', d10: '💴', d30: '💰' };
   const draw = () => {
     const nm = $('#nm') ? $('#nm').value : '';
@@ -51,7 +51,9 @@ function renderSetup() {
       <img class="st" src="img/setup_top.webp" alt="2026년, 서울에 첫 집을 얻었습니다!">
       <div class="scard">
         <div class="shead"><span class="hi">🏠</span><div>당신의 프로필을 설정하고<br><b><mark>서울 아파트 인생</mark>을 시작하세요!</b></div></div>
-        <div class="prof"><div class="pav">🧑‍💼</div><div><b>29세 · 무주택 · 서울 거주</b><small>💼 연봉 4,800만 원 · 📦 월세 85만 원 · ❤️ 체력 90 · 🎟️ 청약통장 5년</small></div></div>
+        <label class="lbl">주인공</label>
+        <div class="gsel">${[['m', '남자 주인공'], ['f', '여자 주인공']].map(([g, l]) => `<button class="gopt ${gender === g ? 'on' : ''}" data-g="${g}"><img src="img/${g}/face.webp" alt="${l}"><b>${l}</b>${gender === g ? '<i class="ck">✓</i>' : ''}</button>`).join('')}</div>
+        <div class="prof"><div class="pav"><img src="img/${gender}/face.webp" alt=""></div><div><b>29세 · 무주택 · 서울 거주</b><small>💼 연봉 4,800만 원 · 📦 월세 85만 원 · ❤️ 체력 90 · 🎟️ 청약통장 5년</small></div></div>
         <label class="lbl">이름</label>
         <div class="inp"><span>👤</span><input id="nm" maxlength="8" placeholder="닉네임을 입력하세요 (예: 건축학도고니)" value="${esc(nm)}"></div>
         <label class="lbl">시작 모드</label>
@@ -65,14 +67,15 @@ function renderSetup() {
       <img class="sb" src="img/setup_bot.webp" alt="실제 서울 시세 반영 · 실존 단지·지역 선택 · 다양한 투자 시나리오 · 총 40가지 엔딩">
     </div>`;
     document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mode = b.dataset.m; draw(); });
+    document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { gender = b.dataset.g; draw(); });
     document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { diff = b.dataset.d; draw(); });
     $('#back').onclick = renderTitle;
-    $('#go').onclick = () => startLife(mode, diff, $('#nm').value.trim());
+    $('#go').onclick = () => startLife(mode, diff, $('#nm').value.trim(), gender);
   };
   draw();
 }
-function startLife(mode, diff, name) {
-  newGame(mode, diff, name, null); TAB = 'home'; renderGame();
+function startLife(mode, diff, name, gender) {
+  newGame(mode, diff, name, null); S.gender = gender || 'm'; save(); TAB = 'home'; renderGame();
   modal(`<div class="evcat">튜토리얼</div><h3>🏙️ ${yearOf()}년, 29살의 서울 생활 시작</h3><p>월세방에서 시작하는 20년. 어떤 인생을 살지는 매 반기의 선택과, 중간중간 찾아오는 <b>🔀 인생의 갈림길</b>에서 정해져요.</p>
     <ul class="tut"><li>💼 매 반기 <b>어떻게 벌지</b> 고르세요. 투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라요.</li><li>🏠 <b>노려볼 아파트 3곳</b>을 눌러 얼마가 부족한지 확인하세요. 돈이 모이면 바로 매수!</li><li>🔀 몇 년마다 <b>인생의 갈림길</b>이 찾아와요. 그 선택이 커리어·가족·자산의 방향을 바꿔요.</li><li>⏭️ <b>다음 반기</b>를 누르면 6개월이 흐릅니다. 10개 챕터(20년) 뒤 40가지 엔딩 중 하나가 나와요.</li></ul>
     <p class="small">현재 규제: ${rules().name} — ${rules().note}</p><button class="btn pri" data-close>시작하기</button>`);
@@ -87,7 +90,7 @@ function hudSky() {
 function hud() {
   const n = nw(), hpc = S.hp < 25 ? 'bad' : S.hp < 50 ? 'mid' : '';
   const seg = Array.from({ length: 10 }, (_, i) => `<i class="${i < chapterOf() ? 'done' : i === chapterOf() ? 'cur' : ''}">${i === chapterOf() ? `<u style="width:${(S.t % 4 + 1) / 4 * 100}%"></u>` : ''}</i>`).join('');
-  return `<div class="hud2">${hudSky()}<div class="h2top"><div><b class="h2when">${when()}</b><span class="h2who">👤 ${esc(S.name || '나')} · ${ageOf()}세${S.biz ? ' · 사장님' : ''}${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</span></div><span class="h2ch">CH ${chapterOf() + 1}/10</span></div>
+  return `<div class="hud2">${hudSky()}<div class="h2top"><div><b class="h2when">${when()}</b><span class="h2who"><img class="hav" src="${gimg('face')}" alt=""> ${esc(S.name || '나')} · ${ageOf()}세${S.biz ? ' · 사장님' : ''}${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</span></div><span class="h2ch">CH ${chapterOf() + 1}/10</span></div>
     <div class="h2stats"><div class="c1"><small>💵 현금</small><b class="${S.cash < 0 ? 'neg' : ''}">${wonS(S.cash)}</b></div><div class="c2"><small>🏠 순자산</small><b>${wonS(n)}</b></div><div class="c3"><small>⚡ ${term('체력')}</small><b class="${hpc ? 'neg' : ''}">${S.hp}</b>${bar(S.hp, 'hp ' + hpc)}</div><div class="c4"><small>❤️ 행복</small><b>${S.happy}</b>${bar(S.happy, 'hap')}</div></div>
     <div class="seg">${seg}</div></div>`;
 }
@@ -466,35 +469,41 @@ function renderDexInner(el) {
 // ---------- 진행 ----------
 
 // ---------- 애니메이션: 반기 진행 · 이벤트 ----------
+const WIMG = { main: 'main', two: 'two', three: 'three', rest: 'rest', biz: 'biz', bizrun: 'bizrun', bizlite: 'biz', rejoin: 'rejoin' };
+const WFX = { main: ['✨', '⭐', '💡'], two: ['🪙', '🪙', '📦'], three: ['🪙', '💦', '🌙'], rest: ['💤', 'z', 'Z'], biz: ['🎉', '📦', '✨'], bizrun: ['📦', '🪙', '💨'], bizlite: ['☕', '✨', '🪙'], rejoin: ['✨', '🌸', '⭐'] };
+const WCAP = { main: '열심히 일하는 중', two: '퇴근 후 배달 중', three: '낮엔 회사, 밤엔 부업 2개', rest: '푹 쉬면서 재충전', biz: '내 가게 오픈!', bizrun: '사업 키우는 중', bizlite: '여유롭게 가게 운영 중', rejoin: '다시 회사로 출근' };
+function fxSpans(list, cls) { return list.map((e, i) => `<span class="fx ${cls}" style="left:${18 + i * 30}%;animation-delay:${i * .45}s">${e}</span>`).join(''); }
 function playWorkAnim(done) {
-  const k = S.plan.work, w = WORK[k], pv = workPreview(k), L = sceneLive(), m0 = S.t % 2 ? 7 : 1;
+  const k = S.plan.work, w = WORK[k], pv = workPreview(k), m0 = S.t % 2 ? 7 : 1;
   const ov = document.createElement('div'); ov.className = 'wanim';
-  ov.innerHTML = `<div class="wabox"><div class="wat">${w.ic} ${esc(L.cap)}…</div><div class="wasc">${L.svg.replace('preserveAspectRatio="xMinYMid slice"', 'preserveAspectRatio="xMidYMid slice"')}${pv.inc > 0 ? `<span class="wapop">+${wonS(pv.inc)}</span>` : ''}</div>
+  ov.innerHTML = `<div class="wabox"><div class="wat">${w.ic} ${WCAP[k] || w.t}…</div><div class="wasc ${GEN()}"><div class="wbg" style="background-image:url(${gimg('work_' + WIMG[k])})"></div><img class="kb" src="${gimg('work_' + WIMG[k])}" alt="">${fxSpans(WFX[k] || [], k === 'rest' ? 'zfx' : 'upfx')}${pv.inc > 0 ? `<span class="wapop">+${wonS(pv.inc)}</span>` : ''}</div>
     <div class="wamon"><b id="wam">${m0}월</b><span class="wabar"><i></i></span><small>${yearOf()}년 ${S.t % 2 ? '하반기' : '상반기'}</small></div><div class="waskip">화면을 누르면 건너뛰어요</div></div>`;
   document.body.appendChild(ov);
   let n = 0, fin = false; const tick = setInterval(() => { n++; const el = ov.querySelector('#wam'); if (el) el.textContent = `${Math.min(m0 + n, m0 + 5)}월`; }, 500);
   const end = () => { if (fin) return; fin = true; clearInterval(tick); ov.classList.add('out'); setTimeout(() => { ov.remove(); done(); }, 220); };
   ov.onclick = end; setTimeout(end, 3000);
 }
-function evScene(E) {
+function evKey(E) {
   const c = E.cat || '', t = (E.t || '') + (E.d || '');
-  const T = (x, y, sz, s, cls = '', st = '') => `<text class="${cls}" style="${st}" x="${x}" y="${y}" font-size="${sz}" text-anchor="middle">${s}</text>`;
-  let bg = ['#eef1ff', '#dfe6ff'], a = '';
-  const bars = col => [0, 1, 2, 3, 4].map(i => `<rect class="grow" style="animation-delay:${i * .15}s" x="${250 + i * 22}" y="${110 - 20 - i * 12}" width="14" height="${20 + i * 12}" rx="3" fill="${col}"/>`).join('');
-  if (/결혼|청혼|사랑/.test(t)) { bg = ['#fff0f4', '#ffdbe6']; a = `${T(120, 92, 54, '💑', 'bob')}${T(270, 80, 40, '💍', 'tix')}${[0, 1, 2, 3].map(i => T(170 + i * 40, 70, 18 + i % 2 * 6, '❤️', 'zz', `animation-delay:${i * .5}s`)).join('')}`; }
-  else if (/아이|출산|임신|아기/.test(t)) { bg = ['#fff7e6', '#ffe9c2']; a = `${T(130, 92, 54, '👶', 'bob')}${T(260, 80, 34, '🍼', 'tix')}${[0, 1, 2].map(i => T(190 + i * 50, 60, 22, '🎈', 'zz', `animation-delay:${i * .6}s`)).join('')}`; }
-  else if (c.includes('갈림길')) { bg = ['#f3efff', '#e2dafc']; a = `<path d="M60,110 L200,70 L340,110" fill="none" stroke="#c9bdf2" stroke-width="16" stroke-linecap="round"/><path d="M200,110 L200,70" stroke="#c9bdf2" stroke-width="16"/>${T(200, 60, 40, '🪧', 'bob')}<g class="walk2">${T(60, 104, 34, '🚶')}</g>${T(330, 50, 22, '✨', 'spark')}${T(80, 40, 18, '⭐', 'spark d2')}`; }
-  else if (/청약|분양/.test(c)) { bg = ['#eef3ff', '#dbe5ff']; a = `${T(130, 92, 50, '🎟️', 'tix')}${T(270, 100, 60, '🏢')}${[0, 1, 2, 3, 4].map(i => T(80 + i * 60, 40, 16, ['🎉', '✨', '⭐', '🎊', '✨'][i], 'spark', `animation-delay:${i * .3}s`)).join('')}`; }
-  else if (/입주권|재건축|구축|도시/.test(c)) { bg = ['#fff5e8', '#ffe6c7']; a = `${T(110, 100, 56, '🏗️', 'bob')}<g>${T(250, 106, 30, '🧱', 'stack')}${T(250, 80, 30, '🧱', 'stack d2')}${T(250, 54, 30, '🧱', 'stack d3')}</g>${T(330, 100, 32, '🚧', 'shake')}`; }
-  else if (/주식/.test(c)) { bg = ['#fff2f2', '#ffe1e1']; a = `${T(110, 96, 54, '🧐', 'bob')}${bars('#e5484d')}${T(190, 60, 24, '🪙', 'coin')}${T(220, 70, 20, '🪙', 'coin d2')}`; }
-  else if (/시장|정책|갭투자/.test(c)) { bg = ['#eef6ff', '#d9eaff']; a = `${T(110, 96, 54, '📰', 'shake')}${bars('#5b7fe8')}${T(340, 44, 24, '📢', 'bob')}`; }
-  else if (/부업/.test(c)) { bg = ['#fff6ec', '#ffe5cc']; a = `<g class="ride">${T(0, 100, 50, '🛵')}${T(-6, 62, 22, '📦')}</g>${T(300, 60, 24, '🪙', 'coin')}${T(340, 70, 20, '🪙', 'coin d2')}`; }
-  else if (/노동/.test(c)) { bg = ['#f0f4ff', '#dde6ff']; a = `${T(130, 96, 56, '🧑‍💼', 'bob')}${T(260, 92, 40, '💼', 'tix')}${T(200, 44, 22, '✨', 'spark')}${T(310, 50, 18, '⭐', 'spark d2')}`; }
-  else if (/건강/.test(c)) { bg = ['#fff1f1', '#ffdede']; a = `<g class="ride">${T(0, 100, 50, '🚑')}</g>${T(320, 70, 40, '🏥')}${T(200, 50, 20, '💦', 'drip')}`; }
-  else if (/전월세/.test(c)) { bg = ['#f2fbf3', '#dcf3e0']; a = `${T(120, 100, 60, '🏠')}${T(240, 86, 34, '📄', 'shake')}${T(310, 90, 32, '🔑', 'tix')}`; }
-  else { bg = ['#f4f6ff', '#e3e8fb']; a = `${T(130, 96, 56, '🌱', 'bob')}${T(260, 90, 36, '🏙️')}${T(200, 44, 22, '✨', 'spark')}${T(320, 50, 18, '⭐', 'spark d2')}`; }
-  return `<div class="evsc"><svg class="scn live" viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="evg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></linearGradient></defs><rect width="400" height="120" fill="url(#evg)"/><ellipse cx="200" cy="122" rx="230" ry="16" fill="#fff" opacity=".6"/>${a}</svg></div>`;
+  if (/결혼|청혼/.test(t)) return ['marry', ['💍', '❤️', '💕']];
+  if (/아이|출산|임신|아기/.test(t)) return ['baby', ['🎈', '❤️', '✨']];
+  if (c.includes('갈림길')) return ['cross', ['✨', '⭐', '❔']];
+  if (/위기|폭락/.test(t) && /시장|주식/.test(c)) return ['crisis', ['📉', '⚠️', '💥']];
+  if (/청약|분양/.test(c)) return ['cheong', ['🎉', '✨', '🎊']];
+  if (/입주권|재건축|구축|도시/.test(c)) return ['rebuild', ['🧱', '🚧', '✨']];
+  if (/주식/.test(c)) return ['stock', ['🪙', '📈', '✨']];
+  if (/시장|정책|갭투자/.test(c)) return ['news', ['📢', '📰', '❗']];
+  if (/부업/.test(c)) return ['side', ['🪙', '📦', '✨']];
+  if (/노동/.test(c)) return ['job', ['✨', '🎉', '⭐']];
+  if (/건강/.test(c)) return ['health', ['💊', '💦', '❤️']];
+  if (/전월세/.test(c)) return [GEN() === 'f' && Math.random() < .5 ? 'key' : 'move', ['🔑', '📦', '✨']];
+  return ['life', ['✨', '☕', '❤️']];
 }
+function evBanner(key, fx) {
+  const src = gimg('ev_' + key);
+  return `<div class="evsc img ${GEN()}"><div class="wbg" style="background-image:url(${src})"></div><img class="kb" src="${src}" alt="">${fxSpans(fx || [], 'upfx')}</div>`;
+}
+function evScene(E) { const [k, fx] = evKey(E); return evBanner(k, fx); }
 function onNext() {
   if (!onNext.go) { onNext.go = 1; return playWorkAnim(() => { onNext(); onNext.go = 0; }); }
   const r = nextTurn();
@@ -528,7 +537,7 @@ function onNext() {
   $('#ok').onclick = () => { closeModal(); after(); };
 }
 function crisisModal(c, next) {
-  modal(`<div class="evcat breaking">긴급 속보</div><h3>💥 ${esc(c.t)}</h3><p>${esc(c.d)}</p>
+  modal(`<div class="evcat breaking">긴급 속보</div>${evBanner('crisis', ['📉', '⚠️', '💥'])}<h3>💥 ${esc(c.t)}</h3><p>${esc(c.d)}</p>
     <div class="res3"><div><small>주식</small><b class="dn">최대 −65%</b></div><div><small>서울 아파트</small><b class="dn">약 −13%</b></div><div><small>대출 한도</small><b class="dn">LTV −10%p</b></div></div>
     <p class="small">💡 위기에서 기회가 생깁니다. 현금을 지킨 사람에게는 급매 아파트가 기다리고 있어요. 서울 지도에서 <b>급매</b> 표시를 찾아보세요.</p><button class="btn pri" id="ok">계속</button>`, 'ev');
   $('#ok').onclick = () => { closeModal(); next(); };
@@ -591,7 +600,7 @@ function renderEnding() {
 function cheongWinModal() {
   const c = S.chPend, dep = r2(c.p * .1), short = r2(dep - S.cash), room = r2(Math.max(0, Math.min(1.5, income() * 1.2) - S.credit));
   const stock = stockValue();
-  modal(`<div class="evcat">청약 결과</div><h3>🎉 축하합니다! 청약에 당첨됐어요!</h3><div class="scnw sm">${scene('🤩').replace('🐷', '📱')}</div>
+  modal(`<div class="evcat">청약 결과</div><h3>🎉 축하합니다! 청약에 당첨됐어요!</h3>${evBanner('cheong', ['🎉', '✨', '🎊'])}
     <p><b>${esc(c.n)}</b>에 당첨될 기회가 찾아왔습니다. 하지만 계약하려면 돈이 더 필요해요.</p>
     <div class="tbl"><div><span>계약에 필요한 돈 (계약금 10%)</span><b>${won(dep)}</b></div><div><span>현재 보유 현금</span><b>${won(S.cash)}</b></div><div><span>부족한 금액</span><b class="neg">${won(short)}</b></div></div>
     <p class="nextq"><b>다음 선택:</b> 계약금을 마련할까, 기회를 포기할까?</p>

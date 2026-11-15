@@ -305,6 +305,21 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .evsc{border-radius:16px;overflow:hidden;height:110px;margin:6px 0 8px;line-height:0}.evsc svg{width:100%;height:100%}
 .grow{transform-box:fill-box;transform-origin:bottom;animation:grw 1.6s cubic-bezier(.2,1.2,.4,1) both}@keyframes grw{from{transform:scaleY(0)}}
 .walk2{animation:wk2 3.2s ease-in-out infinite}@keyframes wk2{0%{transform:translate(0,0)}60%{transform:translate(120px,-30px)}100%{transform:translate(120px,-30px);opacity:0}}
+
+/* ===== 주인공 선택 · 일러스트 장면 ===== */
+.gsel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}.gopt{position:relative;border:2px solid #e7e0d2;background:#fff;border-radius:16px;padding:6px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.gopt img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:50% 25%;border-radius:12px}.gopt b{font-size:14px}.gopt.on{border-color:#6b5ad8;box-shadow:0 4px 14px rgba(107,90,216,.25)}
+.pav img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;border-radius:50%}
+.hav{width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:50% 20%;vertical-align:-5px;border:1.5px solid #fff}
+.wasc{position:relative;border-radius:18px;overflow:hidden;height:200px;background:#e9e6f5}
+.wbg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(14px) saturate(1.2);opacity:.85}
+.wasc img.kb,.evsc img.kb{position:relative;display:block;width:100%;height:100%;object-fit:cover;animation:kb 3.2s ease-out both}
+.wasc.f img.kb{object-fit:contain}.evsc.img.f img.kb{object-fit:contain}
+@keyframes kb{from{transform:scale(1.12) translateX(-2%)}to{transform:scale(1) translateX(0)}}
+.fx{position:absolute;bottom:18px;font-size:24px;z-index:3;pointer-events:none;opacity:0}
+.upfx{animation:upfx 2s ease-out infinite}@keyframes upfx{0%{opacity:0;transform:translateY(20px) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translateY(-110px) scale(1.15)}}
+.zfx{animation:zfx 2.2s ease-out infinite;font-weight:900;color:#6b5ad8}@keyframes zfx{0%{opacity:0;transform:translate(0,10px)}30%{opacity:1}100%{opacity:0;transform:translate(30px,-90px)}}
+.evsc.img{position:relative;height:120px;border-radius:16px;overflow:hidden;background:#eee}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
@@ -807,6 +822,8 @@ function sellProp(p, forced) {
 }
 
 // ===================== 인생 시스템: 노동 · 체력 · 창업 · 주식 · 경제위기 · 챕터 =====================
+const GEN = () => (typeof S !== 'undefined' && S && S.gender) || 'm';
+const gimg = k => `img/${GEN()}/${k}.webp`;
 const CHAPTERS = ['사회초년생', '종잣돈 모으기', '첫 집 도전', '버티는 시간', '인생의 갈림길', '가족과 집', '갈아타기', '위기와 기회', '자산 굳히기', '최종 결산'];
 const chapterOf = (t = S.t) => Math.min(9, Math.floor(t / 4));
 const GANGNAM = ['gangnam', 'seocho', 'songpa'];
@@ -814,7 +831,7 @@ const GANGNAM = ['gangnam', 'seocho', 'songpa'];
 // 저장 데이터 보정 (이전 버전 세이브 호환)
 function migrate() {
   if (!S) return;
-  S.hp ??= 90; S.career ??= 0; S.promos ??= 0; S.biz ??= null; S.bizDebt ??= 0;
+  S.gender ??= 'm'; S.hp ??= 90; S.career ??= 0; S.promos ??= 0; S.biz ??= null; S.bizDebt ??= 0;
   S.w ??= { main: 0, two: 0, three: 0, rest: 0, biz: 0 };
   S.plan ??= { work: 'main', ch: false };
   S.stk ??= { blue: 0, growth: 0, coin: 0, lev: 0 }; S.stkIn ??= { blue: 0, growth: 0, coin: 0, lev: 0 };
@@ -1019,21 +1036,21 @@ const STORIES = [
   { id: 'buy3', img: 'buy', c: 'purple', w: () => !isHomeless() && S.st.homeTurns >= 4 ? 2.5 : 0, h: '더 좋은 동네로 [갈아탈까]?', q: '실거주 2년을 채웠다. 한 칸 위 동네가 자꾸 눈에 들어온다.', cta: ['🗺️ 상급지 찾아보기', 'map'] },
   { id: 'own1', img: 'buy', c: 'green', w: () => S.firstHome && S.t - S.firstHome.t <= 2 ? 8 : 0, h: '드디어 [내 집]이 생겼다!', q: '현관문 비밀번호를 내 마음대로 바꿨다. 이게 행복이구나.', cta: null },
   // 그림 없이 움직이는 장면으로 보여 주는 이야기
-  { id: 'rent', c: 'orange', w: () => S.res.type === 'wolse' && S.t >= 3 ? 1.5 : 0, h: '집주인이 [월세]를 올린다고 한다', q: '매달 나가는 돈이 아깝다. 전세로 옮길까, 아예 사 버릴까?', cta: ['💼 거주지 바꾸기', 'assets'] },
-  { id: 'jeonse', c: 'orange', w: () => S.res.type === 'jeonse' ? 1.5 : 0, h: '[전세 만기]가 다가온다', q: '보증금은 무사히 돌려받을 수 있을까?', cta: null },
-  { id: 'hp', c: 'red', w: () => S.hp < 35 ? 9 : 0, h: '몸이 보내는 [위험 신호]', q: '이대로 계속 달려도 괜찮을까? 집보다 내가 먼저 무너질 것 같다.', cta: ['🛌 이번엔 쉬기', 'w:rest'] },
-  { id: 'biz', c: 'orange', w: () => S.biz ? 6 : 0, h: () => `사장님이 된 지 [${Math.floor((S.t - S.biz.t) / 2) + 1}년째]`, q: () => `'${BIZ_N[S.biz.lv]}'를 키워 서울 집까지 갈 수 있을까?`, cta: ['📦 사업에 올인', 'w:bizrun'] },
-  { id: 'crisis', c: 'red', w: () => S.crisisLeft > 0 ? 10 : 0, h: '모두가 [공포]에 질린 시장', q: '누군가에겐 공포, 누군가에겐 기회. 급매가 나왔다는데…', cta: ['🗺️ 급매 찾기', 'map'] },
-  { id: 'up', c: 'red', w: () => S.phase === 'up' ? 2 : 0, h: '서울 집값이 또 [올랐다]', q: '기다릴수록 멀어지는 기분이다. 영끌이라도 해야 할까?', cta: ['🏠 살 수 있는 집 보기', 'pick'] },
-  { id: 'down', c: 'blue', w: () => S.phase === 'down' ? 2.5 : 0, h: '[하락장], 기회일까 함정일까?', q: '집값이 떨어지고 있다. 지금 사면 바닥일까?', cta: ['🏠 매물 보기', 'pick'] },
-  { id: 'rate', c: 'red', w: () => S.rate >= 3 ? 2 : 0, h: '[금리]가 또 오른다는 뉴스', q: () => `기준금리 ${S.rate.toFixed(2)}%. 대출 이자가 무섭다.`, cta: null },
-  { id: 'single', c: 'purple', w: () => S.married < 0 && ageOf() >= 33 ? 1.5 : 0, h: '부모님이 [결혼]은 언제 하냐고 물으신다', q: '집도 없는데 결혼은 무슨… 아니, 둘이면 더 빨리 살 수 있을까?', cta: null },
-  { id: 'couple', c: 'purple', w: () => S.married >= 0 && isHomeless() ? 3 : 0, h: '둘이 함께 그리는 [우리 집]', q: '맞벌이 소득이면 대출이 더 나올까? 신혼부부 특별공급도 있다던데.', cta: ['🎟️ 청약 넣기', 'ch'] },
-  { id: 'kids', c: 'green', w: () => S.kids.length > 0 ? 2 : 0, h: '아이 방이 있는 [넓은 집]', q: '아이가 크면서 집이 점점 좁아진다.', cta: ['🗺️ 넓은 집 찾기', 'map'] },
-  { id: 'debt', c: 'red', w: () => !isHomeless() && debtTotal() > income() * 3 ? 2 : 0, h: '[대출 이자]가 빠져나가는 날', q: '그래도 내 집이라 버틸 만하다. 조금씩 갚아 볼까?', cta: ['💼 대출 갚기', 'assets'] },
-  { id: 'tired', c: 'orange', w: () => S.w.two + S.w.three >= 4 && S.hp < 60 ? 3 : 0, h: () => `부업 [${S.w.two + S.w.three}번째], 이대로 괜찮을까?`, q: '통장은 불어나는데 거울 속 얼굴은 점점 지쳐 간다.', cta: ['🛌 한 번 쉬기', 'w:rest'] },
-  { id: 'late', c: 'purple', w: () => S.t >= MAXT - 8 ? 3 : 0, h: () => `20년의 끝까지 [${Math.ceil((MAXT - S.t) / 2)}년]`, q: '마지막 승부를 걸까, 지금을 지킬까?', cta: null },
-  { id: 'save', c: 'green', w: () => .8, h: '통장 잔고가 [조금씩] 늘고 있다', q: '티끌 모아 태산. 오늘도 커피 대신 텀블러.', cta: null },
+  { id: 'rent', img: 'st_rent', c: 'orange', w: () => S.res.type === 'wolse' && S.t >= 3 ? 1.5 : 0, h: '집주인이 [월세]를 올린다고 한다', q: '매달 나가는 돈이 아깝다. 전세로 옮길까, 아예 사 버릴까?', cta: ['💼 거주지 바꾸기', 'assets'] },
+  { id: 'jeonse', img: 'st_jeonse', c: 'orange', w: () => S.res.type === 'jeonse' ? 1.5 : 0, h: '[전세 만기]가 다가온다', q: '보증금은 무사히 돌려받을 수 있을까?', cta: null },
+  { id: 'hp', img: 'st_tired', c: 'red', w: () => S.hp < 35 ? 9 : 0, h: '몸이 보내는 [위험 신호]', q: '이대로 계속 달려도 괜찮을까? 집보다 내가 먼저 무너질 것 같다.', cta: ['🛌 이번엔 쉬기', 'w:rest'] },
+  { id: 'biz', img: 'st_boss', c: 'orange', w: () => S.biz ? 6 : 0, h: () => `사장님이 된 지 [${Math.floor((S.t - S.biz.t) / 2) + 1}년째]`, q: () => `'${BIZ_N[S.biz.lv]}'를 키워 서울 집까지 갈 수 있을까?`, cta: ['📦 사업에 올인', 'w:bizrun'] },
+  { id: 'crisis', img: 'st_crisis', c: 'red', w: () => S.crisisLeft > 0 ? 10 : 0, h: '모두가 [공포]에 질린 시장', q: '누군가에겐 공포, 누군가에겐 기회. 급매가 나왔다는데…', cta: ['🗺️ 급매 찾기', 'map'] },
+  { id: 'up', img: 'st_up', c: 'red', w: () => S.phase === 'up' ? 2 : 0, h: '서울 집값이 또 [올랐다]', q: '기다릴수록 멀어지는 기분이다. 영끌이라도 해야 할까?', cta: ['🏠 살 수 있는 집 보기', 'pick'] },
+  { id: 'down', img: 'st_down', c: 'blue', w: () => S.phase === 'down' ? 2.5 : 0, h: '[하락장], 기회일까 함정일까?', q: '집값이 떨어지고 있다. 지금 사면 바닥일까?', cta: ['🏠 매물 보기', 'pick'] },
+  { id: 'rate', img: 'st_rate', c: 'red', w: () => S.rate >= 3 ? 2 : 0, h: '[금리]가 또 오른다는 뉴스', q: () => `기준금리 ${S.rate.toFixed(2)}%. 대출 이자가 무섭다.`, cta: null },
+  { id: 'single', img: 'st_parents', c: 'purple', w: () => S.married < 0 && ageOf() >= 33 ? 1.5 : 0, h: '부모님이 [결혼]은 언제 하냐고 물으신다', q: '집도 없는데 결혼은 무슨… 아니, 둘이면 더 빨리 살 수 있을까?', cta: null },
+  { id: 'couple', img: 'st_couple', c: 'purple', w: () => S.married >= 0 && isHomeless() ? 3 : 0, h: '둘이 함께 그리는 [우리 집]', q: '맞벌이 소득이면 대출이 더 나올까? 신혼부부 특별공급도 있다던데.', cta: ['🎟️ 청약 넣기', 'ch'] },
+  { id: 'kids', img: 'st_kids', c: 'green', w: () => S.kids.length > 0 ? 2 : 0, h: '아이 방이 있는 [넓은 집]', q: '아이가 크면서 집이 점점 좁아진다.', cta: ['🗺️ 넓은 집 찾기', 'map'] },
+  { id: 'debt', img: 'st_loan', c: 'red', w: () => !isHomeless() && debtTotal() > income() * 3 ? 2 : 0, h: '[대출 이자]가 빠져나가는 날', q: '그래도 내 집이라 버틸 만하다. 조금씩 갚아 볼까?', cta: ['💼 대출 갚기', 'assets'] },
+  { id: 'tired', img: 'st_side_tired', c: 'orange', w: () => S.w.two + S.w.three >= 4 && S.hp < 60 ? 3 : 0, h: () => `부업 [${S.w.two + S.w.three}번째], 이대로 괜찮을까?`, q: '통장은 불어나는데 거울 속 얼굴은 점점 지쳐 간다.', cta: ['🛌 한 번 쉬기', 'w:rest'] },
+  { id: 'late', img: 'st_late', c: 'purple', w: () => S.t >= MAXT - 8 ? 3 : 0, h: () => `20년의 끝까지 [${Math.ceil((MAXT - S.t) / 2)}년]`, q: '마지막 승부를 걸까, 지금을 지킬까?', cta: null },
+  { id: 'save', img: 'st_save', c: 'green', w: () => .8, h: '통장 잔고가 [조금씩] 늘고 있다', q: '티끌 모아 태산. 오늘도 커피 대신 텀블러.', cta: null },
 ];
 function pickStory() {
   if (S.story && S.story.t === S.t && STORIES.find(x => x.id === S.story.id)) return STORIES.find(x => x.id === S.story.id);
@@ -1049,7 +1066,9 @@ function pickStory() {
 function storyCard() {
   const st = pickStory(), v = f => typeof f === 'function' ? f() : f;
   const h = esc(v(st.h)).replace(/\[(.+?)\]/, `<mark class="kw ${st.c}">$1</mark>`);
-  const art = st.img ? `<img src="img/st_${st.img}.webp" alt="">` : sceneLive().svg;
+  const LEGF = { cheong: 'ev_cheong', promo: 'ev_job', side: 'ev_side', stock: 'ev_stock', bun: 'ev_rebuild', buy: 'ev_key' };
+  const src = !st.img ? '' : st.img.startsWith('st_') ? gimg(st.img) : GEN() === 'f' ? gimg(LEGF[st.img]) : `img/st_${st.img}.webp`;
+  const art = src ? `<img src="${src}" alt="">` : sceneLive().svg;
   return `<div class="sty ${st.c}"><div class="stx"><span class="slab">📖 오늘의 이야기 ${S.storyN || 1}</span><b>${h}</b><p>“${esc(v(st.q))}”</p>${st.cta ? `<button class="scta" data-cta="${st.cta[1]}">${st.cta[0]} ›</button>` : ''}</div><div class="sart ${st.img ? 'pic' : 'anim'}">${art}</div></div>`;
 }
 function storyAction(a) {
@@ -1409,7 +1428,7 @@ function skyline() {
 
 // ---------- 시작 설정 ----------
 function renderSetup() {
-  let mode = 'hist', diff = 'd5';
+  let mode = 'hist', diff = 'd5', gender = 'm';
   const DIC = { d3: '🪙', d5: '💵', d10: '💴', d30: '💰' };
   const draw = () => {
     const nm = $('#nm') ? $('#nm').value : '';
@@ -1417,7 +1436,9 @@ function renderSetup() {
       <img class="st" src="img/setup_top.webp" alt="2026년, 서울에 첫 집을 얻었습니다!">
       <div class="scard">
         <div class="shead"><span class="hi">🏠</span><div>당신의 프로필을 설정하고<br><b><mark>서울 아파트 인생</mark>을 시작하세요!</b></div></div>
-        <div class="prof"><div class="pav">🧑‍💼</div><div><b>29세 · 무주택 · 서울 거주</b><small>💼 연봉 4,800만 원 · 📦 월세 85만 원 · ❤️ 체력 90 · 🎟️ 청약통장 5년</small></div></div>
+        <label class="lbl">주인공</label>
+        <div class="gsel">${[['m', '남자 주인공'], ['f', '여자 주인공']].map(([g, l]) => `<button class="gopt ${gender === g ? 'on' : ''}" data-g="${g}"><img src="img/${g}/face.webp" alt="${l}"><b>${l}</b>${gender === g ? '<i class="ck">✓</i>' : ''}</button>`).join('')}</div>
+        <div class="prof"><div class="pav"><img src="img/${gender}/face.webp" alt=""></div><div><b>29세 · 무주택 · 서울 거주</b><small>💼 연봉 4,800만 원 · 📦 월세 85만 원 · ❤️ 체력 90 · 🎟️ 청약통장 5년</small></div></div>
         <label class="lbl">이름</label>
         <div class="inp"><span>👤</span><input id="nm" maxlength="8" placeholder="닉네임을 입력하세요 (예: 건축학도고니)" value="${esc(nm)}"></div>
         <label class="lbl">시작 모드</label>
@@ -1431,14 +1452,15 @@ function renderSetup() {
       <img class="sb" src="img/setup_bot.webp" alt="실제 서울 시세 반영 · 실존 단지·지역 선택 · 다양한 투자 시나리오 · 총 40가지 엔딩">
     </div>`;
     document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mode = b.dataset.m; draw(); });
+    document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { gender = b.dataset.g; draw(); });
     document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { diff = b.dataset.d; draw(); });
     $('#back').onclick = renderTitle;
-    $('#go').onclick = () => startLife(mode, diff, $('#nm').value.trim());
+    $('#go').onclick = () => startLife(mode, diff, $('#nm').value.trim(), gender);
   };
   draw();
 }
-function startLife(mode, diff, name) {
-  newGame(mode, diff, name, null); TAB = 'home'; renderGame();
+function startLife(mode, diff, name, gender) {
+  newGame(mode, diff, name, null); S.gender = gender || 'm'; save(); TAB = 'home'; renderGame();
   modal(`<div class="evcat">튜토리얼</div><h3>🏙️ ${yearOf()}년, 29살의 서울 생활 시작</h3><p>월세방에서 시작하는 20년. 어떤 인생을 살지는 매 반기의 선택과, 중간중간 찾아오는 <b>🔀 인생의 갈림길</b>에서 정해져요.</p>
     <ul class="tut"><li>💼 매 반기 <b>어떻게 벌지</b> 고르세요. 투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라요.</li><li>🏠 <b>노려볼 아파트 3곳</b>을 눌러 얼마가 부족한지 확인하세요. 돈이 모이면 바로 매수!</li><li>🔀 몇 년마다 <b>인생의 갈림길</b>이 찾아와요. 그 선택이 커리어·가족·자산의 방향을 바꿔요.</li><li>⏭️ <b>다음 반기</b>를 누르면 6개월이 흐릅니다. 10개 챕터(20년) 뒤 40가지 엔딩 중 하나가 나와요.</li></ul>
     <p class="small">현재 규제: ${rules().name} — ${rules().note}</p><button class="btn pri" data-close>시작하기</button>`);
@@ -1453,7 +1475,7 @@ function hudSky() {
 function hud() {
   const n = nw(), hpc = S.hp < 25 ? 'bad' : S.hp < 50 ? 'mid' : '';
   const seg = Array.from({ length: 10 }, (_, i) => `<i class="${i < chapterOf() ? 'done' : i === chapterOf() ? 'cur' : ''}">${i === chapterOf() ? `<u style="width:${(S.t % 4 + 1) / 4 * 100}%"></u>` : ''}</i>`).join('');
-  return `<div class="hud2">${hudSky()}<div class="h2top"><div><b class="h2when">${when()}</b><span class="h2who">👤 ${esc(S.name || '나')} · ${ageOf()}세${S.biz ? ' · 사장님' : ''}${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</span></div><span class="h2ch">CH ${chapterOf() + 1}/10</span></div>
+  return `<div class="hud2">${hudSky()}<div class="h2top"><div><b class="h2when">${when()}</b><span class="h2who"><img class="hav" src="${gimg('face')}" alt=""> ${esc(S.name || '나')} · ${ageOf()}세${S.biz ? ' · 사장님' : ''}${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</span></div><span class="h2ch">CH ${chapterOf() + 1}/10</span></div>
     <div class="h2stats"><div class="c1"><small>💵 현금</small><b class="${S.cash < 0 ? 'neg' : ''}">${wonS(S.cash)}</b></div><div class="c2"><small>🏠 순자산</small><b>${wonS(n)}</b></div><div class="c3"><small>⚡ ${term('체력')}</small><b class="${hpc ? 'neg' : ''}">${S.hp}</b>${bar(S.hp, 'hp ' + hpc)}</div><div class="c4"><small>❤️ 행복</small><b>${S.happy}</b>${bar(S.happy, 'hap')}</div></div>
     <div class="seg">${seg}</div></div>`;
 }
@@ -1832,35 +1854,41 @@ function renderDexInner(el) {
 // ---------- 진행 ----------
 
 // ---------- 애니메이션: 반기 진행 · 이벤트 ----------
+const WIMG = { main: 'main', two: 'two', three: 'three', rest: 'rest', biz: 'biz', bizrun: 'bizrun', bizlite: 'biz', rejoin: 'rejoin' };
+const WFX = { main: ['✨', '⭐', '💡'], two: ['🪙', '🪙', '📦'], three: ['🪙', '💦', '🌙'], rest: ['💤', 'z', 'Z'], biz: ['🎉', '📦', '✨'], bizrun: ['📦', '🪙', '💨'], bizlite: ['☕', '✨', '🪙'], rejoin: ['✨', '🌸', '⭐'] };
+const WCAP = { main: '열심히 일하는 중', two: '퇴근 후 배달 중', three: '낮엔 회사, 밤엔 부업 2개', rest: '푹 쉬면서 재충전', biz: '내 가게 오픈!', bizrun: '사업 키우는 중', bizlite: '여유롭게 가게 운영 중', rejoin: '다시 회사로 출근' };
+function fxSpans(list, cls) { return list.map((e, i) => `<span class="fx ${cls}" style="left:${18 + i * 30}%;animation-delay:${i * .45}s">${e}</span>`).join(''); }
 function playWorkAnim(done) {
-  const k = S.plan.work, w = WORK[k], pv = workPreview(k), L = sceneLive(), m0 = S.t % 2 ? 7 : 1;
+  const k = S.plan.work, w = WORK[k], pv = workPreview(k), m0 = S.t % 2 ? 7 : 1;
   const ov = document.createElement('div'); ov.className = 'wanim';
-  ov.innerHTML = `<div class="wabox"><div class="wat">${w.ic} ${esc(L.cap)}…</div><div class="wasc">${L.svg.replace('preserveAspectRatio="xMinYMid slice"', 'preserveAspectRatio="xMidYMid slice"')}${pv.inc > 0 ? `<span class="wapop">+${wonS(pv.inc)}</span>` : ''}</div>
+  ov.innerHTML = `<div class="wabox"><div class="wat">${w.ic} ${WCAP[k] || w.t}…</div><div class="wasc ${GEN()}"><div class="wbg" style="background-image:url(${gimg('work_' + WIMG[k])})"></div><img class="kb" src="${gimg('work_' + WIMG[k])}" alt="">${fxSpans(WFX[k] || [], k === 'rest' ? 'zfx' : 'upfx')}${pv.inc > 0 ? `<span class="wapop">+${wonS(pv.inc)}</span>` : ''}</div>
     <div class="wamon"><b id="wam">${m0}월</b><span class="wabar"><i></i></span><small>${yearOf()}년 ${S.t % 2 ? '하반기' : '상반기'}</small></div><div class="waskip">화면을 누르면 건너뛰어요</div></div>`;
   document.body.appendChild(ov);
   let n = 0, fin = false; const tick = setInterval(() => { n++; const el = ov.querySelector('#wam'); if (el) el.textContent = `${Math.min(m0 + n, m0 + 5)}월`; }, 500);
   const end = () => { if (fin) return; fin = true; clearInterval(tick); ov.classList.add('out'); setTimeout(() => { ov.remove(); done(); }, 220); };
   ov.onclick = end; setTimeout(end, 3000);
 }
-function evScene(E) {
+function evKey(E) {
   const c = E.cat || '', t = (E.t || '') + (E.d || '');
-  const T = (x, y, sz, s, cls = '', st = '') => `<text class="${cls}" style="${st}" x="${x}" y="${y}" font-size="${sz}" text-anchor="middle">${s}</text>`;
-  let bg = ['#eef1ff', '#dfe6ff'], a = '';
-  const bars = col => [0, 1, 2, 3, 4].map(i => `<rect class="grow" style="animation-delay:${i * .15}s" x="${250 + i * 22}" y="${110 - 20 - i * 12}" width="14" height="${20 + i * 12}" rx="3" fill="${col}"/>`).join('');
-  if (/결혼|청혼|사랑/.test(t)) { bg = ['#fff0f4', '#ffdbe6']; a = `${T(120, 92, 54, '💑', 'bob')}${T(270, 80, 40, '💍', 'tix')}${[0, 1, 2, 3].map(i => T(170 + i * 40, 70, 18 + i % 2 * 6, '❤️', 'zz', `animation-delay:${i * .5}s`)).join('')}`; }
-  else if (/아이|출산|임신|아기/.test(t)) { bg = ['#fff7e6', '#ffe9c2']; a = `${T(130, 92, 54, '👶', 'bob')}${T(260, 80, 34, '🍼', 'tix')}${[0, 1, 2].map(i => T(190 + i * 50, 60, 22, '🎈', 'zz', `animation-delay:${i * .6}s`)).join('')}`; }
-  else if (c.includes('갈림길')) { bg = ['#f3efff', '#e2dafc']; a = `<path d="M60,110 L200,70 L340,110" fill="none" stroke="#c9bdf2" stroke-width="16" stroke-linecap="round"/><path d="M200,110 L200,70" stroke="#c9bdf2" stroke-width="16"/>${T(200, 60, 40, '🪧', 'bob')}<g class="walk2">${T(60, 104, 34, '🚶')}</g>${T(330, 50, 22, '✨', 'spark')}${T(80, 40, 18, '⭐', 'spark d2')}`; }
-  else if (/청약|분양/.test(c)) { bg = ['#eef3ff', '#dbe5ff']; a = `${T(130, 92, 50, '🎟️', 'tix')}${T(270, 100, 60, '🏢')}${[0, 1, 2, 3, 4].map(i => T(80 + i * 60, 40, 16, ['🎉', '✨', '⭐', '🎊', '✨'][i], 'spark', `animation-delay:${i * .3}s`)).join('')}`; }
-  else if (/입주권|재건축|구축|도시/.test(c)) { bg = ['#fff5e8', '#ffe6c7']; a = `${T(110, 100, 56, '🏗️', 'bob')}<g>${T(250, 106, 30, '🧱', 'stack')}${T(250, 80, 30, '🧱', 'stack d2')}${T(250, 54, 30, '🧱', 'stack d3')}</g>${T(330, 100, 32, '🚧', 'shake')}`; }
-  else if (/주식/.test(c)) { bg = ['#fff2f2', '#ffe1e1']; a = `${T(110, 96, 54, '🧐', 'bob')}${bars('#e5484d')}${T(190, 60, 24, '🪙', 'coin')}${T(220, 70, 20, '🪙', 'coin d2')}`; }
-  else if (/시장|정책|갭투자/.test(c)) { bg = ['#eef6ff', '#d9eaff']; a = `${T(110, 96, 54, '📰', 'shake')}${bars('#5b7fe8')}${T(340, 44, 24, '📢', 'bob')}`; }
-  else if (/부업/.test(c)) { bg = ['#fff6ec', '#ffe5cc']; a = `<g class="ride">${T(0, 100, 50, '🛵')}${T(-6, 62, 22, '📦')}</g>${T(300, 60, 24, '🪙', 'coin')}${T(340, 70, 20, '🪙', 'coin d2')}`; }
-  else if (/노동/.test(c)) { bg = ['#f0f4ff', '#dde6ff']; a = `${T(130, 96, 56, '🧑‍💼', 'bob')}${T(260, 92, 40, '💼', 'tix')}${T(200, 44, 22, '✨', 'spark')}${T(310, 50, 18, '⭐', 'spark d2')}`; }
-  else if (/건강/.test(c)) { bg = ['#fff1f1', '#ffdede']; a = `<g class="ride">${T(0, 100, 50, '🚑')}</g>${T(320, 70, 40, '🏥')}${T(200, 50, 20, '💦', 'drip')}`; }
-  else if (/전월세/.test(c)) { bg = ['#f2fbf3', '#dcf3e0']; a = `${T(120, 100, 60, '🏠')}${T(240, 86, 34, '📄', 'shake')}${T(310, 90, 32, '🔑', 'tix')}`; }
-  else { bg = ['#f4f6ff', '#e3e8fb']; a = `${T(130, 96, 56, '🌱', 'bob')}${T(260, 90, 36, '🏙️')}${T(200, 44, 22, '✨', 'spark')}${T(320, 50, 18, '⭐', 'spark d2')}`; }
-  return `<div class="evsc"><svg class="scn live" viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="evg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></linearGradient></defs><rect width="400" height="120" fill="url(#evg)"/><ellipse cx="200" cy="122" rx="230" ry="16" fill="#fff" opacity=".6"/>${a}</svg></div>`;
+  if (/결혼|청혼/.test(t)) return ['marry', ['💍', '❤️', '💕']];
+  if (/아이|출산|임신|아기/.test(t)) return ['baby', ['🎈', '❤️', '✨']];
+  if (c.includes('갈림길')) return ['cross', ['✨', '⭐', '❔']];
+  if (/위기|폭락/.test(t) && /시장|주식/.test(c)) return ['crisis', ['📉', '⚠️', '💥']];
+  if (/청약|분양/.test(c)) return ['cheong', ['🎉', '✨', '🎊']];
+  if (/입주권|재건축|구축|도시/.test(c)) return ['rebuild', ['🧱', '🚧', '✨']];
+  if (/주식/.test(c)) return ['stock', ['🪙', '📈', '✨']];
+  if (/시장|정책|갭투자/.test(c)) return ['news', ['📢', '📰', '❗']];
+  if (/부업/.test(c)) return ['side', ['🪙', '📦', '✨']];
+  if (/노동/.test(c)) return ['job', ['✨', '🎉', '⭐']];
+  if (/건강/.test(c)) return ['health', ['💊', '💦', '❤️']];
+  if (/전월세/.test(c)) return [GEN() === 'f' && Math.random() < .5 ? 'key' : 'move', ['🔑', '📦', '✨']];
+  return ['life', ['✨', '☕', '❤️']];
 }
+function evBanner(key, fx) {
+  const src = gimg('ev_' + key);
+  return `<div class="evsc img ${GEN()}"><div class="wbg" style="background-image:url(${src})"></div><img class="kb" src="${src}" alt="">${fxSpans(fx || [], 'upfx')}</div>`;
+}
+function evScene(E) { const [k, fx] = evKey(E); return evBanner(k, fx); }
 function onNext() {
   if (!onNext.go) { onNext.go = 1; return playWorkAnim(() => { onNext(); onNext.go = 0; }); }
   const r = nextTurn();
@@ -1894,7 +1922,7 @@ function onNext() {
   $('#ok').onclick = () => { closeModal(); after(); };
 }
 function crisisModal(c, next) {
-  modal(`<div class="evcat breaking">긴급 속보</div><h3>💥 ${esc(c.t)}</h3><p>${esc(c.d)}</p>
+  modal(`<div class="evcat breaking">긴급 속보</div>${evBanner('crisis', ['📉', '⚠️', '💥'])}<h3>💥 ${esc(c.t)}</h3><p>${esc(c.d)}</p>
     <div class="res3"><div><small>주식</small><b class="dn">최대 −65%</b></div><div><small>서울 아파트</small><b class="dn">약 −13%</b></div><div><small>대출 한도</small><b class="dn">LTV −10%p</b></div></div>
     <p class="small">💡 위기에서 기회가 생깁니다. 현금을 지킨 사람에게는 급매 아파트가 기다리고 있어요. 서울 지도에서 <b>급매</b> 표시를 찾아보세요.</p><button class="btn pri" id="ok">계속</button>`, 'ev');
   $('#ok').onclick = () => { closeModal(); next(); };
@@ -1957,7 +1985,7 @@ function renderEnding() {
 function cheongWinModal() {
   const c = S.chPend, dep = r2(c.p * .1), short = r2(dep - S.cash), room = r2(Math.max(0, Math.min(1.5, income() * 1.2) - S.credit));
   const stock = stockValue();
-  modal(`<div class="evcat">청약 결과</div><h3>🎉 축하합니다! 청약에 당첨됐어요!</h3><div class="scnw sm">${scene('🤩').replace('🐷', '📱')}</div>
+  modal(`<div class="evcat">청약 결과</div><h3>🎉 축하합니다! 청약에 당첨됐어요!</h3>${evBanner('cheong', ['🎉', '✨', '🎊'])}
     <p><b>${esc(c.n)}</b>에 당첨될 기회가 찾아왔습니다. 하지만 계약하려면 돈이 더 필요해요.</p>
     <div class="tbl"><div><span>계약에 필요한 돈 (계약금 10%)</span><b>${won(dep)}</b></div><div><span>현재 보유 현금</span><b>${won(S.cash)}</b></div><div><span>부족한 금액</span><b class="neg">${won(short)}</b></div></div>
     <p class="nextq"><b>다음 선택:</b> 계약금을 마련할까, 기회를 포기할까?</p>

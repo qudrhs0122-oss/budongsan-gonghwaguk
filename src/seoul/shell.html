@@ -305,6 +305,21 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .evsc{border-radius:16px;overflow:hidden;height:110px;margin:6px 0 8px;line-height:0}.evsc svg{width:100%;height:100%}
 .grow{transform-box:fill-box;transform-origin:bottom;animation:grw 1.6s cubic-bezier(.2,1.2,.4,1) both}@keyframes grw{from{transform:scaleY(0)}}
 .walk2{animation:wk2 3.2s ease-in-out infinite}@keyframes wk2{0%{transform:translate(0,0)}60%{transform:translate(120px,-30px)}100%{transform:translate(120px,-30px);opacity:0}}
+
+/* ===== 주인공 선택 · 일러스트 장면 ===== */
+.gsel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}.gopt{position:relative;border:2px solid #e7e0d2;background:#fff;border-radius:16px;padding:6px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.gopt img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:50% 25%;border-radius:12px}.gopt b{font-size:14px}.gopt.on{border-color:#6b5ad8;box-shadow:0 4px 14px rgba(107,90,216,.25)}
+.pav img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;border-radius:50%}
+.hav{width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:50% 20%;vertical-align:-5px;border:1.5px solid #fff}
+.wasc{position:relative;border-radius:18px;overflow:hidden;height:200px;background:#e9e6f5}
+.wbg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(14px) saturate(1.2);opacity:.85}
+.wasc img.kb,.evsc img.kb{position:relative;display:block;width:100%;height:100%;object-fit:cover;animation:kb 3.2s ease-out both}
+.wasc.f img.kb{object-fit:contain}.evsc.img.f img.kb{object-fit:contain}
+@keyframes kb{from{transform:scale(1.12) translateX(-2%)}to{transform:scale(1) translateX(0)}}
+.fx{position:absolute;bottom:18px;font-size:24px;z-index:3;pointer-events:none;opacity:0}
+.upfx{animation:upfx 2s ease-out infinite}@keyframes upfx{0%{opacity:0;transform:translateY(20px) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translateY(-110px) scale(1.15)}}
+.zfx{animation:zfx 2.2s ease-out infinite;font-weight:900;color:#6b5ad8}@keyframes zfx{0%{opacity:0;transform:translate(0,10px)}30%{opacity:1}100%{opacity:0;transform:translate(30px,-90px)}}
+.evsc.img{position:relative;height:120px;border-radius:16px;overflow:hidden;background:#eee}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
