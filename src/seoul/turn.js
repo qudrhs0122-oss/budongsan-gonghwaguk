@@ -41,7 +41,10 @@ function nextTurn() {
   if (S.st.interestBad >= 4 && debtTotal() > income() * 6) { S.ended = S.biz || S.flags.bizFail ? 'e17' : 'e25'; return { msgs, end: true, R }; }
   if (S.t >= MAXT) { S.ended = chooseEnding(); return { msgs, end: true, R }; }
   let e = null;
-  if (S.plan.ch && isHomeless()) { e = EVENTS.find(x => x.id === 'cheong'); S.plan.ch = false; }
+  if (S.gradT && S.t >= S.gradT) { S.gradT = 0; S.salary = r2(S.salary * 1.25); log(`🎓 대학원을 졸업했습니다! 연봉이 ${won(S.salary)}으로 올랐습니다.`); }
+  const cr = CROSS[S.t] || (S.crossRetry === S.t && S.married < 0 ? CROSS[15] : null);
+  if (cr) { e = { id: 'cross', run: cr }; S.crossT = S.t; }
+  else if (S.plan.ch && isHomeless()) { e = EVENTS.find(x => x.id === 'cheong'); S.plan.ch = false; }
   else e = drawEvent();
   S.ev = e ? e.id : null;
   if (S.t === 10 || S.t === 20 || S.t === 30) S.interAd = true;
@@ -58,7 +61,7 @@ function endingCands() {
   const ds = annualDebtService(0, 0) / Math.max(.1, income());
   const sideJobs = S.w.two + S.w.three;
   if (own) {
-    if (S.hp >= 80 && S.happy >= 85 && debt <= re * .15 && n >= 15 && S.married >= 0 && S.kids.length && !S.flags.forcedSale && !S.st.crisis && !S.overwarn) C.push('e40');
+    if (S.hp >= 80 && S.happy >= 88 && debt <= re * .15 && n >= 18 && S.married >= 0 && S.kids.length && !S.flags.forcedSale && !S.st.crisis && !S.overwarn) C.push('e40');
     if (live && (aptTr(live).hv || 0) >= .7 && S.happy >= 70) C.push('e10');
     if (S.st.bizPeak >= 3) C.push('e14');
     if (n >= 25 && stockValue() + S.cash >= 8 && debt <= re * .2) C.push('e15');

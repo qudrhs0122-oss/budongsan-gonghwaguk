@@ -59,7 +59,7 @@ function renderSetup() {
         <button class="mopt ${mode === 'hist' ? 'on' : ''}" data-m="hist"><span class="mi">🏆</span><span class="mt"><b>2015 인생 모드 <em>추천</em></b><small>2015년 29세로 시작해 2034년까지. 상승장·팬데믹·금리 인상·가상 금융위기를 차례로 겪어요</small></span>${mode === 'hist' ? '<i class="ck">✓</i>' : ''}</button>
         <label class="lbl">시작 자금 (보유 현금)</label>
         <div class="dgrid">${Object.entries(DIFFS).map(([k, d]) => `<button class="dopt ${diff === k ? 'on' : ''}" data-d="${k}"><b>${DIC[k]} ${d.n}</b><small>(${d.d.replace('현금 ', '')})</small>${diff === k ? '<i class="ck">✓</i>' : ''}</button>`).join('')}</div>
-        <button class="gobtn" id="go">▶ 다음: 첫 번째 선택 →</button>
+        <button class="gobtn" id="go">▶ 인생 시작하기</button>
         <button class="backbtn" id="back">← 이전으로</button>
       </div>
       <img class="sb" src="img/setup_bot.webp" alt="실제 서울 시세 반영 · 실존 단지·지역 선택 · 다양한 투자 시나리오 · 총 40가지 엔딩">
@@ -67,31 +67,15 @@ function renderSetup() {
     document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { mode = b.dataset.m; draw(); });
     document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { diff = b.dataset.d; draw(); });
     $('#back').onclick = renderTitle;
-    $('#go').onclick = () => renderFirstChoice(mode, diff, $('#nm').value.trim());
+    $('#go').onclick = () => startLife(mode, diff, $('#nm').value.trim());
   };
   draw();
 }
-const GOALS = {
-  old: { ic: '🏚️', t: '구축 아파트 매수', d: '저렴한 지역부터 시작해 갈아타기', hint: '외곽 구축은 대출 한도 안에서 들어가기 쉽습니다. 실거주 2년을 채우고 상급지로 갈아타 보세요.' },
-  gap: { ic: '🎯', t: '갭투자 도전', d: '시대별 규제와 전세금 반환 위험까지 관리', hint: '갭투자는 규제가 허용할 때만 가능합니다. 현실 모드에서는 금지돼 있으니 역사 모드에서 도전하세요. 전세 만기마다 보증금 차액을 조심하세요.' },
-  ch: { ic: '🎟️', t: '청약·분양권', d: '당첨을 기다리거나 거래 가능한 분양권 매수', hint: '무주택 기간과 부양가족이 가점을 올립니다. 당첨되면 계약금 10%가 바로 필요하니 현금을 모아 두세요.' },
-  re: { ic: '🏗️', t: '재개발·재건축', d: '정비사업 투자로 신축 아파트 입성', hint: '입주권은 권리 승계 요건 검증이 핵심입니다. 임장으로 검증하지 않으면 현금청산 위험이 있습니다. 분담금 증가에도 대비하세요.' },
-};
-function renderFirstChoice(mode, diff, name) {
-  $('#app').innerHTML = `<div class="setup fade"><h2>당신의 첫 번째 선택은?</h2><p class="small">어떤 길로 가도 나중에 바꿀 수 있어요. 고른 길에 맞춘 조언과 작은 혜택이 따라옵니다.</p>
-    <div class="goals">${Object.entries(GOALS).map(([k, g], i) => `<button class="goal" data-g="${k}"><span class="gn">0${i + 1}</span><span class="gi">${g.ic}</span><b>${g.t}</b><span>${g.d}</span></button>`).join('')}</div>
-    <button class="btn ghost" id="back">← 이전</button></div>`;
-  $('#back').onclick = renderSetup;
-  document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
-    newGame(mode, diff, name, b.dataset.g);
-    if (b.dataset.g === 'old') S.imjang = 3;
-    if (b.dataset.g === 're') S.freeVerify = 1;
-    if (b.dataset.g === 'ch') S.chBonus = 2;
-    TAB = 'home'; renderGame();
-    modal(`<div class="evcat">튜토리얼</div><h3>${GOALS[b.dataset.g].ic} ${GOALS[b.dataset.g].t}</h3><p>${GOALS[b.dataset.g].hint}</p>
-      <ul class="tut"><li>💼 매 반기 <b>어떻게 벌지</b> 고르세요. 투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라요.</li><li>🏠 <b>노려볼 아파트 3곳</b>을 눌러 얼마가 부족한지 확인하세요. 돈이 모이면 바로 매수!</li><li>📈 주식으로 불릴 수도 있지만 금융위기에는 반토막 날 수 있어요.</li><li>⏭️ <b>다음 반기</b>를 누르면 6개월이 흐릅니다. 10개 챕터(20년) 뒤 40가지 엔딩 중 하나가 나와요.</li></ul>
-      <p class="small">현재 규제: ${rules().name} — ${rules().note}</p><button class="btn pri" data-close>시작하기</button>`);
-  });
+function startLife(mode, diff, name) {
+  newGame(mode, diff, name, null); TAB = 'home'; renderGame();
+  modal(`<div class="evcat">튜토리얼</div><h3>🏙️ ${yearOf()}년, 29살의 서울 생활 시작</h3><p>월세방에서 시작하는 20년. 어떤 인생을 살지는 매 반기의 선택과, 중간중간 찾아오는 <b>🔀 인생의 갈림길</b>에서 정해져요.</p>
+    <ul class="tut"><li>💼 매 반기 <b>어떻게 벌지</b> 고르세요. 투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라요.</li><li>🏠 <b>노려볼 아파트 3곳</b>을 눌러 얼마가 부족한지 확인하세요. 돈이 모이면 바로 매수!</li><li>🔀 몇 년마다 <b>인생의 갈림길</b>이 찾아와요. 그 선택이 커리어·가족·자산의 방향을 바꿔요.</li><li>⏭️ <b>다음 반기</b>를 누르면 6개월이 흐릅니다. 10개 챕터(20년) 뒤 40가지 엔딩 중 하나가 나와요.</li></ul>
+    <p class="small">현재 규제: ${rules().name} — ${rules().note}</p><button class="btn pri" data-close>시작하기</button>`);
 }
 
 // ---------- 게임 화면 ----------
