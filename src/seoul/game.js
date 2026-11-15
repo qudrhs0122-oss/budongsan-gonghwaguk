@@ -319,6 +319,7 @@ function doBuy(aid, mode, loanUse) {
   return true;
 }
 function buyBun(aid) { // 분양권 전매 매수
+  if (S.props.some(p => p.aid === aid)) return false; // 같은 단지 권리는 한 번만
   const a = AP[aid], v = price(aid), prem = r2(Math.max(0, v - a.p));
   const cost = r2(a.p * .1 + prem + v * .005);
   if (S.cash < cost) return false;
@@ -328,6 +329,7 @@ function buyBun(aid) { // 분양권 전매 매수
   return true;
 }
 function buyIpj(aid, verify) {
+  if (S.props.some(p => p.aid === aid)) return false; // 같은 단지 권리는 한 번만
   const a = AP[aid], v = price(aid), cost = r2(v * .72), R = rules();
   const fee = verify === 'paid' ? .03 : 0, loan = ipjLoan(aid);
   if (S.cash < cost + fee - loan) return false;

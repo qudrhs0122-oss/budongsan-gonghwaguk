@@ -48,7 +48,7 @@ function renderSetup() {
   const draw = () => {
     const nm = $('#nm') ? $('#nm').value : '';
     $('#app').innerHTML = `<div class="setup2 fade">
-      <img class="st" src="img/setup_top.webp" alt="2026년, 서울에 첫 집을 얻었습니다!">
+      <div class="stw"><img class="st" src="img/setup_top_n.webp" alt="${mode === 'hist' ? 2015 : 2026}년, 서울에 첫 집을 얻었습니다!"><span class="styr">${mode === 'hist' ? 2015 : 2026}년,</span></div>
       <div class="scard">
         <div class="shead"><span class="hi">🏠</span><div>당신의 프로필을 설정하고<br><b><mark>서울 아파트 인생</mark>을 시작하세요!</b></div></div>
         <label class="lbl">주인공</label>
@@ -295,7 +295,7 @@ function stockModal() {
     modal(`<div class="evcat">주식 시장 · 게임용 가상 종목</div><h3>📈 종목 고르기</h3>
       <div class="kpi"><div><small>보유 현금</small><b>${won(S.cash)}</b></div><div><small>주식 평가금</small><b>${won(sv)}</b></div><div><small>평가손익</small><b class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)}</b></div></div>
       ${Object.entries(KN).map(([k, [n, sub]]) => `<div class="tkg"><div class="tkgh"><b>${n}</b><small>${sub}</small></div>${TICK.filter(t => t.k === k).map(t => { const c = pxChg(t.id), h = S.hold[t.id];
-        return `<button class="tkr" data-t="${t.id}"><span class="tki">${t.ic}</span><span class="tkn"><b>${t.n}</b><small>${t.sec}${h ? ` · <em>보유 ${wonS(h.v)}</em>` : ''}</small></span>${spark(S.px[t.id].slice(-12), 54, 22)}<span class="tkp"><b>${fmtPx(pxNow(t.id))}</b><small class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '▲' : '▼'}${Math.abs(c).toFixed(1)}%</small></span></button>`; }).join('')}</div>`).join('')}
+        return `<button class="tkr" data-t="${t.id}"><span class="tki">${t.ic}</span><span class="tkn"><b>${t.n}</b><small>${t.sec}${h ? ` · <em>보유 ${wonS(h.v)}</em>` : ''}</small></span>${spark(S.spx[t.id].slice(-12), 54, 22)}<span class="tkp"><b>${fmtPx(pxNow(t.id))}</b><small class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '▲' : '▼'}${Math.abs(c).toFixed(1)}%</small></span></button>`; }).join('')}</div>`).join('')}
       <p class="small">종목·뉴스·주가는 모두 게임용 가상입니다. 사고팔 때마다 그 종목 뉴스가 뜨고, 다음 반기 주가에 반영돼요.</p><button class="btn ghost" id="sx">닫기</button>`, 'wide');
     document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { STKSEL = b.dataset.t; detail(); });
     $('#sx').onclick = shut;
@@ -306,7 +306,7 @@ function stockModal() {
     const top = Math.max(max, have, .01), init = Math.min(top, .1);
     modal(`<button class="btn ghost sm" id="sbk">← 종목 목록</button>
       <div class="tkd"><span class="tki big">${t.ic}</span><div><b>${t.n}</b><small>${t.sec} · 위험도 <em style="color:${risk[1]}">${risk[0]}</em>${t.div ? ' · 배당 연 ' + (t.div * 100).toFixed(1) + '%' : ''}</small></div><div class="tkp"><b>${fmtPx(pxNow(t.id))}</b><small class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '▲' : '▼'}${Math.abs(c).toFixed(1)}% /반기</small></div></div>
-      ${lineChart(S.px[t.id], { color: c >= 0 ? '#e5484d' : '#3b82f6', h: 90, fmt: fmtPx, label: '주가' })}
+      ${lineChart(S.spx[t.id], { color: c >= 0 ? '#e5484d' : '#3b82f6', h: 90, fmt: fmtPx, label: '주가' })}
       <p class="small">${t.d}</p>
       <div class="kpi"><div><small>내 보유</small><b>${won(have)}</b></div><div><small>투자 원금</small><b>${won(h ? h.in : 0)}</b></div><div><small>평가손익</small><b class="${pl >= 0 ? 'up' : 'dn'}">${pl >= 0 ? '+' : ''}${won(pl)}</b></div></div>
       <div class="small amt">금액 <b id="sv">${won(init)}</b><span class="qk">${[.05, .1, .3, 1].map(v => `<button data-q="${v}">${v >= 1 ? '1억' : Math.round(v * 10000) + '만'}</button>`).join('')}<button data-q="all">전부</button></span></div>
@@ -417,6 +417,9 @@ function aptModal(aid) {
       <button class="btn pri" id="bLive" ${q.ok ? '' : 'disabled'}>${q.ok ? '실거주로 매수하고 입주' : `자금 부족 · ${won(q.cashNeed - S.cash - q.resBack)} 더 필요`}</button></div>
       ${R.gap ? `<div class="quote"><h5>🎯 전세 끼고 매수 (갭투자)</h5>${quoteTable(qg)}<button class="btn" id="bGap" ${qg.ok ? '' : 'disabled'}>${qg.ok ? '전세 끼고 매수' : `자금 부족 · ${won(qg.cashNeed - S.cash)} 더 필요`}</button><p class="small">2년마다 전세 재계약. 전세가가 떨어지면 차액을 돌려줘야 해요.</p></div>` : `<p class="small warn">🚫 현재 규제(${R.name})에서는 전세 낀 매수가 금지돼 있어요. 사면 2년 실거주해야 합니다.</p>`}
       ${owned ? '<p class="small">이미 보유 중인 단지예요.</p>' : ''}`;
+  } else if (S.props.some(p => p.aid === aid)) {
+    const mine = S.props.find(p => p.aid === aid);
+    body = `<div class="quote own"><h5>✅ 이미 보유 중인 ${a.kind === 'bun' ? '분양권' : '입주권'}</h5><p class="small">이 단지의 ${a.kind === 'bun' ? '분양권' : '조합원 입주권'}은 이미 가지고 있어요. 같은 단지 권리는 한 번만 살 수 있어요.</p><p class="small">${a.mv ? `${a.mv}년 입주 예정 · ` : ''}${mine.kind === "bun" ? `계약금+프리미엄 ${won(r2(mine.total * .1 + (mine.premPaid || 0)))}` : mine.kind === "ipj" ? `매수가 ${won(mine.paid0 || mine.paid || 0)}` : "새 아파트로 입주 완료"}</p><button class="btn" id="bGoAs">💼 자산 탭에서 보기</button></div>`;
   } else if (a.kind === 'bun') {
     const prem = Math.max(0, v - a.p), cost = a.p * .1 + prem + v * .005;
     body = `<div class="quote"><h5>📄 분양권 매수 (전매)</h5><table class="qt"><tr><td>계약금 (분양가 10%)</td><td>${won(a.p * .1)}</td></tr><tr><td>프리미엄</td><td>${won(prem)}</td></tr><tr><td>중개보수 등</td><td>${won(v * .005)}</td></tr><tr class="tot"><td>지금 필요한 현금</td><td>${won(cost)}</td></tr><tr><td>중도금 (60%)</td><td>집단대출 승계</td></tr><tr><td>잔금 (${a.mv}년)</td><td>${won(a.p * .3)} + 중도금 상환</td></tr></table>
@@ -430,6 +433,7 @@ function aptModal(aid) {
       ${S.cash < cn ? `<p class="small">현금 ${won(cn - S.cash)} 부족</p>` : ''}</div>`;
   }
   modal(head + body + '<button class="btn ghost" data-close>닫기</button>', 'wide');
+  if ($('#bGoAs')) $('#bGoAs').onclick = () => { closeModal(); TAB = 'assets'; renderGame(); };
   if ($('#bImj')) $('#bImj').onclick = () => { S.imjang--; S.seen[aid] = 1; save(); aptModal(aid); };
   if ($('#loanR')) $('#loanR').oninput = e => { $('#lv').textContent = won(+e.target.value); };
   if ($('#bLive')) $('#bLive').onclick = () => { const lu = $('#loanR') ? +$('#loanR').value : 0; if (doBuy(aid, 'live', lu)) { closeModal(); save(); toast(`🎉 ${a.n} 매수! 이삿짐을 옮겼습니다.`); celebrate(); renderGame(); } };

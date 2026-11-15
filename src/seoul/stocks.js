@@ -30,9 +30,17 @@ const TICK = [
 const TK = Object.fromEntries(TICK.map(t => [t.id, t]));
 const KIND_DEF = { blue: 'usx', growth: 'neo', coin: 'btc', lev: 'lev' };
 function stockInit() {
+  // 이전 버전 버그 복구: 주식 시세가 S.px(아파트 시세)를 덮어쓴 세이브
+  if (S.px && S.px.dhe && Array.isArray(S.px.dhe)) { S.spx = S.spx || {}; for (const t of TICK) if (Array.isArray(S.px[t.id])) { S.spx[t.id] = S.px[t.id]; delete S.px[t.id]; } }
+  if (S.px && S.hist) for (const a of APTS) if (!Number.isFinite(S.px[a.id])) {
+    const h = (S.hist[a.id] || []).filter(Number.isFinite), g = S.Gh && S.Gh.length ? S.G / S.Gh[Math.max(0, S.Gh.length - h.length)] : 1;
+    S.px[a.id] = r2(h.length ? h[h.length - 1] * (h.length < (S.hist[a.id] || []).length ? g : 1) : a.p);
+    S.hist[a.id] = (S.hist[a.id] || []).map(v => Number.isFinite(v) ? v : S.px[a.id]);
+  }
+  if (S.hold && !S.spx) { S.spx = {}; for (const t of TICK) S.spx[t.id] = [t.p0]; }
   if (S.hold) return;
-  S.hold = {}; S.px = {}; S.news = {};
-  for (const t of TICK) S.px[t.id] = [t.p0];
+  S.hold = {}; S.spx = {}; S.news = {};
+  for (const t of TICK) S.spx[t.id] = [t.p0];
   for (const k of ['blue', 'growth', 'coin', 'lev']) if (S.stk && S.stk[k] > 0) S.hold[KIND_DEF[k]] = { v: S.stk[k], in: S.stkIn[k] || S.stk[k] };
   syncKinds();
 }
@@ -40,8 +48,8 @@ function syncKinds() {
   S.stk = { blue: 0, growth: 0, coin: 0, lev: 0 }; S.stkIn = { blue: 0, growth: 0, coin: 0, lev: 0 };
   for (const [id, h] of Object.entries(S.hold || {})) { const k = TK[id].k; S.stk[k] = r2(S.stk[k] + h.v); S.stkIn[k] = r2(S.stkIn[k] + h.in); }
 }
-const pxNow = id => { const a = S.px[id]; return a[a.length - 1]; };
-const pxChg = id => { const a = S.px[id]; return a.length > 1 ? (a[a.length - 1] / a[a.length - 2] - 1) * 100 : 0; };
+const pxNow = id => { const a = S.spx[id]; return a[a.length - 1]; };
+const pxChg = id => { const a = S.spx[id]; return a.length > 1 ? (a[a.length - 1] / a[a.length - 2] - 1) * 100 : 0; };
 function fmtPx(p) { return p >= 1e4 ? Math.round(p).toLocaleString() + '원' : p >= 100 ? Math.round(p).toLocaleString() + '원' : p.toFixed(1) + '원'; }
 
 function stepStocks() {
@@ -57,7 +65,7 @@ function stepStocks() {
     if (crisisNow) ret = (t.k === 'lev' ? -.75 : STK[t.k].crash) + rnd(-.06, .06);
     ret += (S.news[t.id] || 0) / 100; S.news[t.id] = 0;
     ret = clamp(ret, -.92, t.k === 'coin' ? 4 : 2);
-    S.px[t.id].push(Math.max(t.p0 * .02, pxNow(t.id) * (1 + ret))); if (S.px[t.id].length > 42) S.px[t.id].shift();
+    S.spx[t.id].push(Math.max(t.p0 * .02, pxNow(t.id) * (1 + ret))); if (S.spx[t.id].length > 42) S.spx[t.id].shift();
     const h = S.hold[t.id]; if (!h) continue;
     h.v = r2(h.v * (1 + ret));
     if (t.div && h.v > 0) divCash += h.v * t.div / 2;
