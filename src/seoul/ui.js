@@ -76,9 +76,16 @@ function renderSetup() {
 }
 function startLife(mode, diff, name, gender) {
   newGame(mode, diff, name, null); S.gender = gender || 'm'; save(); TAB = 'home'; renderGame();
-  modal(`<div class="evcat">튜토리얼</div><h3>🏙️ ${yearOf()}년, 29살의 서울 생활 시작</h3><p>월세방에서 시작하는 20년. 어떤 인생을 살지는 매 반기의 선택과, 중간중간 찾아오는 <b>🔀 인생의 갈림길</b>에서 정해져요.</p>
-    <ul class="tut"><li>💼 매 반기 <b>어떻게 벌지</b> 고르세요. 투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라요.</li><li>🏠 <b>노려볼 아파트 3곳</b>을 눌러 얼마가 부족한지 확인하세요. 돈이 모이면 바로 매수!</li><li>🔀 몇 년마다 <b>인생의 갈림길</b>이 찾아와요. 그 선택이 커리어·가족·자산의 방향을 바꿔요.</li><li>⏭️ <b>다음 반기</b>를 누르면 6개월이 흐릅니다. 10개 챕터(20년) 뒤 40가지 엔딩 중 하나가 나와요.</li></ul>
-    <p class="small">현재 규제: ${rules().name} — ${rules().note}</p><button class="btn pri" data-close>시작하기</button>`);
+  const R = [
+    ['월세방에서 시작하는 20년.', `어떤 인생을 살지는 매 반기의 선택과, 중간중간 찾아오는 <mark>인생의 갈림길</mark>에서 정해져요.`],
+    ['💼 매 반기 어떻게 벌지 고르세요.', '투잡·쓰리잡은 돈을 빨리 모으지만 체력이 깎이고, 본업에 집중하면 승진 확률이 올라가요.'],
+    ['🏠 노려볼 아파트 3곳을', '눌러 얼마가 부족한지 확인하세요. 돈이 모이면 바로 매수!'],
+    ['🔀 몇 년마다 인생의 갈림길이 찾아와요.', '그 선택이 커리어·가족·자산의 방향을 바꿔요.'],
+    ['🏁 다음 반기를 누르면 6개월이 흐릅니다.', '10개 챕터(20년) 뒤 40가지 엔딩 중 하나가 나와요.'],
+  ];
+  modal(`<div class="tuthd"><span class="tutbadge">튜토리얼</span><h3>${yearOf()}년, 29살의<br>서울 생활 시작</h3></div>
+    ${R.map(([h, d], k) => `<div class="tutrow"><div class="tutim">${k === 0 ? `<span class="tutnote">${yearOf()}년<br>(29세)</span>` : ''}<img src="img/tut/${k + 1}.webp" alt=""></div><div class="tuttx">${k ? `<b>${h}</b>` : h}<p>${d}</p></div></div>`).join('')}
+    <div class="tutrule">📄 현재 규제: ${rules().name} — ${rules().note}</div><button class="btn pri tutgo" data-close>시작하기</button>`, 'tutm');
 }
 
 // ---------- 게임 화면 ----------
