@@ -178,6 +178,14 @@ function storyHead() {
   if (own) return [['', '', '드디어 내 집이 생겼다!', '대출 이자가 빠져나가는 날', '갈아탈까, 버틸까?', '아이 방 하나 더 있었으면', '한 칸 위 동네가 보인다', '흔들리는 시장', '자산을 굳힐 시간', '20년의 끝이 보인다'][c] || '내 집에서 맞는 반기', ['', '', '“이제 대출을 갚으며 다음 목표를 세워 볼까?”', '“그래도 내 집이라 버틸 만하다.”', '“집값 뉴스가 자꾸 눈에 들어온다.”', '“가족이 늘면 집도 커져야 할까?”', '“더 좋은 동네로 갈아탈 수 있을까?”', '“지킬 것인가, 움직일 것인가.”', '“이제는 지키는 게 버는 거다.”', '“마지막 결정을 내릴 때다.”'][c] || ''];
   return [['친구가 서울 아파트 청약을 추천했다!', '종잣돈이 조금씩 쌓인다', '부동산 앱을 켜는 시간이 늘었다', '집값이 또 올랐다', '인생의 갈림길이 한꺼번에', '가족이 늘면 집이 더 절실하다', '아직 무주택, 하지만 포기는 이르다', '위기는 기회와 함께 온다', '마지막 승부를 걸까?', '20년의 끝이 보인다'][c], ['“지금 집을 사는 게 좋을까? 아니면 돈을 더 모을까?”', '“선배는 투잡을, 친구는 주식을 권한다. 나는?”', '“이번엔 진짜 첫 집에 도전해 볼까?”', '“기다릴수록 멀어지는 기분이다.”', '“결혼, 이직, 투자… 무엇부터 해야 할까?”', '“아이 방이 있는 집에서 살고 싶다.”', '“청약, 급매, 재개발… 아직 길은 있다.”', '“모두가 팔 때 살 용기가 있을까?”', '“남은 시간이 많지 않다.”', '“결과는 곧 나온다.”'][c]];
 }
+const aptPhoto = a => `<img class="aphoto" src="img/apt/${a.id}.webp" alt="${esc(a.n)}" loading="lazy" onerror="this.remove()">`; // 실제 단지 사진이 있으면 일러스트 위에 덮어 씀
+function imjangCard(a) {
+  const x = IMJ[a.id]; if (!x) return '';
+  return `<div class="imjc"><div class="imjh">🔍 임장 분석 <small>현장 체크 포인트</small></div>
+    <div class="imjr"><span>📍 입지·교통</span><p>${x.l}</p></div><div class="imjr"><span>🏫 생활·학군</span><p>${x.s}</p></div>
+    <div class="imjpm"><div class="pl"><b>👍 장점</b>${x.p.map(t => `<i>${t}</i>`).join('')}</div><div class="mi"><b>⚠️ 주의할 점</b>${x.m.map(t => `<i>${t}</i>`).join('')}</div></div>
+    <div class="imjo">💬 ${x.o}</div><small class="imjn">공개 정보를 바탕으로 게임용으로 정리한 요약이에요. 실제 매수는 현장 확인과 최신 자료로 판단하세요.</small></div>`;
+}
 function aptArt(a) { // 단지 일러스트 (종류·단지마다 조금씩 다르게)
   let h = 0; for (const ch of a.id) h = (h * 31 + ch.charCodeAt(0)) % 997;
   const isNew = a.kind !== 'buy' || (a.y && a.y >= 2010), crane = a.kind === 'ipj' || (a.kind === 'bun' && h % 2);
@@ -289,7 +297,7 @@ function tabHome() {
     return `<button class="wopt ${on ? 'on' : ''}${risk}" data-w="${k}" title="${w.d}">${on ? '<i class="wck">✓</i>' : `<em class="pill t-${TAGW[k]}">${TAGW[k]}</em>`}<span class="wib wb-${TAGW[k]}"><span class="wi2">${w.ic}</span></span><b>${w.s}</b><span class="wfx"><em class="${pv.inc > 0 ? 'pos' : pv.inc < 0 ? 'neg' : ''}">🪙 ${inc}</em><em class="${pv.hp < 0 ? 'neg' : 'pos'}">⚡${pv.hp > 0 ? '+' : ''}${pv.hp}</em><em class="${pv.hap < 0 ? 'neg' : 'pos'}">❤️${pv.hap > 0 ? '+' : ''}${pv.hap}</em></span></button>`; }).join('');
   const pk = picks3();
   const pcards = pk.map(x => { const a = x.a, kind = { buy: ['구축·매매', '실거주 매수'], bun: ['분양권', '계약금 + 프리미엄'], ipj: ['재개발 입주권', '권리가액 − 이주비 대출'] }[a.kind];
-    return `<button class="pick2 ${x.short <= 0 ? 'ok' : ''}" data-a="${a.id}"><span class="pimg">${aptArt(a)}<em>${kind[0]}</em></span><b>${esc(a.n)}</b><small>📍 ${GUN[a.gu].n}구 · 시세 ${wonS(price(a.id))}</small><span class="pneed2">${x.short <= 0 ? '✅ 지금 매수 가능' : `🪙 ${wonS(x.short)} 부족`}</span></button>`; }).join('');
+    return `<button class="pick2 ${x.short <= 0 ? 'ok' : ''}" data-a="${a.id}"><span class="pimg">${aptArt(a)}${aptPhoto(a)}<em>${kind[0]}</em></span><b>${esc(a.n)}</b><small>📍 ${GUN[a.gu].n}구 · 시세 ${wonS(price(a.id))}</small><span class="pneed2">${x.short <= 0 ? '✅ 지금 매수 가능' : `🪙 ${wonS(x.short)} 부족`}</span></button>`; }).join('');
   const sv = stockValue(), si = stockIn(), sg = r2(sv - si);
   const hint = !own && gap.short > 0 ? (S.hp >= 60 && !S.biz ? '💡 부족한 돈은 <b>투잡</b>으로 빨리 모으거나, <b>주식</b>으로 불리거나, <b>청약</b>을 노려 보세요.' : S.hp < 40 ? '💡 체력이 낮아요. 이번 반기는 <b>휴식</b>을 고르는 게 안전해요.' : '💡 꾸준한 저축이 가장 확실한 길이에요.') : '';
   $('#tab').innerHTML = `
@@ -440,7 +448,8 @@ function aptModal(aid) {
   const head = `<div class="evcat">${GUN[a.gu].n}구 · ${{ buy: '매매', bun: '분양권', ipj: '입주권' }[a.kind]}</div><h3>${a.n}</h3><p class="small">${a.sz}${a.y ? ` · ${a.y}년 준공` : ''}${a.mv ? ` · ${a.mv}년 입주 예정` : ''}</p><span class="tags">${tags(a.tr)}</span>
     <div class="pbox"><div><small>게임 시세</small><b>${won(v)}</b></div>${a.kind === 'buy' ? `<div><small>전세 시세</small><b>${won(v * a.jr * S.J)}</b></div>` : a.kind === 'bun' ? `<div><small>분양가</small><b>${won(a.p)}</b></div>` : `<div><small>예상 분담금</small><b>${won(v * .3)}</b></div>`}<div><small>1년 변화</small><b class="${chg(aid) >= 0 ? 'up' : 'dn'}">${pct(chg(aid))}</b></div></div>
     ${S.chart ? `<div class="chart">${spark(S.hist[aid], 300, 60)}<small>${when(0)} → 지금</small></div>` : `<p class="small lock">📈 과거 시세 그래프는 홈 → 과거 시세 복기로 열 수 있어요.</p>`}
-    <p class="tip">${a.tip}</p>
+    <div class="aptph">${aptPhoto(a)}</div>
+    <p class="tip">${a.tip}</p>${imjangCard(a)}
     <div class="imj">${seen ? `<b>🔍 임장 메모</b><br>${imjangNote(a)}` : `<button class="btn sm" id="bImj" ${S.imjang ? '' : 'disabled'}>🔍 임장 가기 (남은 기회 ${S.imjang})</button>`}</div>`;
   let body = '';
   if (a.kind === 'buy') {
