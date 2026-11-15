@@ -178,14 +178,14 @@ function gauge(label, v, dv, color) {
 }
 function stockCard() {
   const sv = stockValue(), si = stockIn(), sg = r2(sv - si), pr = si ? sg / si * 100 : 0;
-  if (sv <= 0) return `<div class="card ccard"><div class="chd"><b>📈 주식 계좌</b><em class="pill">선택</em></div><p class="small">아직 투자하지 않았어요. 오르면 계약금이 빨리 모이지만, 금융위기 때는 반토막 날 수도 있어요.</p>${lineChart(S.hs, { label: '평가금' })}<button class="btn sm" id="bStk">📈 주식 사기</button></div>`;
+  if (sv <= 0) return `<div class="card ccard"><div class="chd"><b>📈 주식 계좌</b><em class="pill">선택</em></div><p class="small">아직 투자하지 않았어요. 오르면 계약금이 빨리 모이지만, 금융위기 때는 반토막 날 수도 있어요.</p>${lineChart(S.hs, { label: '평가금' })}<button class="btn sm" id="bStk">📈 종목 보러 가기</button></div>`;
   const cols = { blue: '#5b7fe8', growth: '#8b6cf5', coin: '#f2b632', lev: '#e5484d' };
   const seg = Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `<i style="width:${(S.stk[k] / sv * 100).toFixed(1)}%;background:${cols[k]}" title="${STK[k].t}"></i>`).join('');
   return `<div class="card ccard"><div class="chd"><b>📈 주식 계좌</b><em class="pill ${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '▲' : '▼'} ${Math.abs(pr).toFixed(1)}%</em></div>
     <div class="kpi"><div><small>평가금</small><b>${won(sv)}</b></div><div><small>투자 원금</small><b>${won(si)}</b></div><div><small>평가손익</small><b class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)}</b></div></div>
     ${lineChart(S.hs, { color: sg >= 0 ? '#e5484d' : '#3b82f6' })}
-    <div class="segbar">${seg}</div><div class="seglg">${Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `<span><i style="background:${cols[k]}"></i>${STK[k].t} ${wonS(S.stk[k])}</span>`).join('')}</div>
-    <button class="btn sm" id="bStk">📈 사고팔기</button></div>`;
+    <div class="segbar">${seg}</div><div class="seglg">${Object.entries(S.hold || {}).sort((a, b) => b[1].v - a[1].v).slice(0, 5).map(([id, h]) => `<span><i style="background:${cols[TK[id].k]}"></i>${TK[id].ic} ${TK[id].n} ${wonS(h.v)} <em class="${h.v >= h.in ? 'up' : 'dn'}">${h.in ? ((h.v / h.in - 1) * 100).toFixed(0) : 0}%</em></span>`).join('')}</div>
+    <button class="btn sm" id="bStk">📈 종목 보고 사고팔기</button></div>`;
 }
 function gajeomCard() {
   const g = gajeom();
@@ -247,29 +247,61 @@ function tabHome() {
   document.querySelectorAll('[data-cta]').forEach(b => b.onclick = () => storyAction(b.dataset.cta));
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { TAB = b.dataset.goto; renderGame(); });
   document.querySelectorAll('[data-ad]').forEach(b => b.onclick = () => adReward(b.dataset.ad));
-  $('#bStk').onclick = stockModal;
+  $('#bStk').onclick = () => { STKSEL = null; stockModal(); };
   if ($('#chk')) $('#chk').onchange = e => { S.plan.ch = e.target.checked; save(); };
   if ($('#chT')) $('#chT').onclick = () => { S.plan.ch = !S.plan.ch; save(); tabHome(); toast(S.plan.ch ? '🎟️ 다음 반기에 청약을 넣어요' : '청약 신청을 취소했어요'); };
   if ($('#stkT')) $('#stkT').onclick = stockModal;
 }
+let STKSEL = null;
 function stockModal() {
-  let k = 'blue';
-  const draw = () => {
-    const have = S.stk[k], max = Math.max(0, S.cash);
-    modal(`<div class="evcat">주식 계좌 · 게임용 가상 시장</div><h3>📈 종잣돈 불리기</h3>
-      <div class="stabs">${Object.entries(STK).map(([kk, v]) => `<button class="${k === kk ? 'on' : ''}" data-k="${kk}">${v.ic} ${v.t}</button>`).join('')}</div>
-      <p class="small">${STK[k].d}${k === 'lev' ? ` — ${term('레버리지')}` : ''}</p>
-      <table class="qt"><tr><td>보유 평가금</td><td>${won(have)}</td></tr><tr><td>투자 원금</td><td>${won(S.stkIn[k])}</td></tr><tr><td>보유 현금</td><td>${won(S.cash)}</td></tr></table>
-      <label class="small">금액 <b id="sv">${won(Math.min(max, .1))}</b></label><input type="range" id="sr" min="0" max="${Math.max(max, have, .01)}" step="0.01" value="${Math.min(max, .1)}">
-      <button class="btn pri" id="sb" ${max > 0 ? '' : 'disabled'}>사기</button><button class="btn" id="ss" ${have > 0 ? '' : 'disabled'}>팔기</button>
-      <p class="small">수익률은 실제 시세가 아닌 게임용 가상 시나리오예요. 금융위기가 오면 우량주 −33%, 성장주 −50%, 코인 −65%까지 빠질 수 있어요.</p><button class="btn ghost" id="sx">닫기</button>`, 'wide');
-    $('#sx').onclick = () => { closeModal(); renderGame(); };
-    document.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { k = b.dataset.k; draw(); });
-    $('#sr').oninput = e => { $('#sv').textContent = won(+e.target.value); };
-    $('#sb').onclick = () => { const v = Math.min(+$('#sr').value, S.cash); if (v <= 0) return; buyStock(k, v); save(); toast(`${STK[k].ic} ${won(v)} 매수`); draw(); };
-    $('#ss').onclick = () => { const v = Math.min(+$('#sr').value, S.stk[k]); if (v <= 0) return; sellStock(k, v); save(); toast(`${won(v)} 매도`); draw(); };
+  stockInit();
+  const KN = { blue: ['🏛️ 우량주·지수', '변동 작음'], growth: ['🚀 성장주', '크게 오르내림'], coin: ['🪙 가상자산', '초고위험'], lev: ['🎢 레버리지', '강제 청산 위험'] };
+  const shut = () => { closeModal(); renderGame(); };
+  const listView = () => {
+    STKSEL = null;
+    const sv = stockValue(), si = stockIn(), sg = r2(sv - si);
+    modal(`<div class="evcat">주식 시장 · 게임용 가상 종목</div><h3>📈 종목 고르기</h3>
+      <div class="kpi"><div><small>보유 현금</small><b>${won(S.cash)}</b></div><div><small>주식 평가금</small><b>${won(sv)}</b></div><div><small>평가손익</small><b class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)}</b></div></div>
+      ${Object.entries(KN).map(([k, [n, sub]]) => `<div class="tkg"><div class="tkgh"><b>${n}</b><small>${sub}</small></div>${TICK.filter(t => t.k === k).map(t => { const c = pxChg(t.id), h = S.hold[t.id];
+        return `<button class="tkr" data-t="${t.id}"><span class="tki">${t.ic}</span><span class="tkn"><b>${t.n}</b><small>${t.sec}${h ? ` · <em>보유 ${wonS(h.v)}</em>` : ''}</small></span>${spark(S.px[t.id].slice(-12), 54, 22)}<span class="tkp"><b>${fmtPx(pxNow(t.id))}</b><small class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '▲' : '▼'}${Math.abs(c).toFixed(1)}%</small></span></button>`; }).join('')}</div>`).join('')}
+      <p class="small">종목·뉴스·주가는 모두 게임용 가상입니다. 사고팔 때마다 그 종목 뉴스가 뜨고, 다음 반기 주가에 반영돼요.</p><button class="btn ghost" id="sx">닫기</button>`, 'wide');
+    document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { STKSEL = b.dataset.t; detail(); });
+    $('#sx').onclick = shut;
   };
-  draw();
+  const detail = () => {
+    const t = TK[STKSEL], h = S.hold[t.id], c = pxChg(t.id), have = h ? h.v : 0, pl = h ? r2(h.v - h.in) : 0, max = Math.max(0, S.cash);
+    const risk = { blue: ['낮음', '#3f9c58'], growth: ['높음', '#e08a1e'], coin: ['매우 높음', '#e5484d'], lev: ['매우 높음', '#e5484d'] }[t.k];
+    const top = Math.max(max, have, .01), init = Math.min(top, .1);
+    modal(`<button class="btn ghost sm" id="sbk">← 종목 목록</button>
+      <div class="tkd"><span class="tki big">${t.ic}</span><div><b>${t.n}</b><small>${t.sec} · 위험도 <em style="color:${risk[1]}">${risk[0]}</em>${t.div ? ' · 배당 연 ' + (t.div * 100).toFixed(1) + '%' : ''}</small></div><div class="tkp"><b>${fmtPx(pxNow(t.id))}</b><small class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '▲' : '▼'}${Math.abs(c).toFixed(1)}% /반기</small></div></div>
+      ${lineChart(S.px[t.id], { color: c >= 0 ? '#e5484d' : '#3b82f6', h: 90, fmt: fmtPx, label: '주가' })}
+      <p class="small">${t.d}</p>
+      <div class="kpi"><div><small>내 보유</small><b>${won(have)}</b></div><div><small>투자 원금</small><b>${won(h ? h.in : 0)}</b></div><div><small>평가손익</small><b class="${pl >= 0 ? 'up' : 'dn'}">${pl >= 0 ? '+' : ''}${won(pl)}</b></div></div>
+      <div class="small amt">금액 <b id="sv">${won(init)}</b><span class="qk">${[.05, .1, .3, 1].map(v => `<button data-q="${v}">${v >= 1 ? '1억' : Math.round(v * 10000) + '만'}</button>`).join('')}<button data-q="all">전부</button></span></div>
+      <input type="range" id="sr" min="0" max="${top}" step="0.01" value="${init}">
+      <div class="bsb"><button class="btn buy" id="sb" ${max > 0 ? '' : 'disabled'}>사기</button><button class="btn sell" id="ss" ${have > 0 ? '' : 'disabled'}>팔기</button></div>
+      <button class="btn ghost" id="sx">닫기</button>`, 'wide');
+    const sr = $('#sr'), upd = () => { $('#sv').textContent = won(+sr.value); };
+    sr.oninput = upd;
+    document.querySelectorAll('[data-q]').forEach(b => b.onclick = () => { sr.value = b.dataset.q === 'all' ? top : Math.min(+b.dataset.q, top); upd(); });
+    $('#sbk').onclick = listView; $('#sx').onclick = shut;
+    $('#sb').onclick = () => { const v = r2(Math.min(+sr.value, S.cash)); if (v <= 0) return toast('살 금액을 골라주세요'); stockNewsAnim(t.id, 'buy', v, () => { buyStock(t.id, v); save(); toast(`${t.ic} ${t.n} ${won(v)} 매수`); detail(); }); };
+    $('#ss').onclick = () => { const v = r2(Math.min(+sr.value, have)); if (v <= 0) return toast('팔 금액을 골라주세요'); stockNewsAnim(t.id, 'sell', v, () => { sellStock(t.id, v); save(); toast(`${t.ic} ${t.n} ${won(v)} 매도`); detail(); }); };
+  };
+  STKSEL && TK[STKSEL] ? detail() : listView();
+}
+function stockNewsAnim(id, side, amt, done) { // 매매 순간 3초 동안 그 종목 속보
+  const t = TK[id], is = pickIssue(id), tag = is.sign > 0 ? ['호재', '#e5484d', '📈'] : is.sign < 0 ? ['악재', '#2f5bea', '📉'] : ['중립', '#8a849c', '📰'];
+  const img = gimg(is.sign < 0 ? 'ev_crisis' : 'ev_stock');
+  const ov = document.createElement('div'); ov.className = 'wanim';
+  ov.innerHTML = `<div class="wabox snews"><div class="snh"><span class="brk">속보</span><b>${t.ic} ${t.n}</b><em style="background:${tag[1]}">${tag[0]}</em></div>
+    <div class="wasc ${GEN()} sm"><img class="kb" src="${img}" alt="">${fxSpans(is.sign > 0 ? ['📈', '🪙', '🔥'] : is.sign < 0 ? ['📉', '💦', '⚠️'] : ['📰', '💬', '❔'], 'upfx')}</div>
+    <div class="snt">${tag[2]} ${esc(is.h)}</div>
+    <div class="sns"><span>${side === 'buy' ? '🛒 매수 주문' : '💸 매도 주문'} ${won(amt)}</span><span>다음 반기 주가 <b style="color:${tag[1]}">${is.mag >= 0 ? '+' : ''}${is.mag.toFixed(1)}%</b></span></div>
+    <div class="snbar"><span class="wabar"><i></i></span></div><div class="waskip">화면을 누르면 건너뛰어요</div></div>`;
+  document.body.appendChild(ov);
+  let fin = false; const end = () => { if (fin) return; fin = true; ov.classList.add('out'); setTimeout(() => { ov.remove(); done(); }, 220); };
+  ov.onclick = end; setTimeout(end, 3000);
 }
 
 // ---------- 지도 ----------

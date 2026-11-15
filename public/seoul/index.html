@@ -320,6 +320,23 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .upfx{animation:upfx 2s ease-out infinite}@keyframes upfx{0%{opacity:0;transform:translateY(20px) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translateY(-110px) scale(1.15)}}
 .zfx{animation:zfx 2.2s ease-out infinite;font-weight:900;color:#6b5ad8}@keyframes zfx{0%{opacity:0;transform:translate(0,10px)}30%{opacity:1}100%{opacity:0;transform:translate(30px,-90px)}}
 .evsc.img{position:relative;height:120px;border-radius:16px;overflow:hidden;background:#eee}
+
+/* ===== 주식 종목 화면 ===== */
+.tkg{background:#faf9fd;border-radius:14px;padding:6px 6px 2px;margin:8px 0}.tkgh{display:flex;justify-content:space-between;align-items:baseline;margin:2px 4px 4px}.tkgh b{font-size:13.5px}.tkgh small{font-size:11px;color:#8a849c}
+.tkr{width:100%;display:flex;align-items:center;gap:8px;border:0;background:#fff;border-radius:12px;padding:7px 8px;margin-bottom:4px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer;font:inherit;color:inherit}
+.tkr:active{transform:scale(.98)}.tkr .spark{flex:none}
+.tki{width:34px;height:34px;flex:none;border-radius:10px;background:#f1eef9;display:flex;align-items:center;justify-content:center;font-size:19px}.tki.big{width:46px;height:46px;font-size:26px}
+.tkn{flex:1;min-width:0}.tkn b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tkn small{font-size:11px;color:#7a748c}.tkn em{font-style:normal;color:#6b5ad8;font-weight:800}
+.tkp{text-align:right;flex:none}.tkp b{display:block;font-size:12.5px}.tkp small{font-size:11px;font-weight:800}
+.tkd{display:flex;align-items:center;gap:10px;margin:10px 0 6px}.tkd>div:nth-child(2){flex:1;min-width:0}.tkd b{display:block;font-size:17px}.tkd small{font-size:11.5px;color:#7a748c}.tkd em{font-style:normal;font-weight:800}
+.amt{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:6px}.qk{display:inline-flex;gap:4px;margin-left:auto}.qk button{border:1px solid #ddd6ee;background:#fff;border-radius:8px;padding:2px 7px;font-size:11px;font-weight:800;cursor:pointer}
+#sr{width:100%}
+.bsb{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.btn.buy{background:#e5484d!important;color:#fff!important;border:0!important}.btn.sell{background:#3b6fe8!important;color:#fff!important;border:0!important}.bsb .btn:disabled{opacity:.35}
+.seglg em{font-style:normal;font-weight:800;margin-left:2px}
+.snews .snh{display:flex;align-items:center;gap:8px;margin-bottom:8px}.snh .brk{background:#e5484d;color:#fff;font-weight:900;font-size:12px;border-radius:8px;padding:2px 8px;animation:blink 1s infinite}@keyframes blink{50%{opacity:.45}}
+.snh b{flex:1;font-size:17px}.snh em{font-style:normal;color:#fff;font-weight:900;font-size:13px;border-radius:10px;padding:3px 10px}
+.wasc.sm{height:150px}.snt{font-size:17px;font-weight:900;margin:10px 2px 6px;line-height:1.35;animation:pop .4s cubic-bezier(.2,1.4,.5,1)}
+.sns{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;color:#5a5470;margin-bottom:8px}.snbar{display:flex}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
@@ -837,6 +854,7 @@ function migrate() {
   S.stk ??= { blue: 0, growth: 0, coin: 0, lev: 0 }; S.stkIn ??= { blue: 0, growth: 0, coin: 0, lev: 0 };
   S.stkReal ??= 0; S.overwarn ??= 0; S.crisisT ??= null; S.crisisLeft ??= 0;
   const st = S.st; st.chTry ??= 0; st.sideEarn ??= 0; st.bizPeak ??= 0; st.stkGainMax ??= 0; st.coinGain ??= 0; st.blueTurns ??= 0; st.blueGain ??= 0; st.crisisStkLoss ??= 0; st.crisisBuy ??= 0;
+  if (typeof stockInit === 'function') stockInit();
   if (S.crisisT == null) { // 가상 금융위기 시점: 2028~2031년 사이
     const y0 = S.startYear, lo = Math.max(2, (2028 - y0) * 2), hi = Math.min(MAXT - 4, (2031 - y0) * 2 + 1);
     S.crisisT = Math.floor(rnd(lo, hi + 1));
@@ -926,42 +944,6 @@ function stockShock() { // 역사적 사건 + 가상 금융위기
   if (S.crisisLeft === 1) return { all: .18, tag: '위기 후 반등' };
   return null;
 }
-function stepStocks() {
-  const out = { before: stockValue(), lines: [] }, sh = stockShock(), crisisNow = S.t === S.crisisT;
-  let growthRet = 0;
-  for (const k of ['blue', 'growth', 'coin']) {
-    if (S.stk[k] <= 0 && k !== 'growth') continue;
-    let ret = (STK[k].mu + gauss() * STK[k].sd) / 100;
-    if (sh) ret = sh.all * (k === 'coin' ? (sh.coinX || 1.5) : k === 'growth' ? 1.3 : 1) + ret * .3;
-    if (crisisNow) ret = STK[k].crash + rnd(-.05, .05);
-    ret = clamp(ret, -.9, 3);
-    if (k === 'growth') growthRet = ret;
-    S.stk[k] = r2(S.stk[k] * (1 + ret));
-  }
-  if (S.stk.lev > 0) {
-    S.stk.lev = r2(S.stk.lev * (1 + clamp(growthRet * 2, -1, 4)));
-    if (S.stk.lev < S.stkIn.lev * .3) { // 강제 청산: 남은 평가금은 날아가고 추가 채무 발생
-      const owe = r2(S.stkIn.lev * .35); S.credit = r2(S.credit + owe); S.flags.levLiq = true;
-      out.lines.push(`☠️ 레버리지 계좌가 반대매매로 강제 청산됐습니다. 남은 돈은 0원, 갚아야 할 빚 ${won(owe)}이 생겼습니다.`);
-      S.stk.lev = 0; S.stkIn.lev = 0;
-    }
-  }
-  if (S.stk.blue > .05) { S.st.blueTurns++; } else S.st.blueTurns = 0;
-  out.after = stockValue(); out.diff = r2(out.after - out.before);
-  const gain = r2(out.after - stockIn() + S.stkReal); S.st.stkGainMax = Math.max(S.st.stkGainMax, gain);
-  if (crisisNow && out.diff < 0) S.st.crisisStkLoss = r2(S.st.crisisStkLoss - out.diff);
-  if (out.before > 0) out.lines.unshift(`📈 주식 계좌 ${out.diff >= 0 ? '+' : ''}${won(out.diff)}${sh ? ` (${sh.tag})` : ''} → ${won(out.after)}`);
-  return out;
-}
-function buyStock(k, amt) { amt = r2(Math.min(amt, S.cash)); if (amt <= 0) return; S.cash = r2(S.cash - amt); S.stk[k] = r2(S.stk[k] + amt); S.stkIn[k] = r2(S.stkIn[k] + amt); log(`${STK[k].ic} ${STK[k].t} ${won(amt)} 매수`); }
-function sellStock(k, amt) {
-  amt = r2(Math.min(amt, S.stk[k])); if (amt <= 0) return;
-  const ratio = amt / S.stk[k], basis = r2(S.stkIn[k] * ratio), gain = r2(amt - basis);
-  S.stk[k] = r2(S.stk[k] - amt); S.stkIn[k] = r2(S.stkIn[k] - basis); S.cash = r2(S.cash + amt); S.stkReal = r2(S.stkReal + gain);
-  if (k === 'coin' && gain > 0) S.st.coinGain = r2(S.st.coinGain + gain);
-  if (k === 'blue' && gain > 0 && S.st.blueTurns >= 16) S.st.blueGain = r2(S.st.blueGain + gain);
-  log(`${STK[k].ic} ${STK[k].t} ${won(amt)} 매도 (${gain >= 0 ? '수익 +' : '손실 '}${won(gain)})`);
-}
 
 // ---------- 경제위기 ----------
 function worldCrisis() { // 가상 금융위기 발생 반기
@@ -1012,6 +994,113 @@ const TERMS = {
 function term(k, label) { return `<button class="term" data-term="${k}">${label || k}<i>?</i></button>`; }
 document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-term]'); if (!b) return; e.stopPropagation(); const t = TERMS[b.dataset.term]; if (!t) return; const m = $('#tip'); m.innerHTML = `<b>${t[0]}</b><p>${t[1]}</p>`; m.classList.add('on'); clearTimeout(term.h); term.h = setTimeout(() => m.classList.remove('on'), 6000); }, true);
 document.addEventListener('click', e => { if (!(e.target.closest && e.target.closest('[data-term]'))) { const m = $('#tip'); if (m) m.classList.remove('on'); } });
+
+// ===================== 주식 시장: 종목 12개 · 종목별 뉴스 =====================
+// k: 위험 묶음(blue 우량·growth 성장·coin 가상자산·lev 레버리지) — 금융위기 낙폭과 엔딩 판정에 쓰임
+// 모든 종목·뉴스는 게임용 가상입니다.
+const TICK = [
+  { id: 'dhe', n: '대한전자', sec: '반도체·가전', k: 'blue', ic: '💾', p0: 52000, mu: 3.5, sd: 11, d: '국내 대표 반도체·가전 기업. 경기에 따라 출렁이지만 길게 보면 꾸준히 오르는 국민주.',
+    iss: [[1, '차세대 메모리 대규모 수주 성공!'], [1, '분기 영업이익, 시장 예상치 30% 웃돌아'], [-1, '반도체 재고 쌓여 감산 검토'], [-1, '해외 공장 가동 일시 중단'], [0, '외국인 투자자 5일째 순매수']] },
+  { id: 'hbt', n: '한빛통신', sec: '통신·고배당', k: 'blue', ic: '📡', p0: 34000, mu: 2, sd: 6, div: .025, d: '주가 변동은 작지만 매년 배당금을 꼬박꼬박 주는 방어주. 반기마다 배당이 현금으로 들어와요.',
+    iss: [[1, '배당금 역대 최대 발표'], [1, '5G 가입자 1,000만 돌파'], [-1, '통신요금 인하 압박 커져'], [0, '정부, 통신 3사 요금 점검'], [-1, '대규모 통신 장애로 보상 논란']] },
+  { id: 'sfg', n: '서울금융지주', sec: '은행', k: 'blue', ic: '🏦', p0: 61000, mu: 2.5, sd: 9, rate: 1, d: '금리가 오르면 이자 이익이 늘어 웃는 은행주. 대신 경기가 나빠지면 부실 대출이 걱정이에요.',
+    iss: [[1, '순이자마진 개선, 사상 최대 실적'], [1, '자사주 소각 발표'], [-1, '부동산 PF 부실 우려 확산'], [-1, '가계대출 규제 강화로 성장 둔화'], [0, '금리 동결 발표에 보합']] },
+  { id: 'usx', n: '미국 대표지수 ETF', sec: '해외 지수', k: 'blue', ic: '🌎', p0: 15000, mu: 4.5, sd: 10, d: '미국 대형주 500개에 나눠 투자하는 상품. 한 회사가 망해도 크게 흔들리지 않아요.',
+    iss: [[1, '미국 증시 사상 최고치 경신'], [1, '미국 고용 지표 호조'], [-1, '미국 기준금리 인상 우려'], [-1, '환율 급락으로 원화 환산 수익 감소'], [0, '연준 의장 발언 앞두고 관망세']] },
+  { id: 'mbt', n: '미래배터리', sec: '2차전지', k: 'growth', ic: '🔋', p0: 240000, mu: 6, sd: 24, d: '전기차 배터리 대표 성장주. 기대가 크면 크게 오르고, 실망하면 크게 떨어져요.',
+    iss: [[1, '유럽 완성차와 10년 공급 계약!'], [1, '신형 배터리 주행거리 30% 늘려'], [-1, '전기차 수요 둔화, 주문 감소'], [-1, '배터리 화재 리콜 소식'], [0, '공매도 재개 앞두고 변동성 확대']] },
+  { id: 'hgb', n: '한강바이오', sec: '신약 개발', k: 'growth', ic: '🧬', p0: 87000, mu: 4, sd: 30, d: '임상 결과 하나에 주가가 두 배 또는 반토막이 나는 바이오주. 뉴스에 가장 민감해요.',
+    iss: [[1, '신약 임상 3상 성공! 상한가 직행'], [1, '글로벌 제약사에 기술 수출 1조 원'], [-1, '임상 2상 실패… 하한가'], [-1, '식약처 허가 지연'], [0, '학회 발표 앞두고 기대감']] },
+  { id: 'neo', n: '네오AI', sec: '인공지능', k: 'growth', ic: '🤖', p0: 118000, mu: 7, sd: 25, d: '인공지능 반도체·서비스를 만드는 기술주. 미래 기대가 주가에 많이 반영돼 있어요.',
+    iss: [[1, '자체 AI 모델 공개, 글로벌 관심 집중'], [1, '빅테크와 데이터센터 계약 체결'], [-1, 'AI 거품론 확산에 기술주 급락'], [-1, '핵심 개발자 대거 이탈'], [0, '신제품 발표회 일정 공개']] },
+  { id: 'kent', n: '케이스타엔터', sec: '엔터테인먼트', k: 'growth', ic: '🎤', p0: 45000, mu: 4, sd: 19, d: '아이돌 그룹 기획사. 대형 컴백과 해외 투어가 실적을 좌우해요.',
+    iss: [[1, '소속 그룹 월드 투어 전석 매진'], [1, '신인 그룹 데뷔곡 글로벌 1위'], [-1, '간판 그룹 재계약 불발 우려'], [-1, '앨범 판매량 전년보다 감소'], [0, '하반기 컴백 일정 발표']] },
+  { id: 'dcon', n: '대한건설', sec: '건설', k: 'growth', ic: '🏗️', p0: 28000, mu: 2, sd: 15, house: 1, d: '아파트를 짓는 건설사. 서울 집값과 분양 시장이 좋으면 같이 웃어요.',
+    iss: [[1, '서울 대형 재건축 수주 성공'], [1, '분양 완판 행진'], [-1, '미분양 늘어 실적 경고'], [-1, '공사비 급등으로 적자 전환'], [0, '정부 공급 대책 발표 대기']] },
+  { id: 'btc', n: '비트코인', sec: '가상자산', k: 'coin', ic: '🪙', p0: 30000000, mu: 9, sd: 42, d: '대표 가상자산. 하룻밤에 수십 퍼센트씩 움직여요. 금융위기 때는 가장 크게 떨어질 수 있어요.',
+    iss: [[1, '해외 현물 ETF 승인 기대감'], [1, '반감기 앞두고 매수세 몰려'], [-1, '대형 거래소 해킹 사고'], [-1, '각국 규제 강화 움직임'], [0, '고래 지갑 대량 이동 포착']] },
+  { id: 'alt', n: '멍멍코인', sec: '밈코인', k: 'coin', ic: '🐶', p0: 120, mu: 6, sd: 75, d: '유명인 한마디에 10배가 되기도, 0원 가까이 떨어지기도 하는 밈코인. 재미로만!',
+    iss: [[1, '유명 기업가가 SNS에 언급! 폭등'], [1, '해외 결제 서비스 도입 소식'], [-1, '개발팀 물량 대거 매도'], [-1, '거래소 상장 폐지 경고'], [0, '커뮤니티 밈 유행 중']] },
+  { id: 'lev', n: '나스닥 2배 레버리지', sec: '레버리지 ETF', k: 'lev', ic: '🎢', p0: 9000, mu: 0, sd: 0, d: '기술주 지수 움직임의 2배로 움직이는 상품. 크게 빠지면 강제 청산되고 빚이 남을 수 있어요.',
+    iss: [[1, '기술주 랠리, 레버리지 수익률 급등'], [1, '나스닥 사상 최고치'], [-1, '기술주 급락, 레버리지 손실 확대'], [-1, '변동성 지수 급등 경고'], [0, '금리 결정 앞두고 숨 고르기']] },
+];
+const TK = Object.fromEntries(TICK.map(t => [t.id, t]));
+const KIND_DEF = { blue: 'usx', growth: 'neo', coin: 'btc', lev: 'lev' };
+function stockInit() {
+  if (S.hold) return;
+  S.hold = {}; S.px = {}; S.news = {};
+  for (const t of TICK) S.px[t.id] = [t.p0];
+  for (const k of ['blue', 'growth', 'coin', 'lev']) if (S.stk && S.stk[k] > 0) S.hold[KIND_DEF[k]] = { v: S.stk[k], in: S.stkIn[k] || S.stk[k] };
+  syncKinds();
+}
+function syncKinds() {
+  S.stk = { blue: 0, growth: 0, coin: 0, lev: 0 }; S.stkIn = { blue: 0, growth: 0, coin: 0, lev: 0 };
+  for (const [id, h] of Object.entries(S.hold || {})) { const k = TK[id].k; S.stk[k] = r2(S.stk[k] + h.v); S.stkIn[k] = r2(S.stkIn[k] + h.in); }
+}
+const pxNow = id => { const a = S.px[id]; return a[a.length - 1]; };
+const pxChg = id => { const a = S.px[id]; return a.length > 1 ? (a[a.length - 1] / a[a.length - 2] - 1) * 100 : 0; };
+function fmtPx(p) { return p >= 1e4 ? Math.round(p).toLocaleString() + '원' : p >= 100 ? Math.round(p).toLocaleString() + '원' : p.toFixed(1) + '원'; }
+
+function stepStocks() {
+  stockInit();
+  const out = { before: stockValue(), lines: [] }, sh = stockShock(), crisisNow = S.t === S.crisisT;
+  const dRate = S.hr && S.hr.length > 1 ? S.rate - S.hr[S.hr.length - 1] : 0, gH = S.Gh.length > 1 ? (S.Gh[S.Gh.length - 1] / S.Gh[S.Gh.length - 2] - 1) * 100 : 0;
+  const baseGrowth = (5 + gauss() * 17) / 100; let divCash = 0;
+  for (const t of TICK) {
+    let ret = t.k === 'lev' ? baseGrowth * 2 : (t.mu + gauss() * t.sd) / 100;
+    if (t.rate) ret += dRate * .04;
+    if (t.house) ret += gH * .012;
+    if (sh) { const sk = sh.all * (t.k === 'coin' ? (sh.coinX || 1.5) : t.k === 'growth' ? 1.3 : t.k === 'lev' ? 2.6 : 1); ret = sk + ret * .3; }
+    if (crisisNow) ret = (t.k === 'lev' ? -.75 : STK[t.k].crash) + rnd(-.06, .06);
+    ret += (S.news[t.id] || 0) / 100; S.news[t.id] = 0;
+    ret = clamp(ret, -.92, t.k === 'coin' ? 4 : 2);
+    S.px[t.id].push(Math.max(t.p0 * .02, pxNow(t.id) * (1 + ret))); if (S.px[t.id].length > 42) S.px[t.id].shift();
+    const h = S.hold[t.id]; if (!h) continue;
+    h.v = r2(h.v * (1 + ret));
+    if (t.div && h.v > 0) divCash += h.v * t.div / 2;
+    if (t.k === 'lev' && h.v < h.in * .3) {
+      const owe = r2(h.in * .35); S.credit = r2(S.credit + owe); S.flags.levLiq = true; delete S.hold[t.id];
+      out.lines.push(`☠️ ${t.n}가 반대매매로 강제 청산됐습니다. 남은 돈은 0원, 갚아야 할 빚 ${won(owe)}이 생겼습니다.`);
+    } else if (h.v < .0005) delete S.hold[t.id];
+  }
+  if (divCash > .0005) { S.cash = r2(S.cash + divCash); out.lines.push(`💵 배당금 ${won(divCash)}이 들어왔습니다.`); }
+  syncKinds();
+  if (S.stk.blue > .05) S.st.blueTurns++; else S.st.blueTurns = 0;
+  out.after = stockValue(); out.diff = r2(out.after - out.before);
+  S.st.stkGainMax = Math.max(S.st.stkGainMax, r2(out.after - stockIn() + S.stkReal));
+  if (crisisNow && out.diff < 0) S.st.crisisStkLoss = r2(S.st.crisisStkLoss - out.diff);
+  if (out.before > 0) out.lines.unshift(`📈 주식 계좌 ${out.diff >= 0 ? '+' : ''}${won(out.diff)}${sh ? ` (${sh.tag})` : ''} → ${won(out.after)}`);
+  return out;
+}
+function buyStock(id, amt) {
+  stockInit(); if (!TK[id]) id = KIND_DEF[id] || 'usx';
+  amt = r2(Math.min(amt, S.cash)); if (amt <= 0) return;
+  S.cash = r2(S.cash - amt); const h = S.hold[id] || (S.hold[id] = { v: 0, in: 0 }); h.v = r2(h.v + amt); h.in = r2(h.in + amt);
+  syncKinds(); log(`${TK[id].ic} ${TK[id].n} ${won(amt)} 매수`);
+}
+function sellOne(id, amt) {
+  const h = S.hold[id]; if (!h) return 0; amt = r2(Math.min(amt, h.v)); if (amt <= 0) return 0;
+  const basis = r2(h.in * amt / h.v), gain = r2(amt - basis), t = TK[id];
+  h.v = r2(h.v - amt); h.in = r2(h.in - basis); if (h.v < .0005) delete S.hold[id];
+  S.cash = r2(S.cash + amt); S.stkReal = r2(S.stkReal + gain);
+  if (t.k === 'coin' && gain > 0) S.st.coinGain = r2(S.st.coinGain + gain);
+  if (t.k === 'blue' && gain > 0 && S.st.blueTurns >= 16) S.st.blueGain = r2(S.st.blueGain + gain);
+  log(`${t.ic} ${t.n} ${won(amt)} 매도 (${gain >= 0 ? '수익 +' : '손실 '}${won(gain)})`);
+  return amt;
+}
+function sellStock(idOrKind, amt) {
+  stockInit();
+  if (TK[idOrKind]) { sellOne(idOrKind, amt); syncKinds(); return; }
+  let left = amt; for (const id of Object.keys(S.hold).filter(i => TK[i].k === idOrKind)) { if (left <= 0) break; left = r2(left - sellOne(id, left)); }
+  syncKinds();
+}
+function bumpStock(id, delta) { const h = S.hold[id]; if (h) { h.v = r2(Math.max(0, h.v + delta)); syncKinds(); } }
+function pickIssue(id) { // 이번 매매 때 뜨는 종목 뉴스. 다음 반기 주가에 반영
+  const t = TK[id], it = t.iss[Math.floor(Math.random() * t.iss.length)];
+  const mag = it[0] === 0 ? rnd(-1.5, 1.5) : it[0] * rnd(4, t.k === 'coin' ? 18 : t.sd > 20 ? 12 : 7);
+  S.news[id] = (S.news[id] || 0) + mag;
+  return { sign: it[0], h: it[1], mag };
+}
 
 // ===================== 오늘의 이야기: 매 반기 바뀌는 이야기 카드 =====================
 // h: 제목 ([키워드]는 강조), q: 속마음, img: 그림(없으면 움직이는 장면), c: 강조 색, cta: 바로 할 수 있는 행동
@@ -1223,7 +1312,7 @@ const EVENTS = [
     ch: [{ l: '나간다', s: '+300만 원 · 체력 −10', f: () => { S.cash = r2(S.cash + .03); S.st.sideEarn += .03; S.hp = clamp(S.hp - 10, 0, 100); return '하룻밤에 300만 원을 벌었습니다. 다리가 후들거립니다.'; } }, { l: '쉰다', f: () => { S.hp = clamp(S.hp + 5, 0, 100); return '따뜻한 이불 속에서 푹 잤습니다.'; } }] }) },
   // ── 주식 ──
   { id: 'stockTip', w: () => S.t > 2 && S.cash > .3 ? 2 : 0, run: () => ({ cat: '주식', t: '친구의 주식 추천', d: '"이번엔 진짜야. 내가 확실한 종목 하나 알아." 대학 동기가 단톡방에 종목 하나를 찍어 줬습니다.',
-    ch: [{ l: '1,000만 원 넣어 본다', ok: () => S.cash >= .1, f: () => { buyStock('growth', .1); if (Math.random() < .35) { S.stk.growth = r2(S.stk.growth + .12); return '정말 올랐습니다! 성장주 계좌가 1,200만 원 불었습니다.'; } S.stk.growth = r2(Math.max(0, S.stk.growth - .06)); return '사자마자 떨어졌습니다. 600만 원 손실.'; } }, { l: '안 한다', f: () => '친구에게 이모티콘만 보냈습니다.' }] }) },
+    ch: [{ l: '1,000만 원 넣어 본다', ok: () => S.cash >= .1, f: () => { buyStock('neo', .1); if (Math.random() < .35) { bumpStock('neo', .12); return '정말 올랐습니다! 성장주 계좌가 1,200만 원 불었습니다.'; } bumpStock('neo', -.06); return '사자마자 떨어졌습니다. 600만 원 손실.'; } }, { l: '안 한다', f: () => '친구에게 이모티콘만 보냈습니다.' }] }) },
   // ── 전월세 위험 ──
   { id: 'fraud', w: () => S.res.type === 'jeonse' && S.res.dep >= 2 ? 1.2 : 0, run: () => ({ cat: '전월세', t: '전세사기 의심', d: '집주인이 연락이 안 됩니다. 등기부등본을 떼어 보니 근저당이 잔뜩 잡혀 있고, 같은 건물 세입자들이 모이고 있습니다.',
     ch: [{ l: '법적 절차를 밟는다', s: '보증금 일부 회수 · 오래 걸림', f: () => { const lost = r2((S.res.dep - S.res.loan) * rnd(.3, .6)); S.cash = r2(S.cash + (S.res.dep - S.res.loan) - lost); S.res = { type: 'wolse', dep: .1, loan: 0 }; S.flags.fraud = true; S.happy -= 15; return `보증금 중 ${won(lost)}을 끝내 돌려받지 못했습니다. 월세로 옮겼습니다.`; } }] }) },
@@ -1251,7 +1340,7 @@ const CROSS = {
       { l: '👪 (이미 결혼했다면) 아이를 갖는다', s: '양육비 · 가점 ↑ · 행복 ↑', ok: () => S.married >= 0, f: () => { S.kids.push(S.t); S.happy = clamp(S.happy + 10, 0, 100); return '가족이 늘었습니다! 청약 가점도 올라갑니다.'; } }] }),
   23: () => ({ cat: '🔀 인생의 갈림길', t: '자산을 어떻게 굴릴까?', d: '마흔을 넘었습니다. 지금까지 모은 것을 어떻게 키우느냐에 노후가 달려 있습니다.',
     ch: [{ l: '🚚 상급지로 갈아탄다', s: '좋은 동네 매물 찾기 · 갈아타기 엔딩 ↑', f: () => { S.goal = 'move'; S.imjang = 3; return '주말마다 상급지 임장을 다니기로 했습니다. 임장 기회 3회.'; } },
-      { l: '📈 주식 비중을 늘린다', s: '현금 30%를 우량주로', ok: () => S.cash > .2, f: () => { buyStock('blue', r2(S.cash * .3)); return '우량주를 사 모으기 시작했습니다. 길게 가져갈 생각입니다.'; } },
+      { l: '📈 주식 비중을 늘린다', s: '현금 30%를 우량주로', ok: () => S.cash > .2, f: () => { buyStock('usx', r2(S.cash * .3)); return '우량주를 사 모으기 시작했습니다. 길게 가져갈 생각입니다.'; } },
       { l: '💵 현금을 쌓아 기회를 기다린다', s: '위기 때 급매 기회', f: () => { S.cashMode = true; S.happy = clamp(S.happy + 2, 0, 100); return '쓸 데 없는 돈은 쓰지 않고 위기를 기다립니다.'; } },
       { l: '🌳 서울을 떠날 준비를 한다', s: '지방 이주 제안이 더 자주 와요', f: () => { S.leaveBias = 3; return '지방 도시의 집값을 검색해 보기 시작했습니다.'; } }] }),
   31: () => ({ cat: '🔀 인생의 갈림길', t: '인생 2막을 준비할 때', d: '어느덧 쉰을 바라봅니다. 남은 시간, 무엇을 지키고 무엇을 키울까요?',
@@ -1563,14 +1652,14 @@ function gauge(label, v, dv, color) {
 }
 function stockCard() {
   const sv = stockValue(), si = stockIn(), sg = r2(sv - si), pr = si ? sg / si * 100 : 0;
-  if (sv <= 0) return `<div class="card ccard"><div class="chd"><b>📈 주식 계좌</b><em class="pill">선택</em></div><p class="small">아직 투자하지 않았어요. 오르면 계약금이 빨리 모이지만, 금융위기 때는 반토막 날 수도 있어요.</p>${lineChart(S.hs, { label: '평가금' })}<button class="btn sm" id="bStk">📈 주식 사기</button></div>`;
+  if (sv <= 0) return `<div class="card ccard"><div class="chd"><b>📈 주식 계좌</b><em class="pill">선택</em></div><p class="small">아직 투자하지 않았어요. 오르면 계약금이 빨리 모이지만, 금융위기 때는 반토막 날 수도 있어요.</p>${lineChart(S.hs, { label: '평가금' })}<button class="btn sm" id="bStk">📈 종목 보러 가기</button></div>`;
   const cols = { blue: '#5b7fe8', growth: '#8b6cf5', coin: '#f2b632', lev: '#e5484d' };
   const seg = Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `<i style="width:${(S.stk[k] / sv * 100).toFixed(1)}%;background:${cols[k]}" title="${STK[k].t}"></i>`).join('');
   return `<div class="card ccard"><div class="chd"><b>📈 주식 계좌</b><em class="pill ${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '▲' : '▼'} ${Math.abs(pr).toFixed(1)}%</em></div>
     <div class="kpi"><div><small>평가금</small><b>${won(sv)}</b></div><div><small>투자 원금</small><b>${won(si)}</b></div><div><small>평가손익</small><b class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)}</b></div></div>
     ${lineChart(S.hs, { color: sg >= 0 ? '#e5484d' : '#3b82f6' })}
-    <div class="segbar">${seg}</div><div class="seglg">${Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `<span><i style="background:${cols[k]}"></i>${STK[k].t} ${wonS(S.stk[k])}</span>`).join('')}</div>
-    <button class="btn sm" id="bStk">📈 사고팔기</button></div>`;
+    <div class="segbar">${seg}</div><div class="seglg">${Object.entries(S.hold || {}).sort((a, b) => b[1].v - a[1].v).slice(0, 5).map(([id, h]) => `<span><i style="background:${cols[TK[id].k]}"></i>${TK[id].ic} ${TK[id].n} ${wonS(h.v)} <em class="${h.v >= h.in ? 'up' : 'dn'}">${h.in ? ((h.v / h.in - 1) * 100).toFixed(0) : 0}%</em></span>`).join('')}</div>
+    <button class="btn sm" id="bStk">📈 종목 보고 사고팔기</button></div>`;
 }
 function gajeomCard() {
   const g = gajeom();
@@ -1632,29 +1721,61 @@ function tabHome() {
   document.querySelectorAll('[data-cta]').forEach(b => b.onclick = () => storyAction(b.dataset.cta));
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { TAB = b.dataset.goto; renderGame(); });
   document.querySelectorAll('[data-ad]').forEach(b => b.onclick = () => adReward(b.dataset.ad));
-  $('#bStk').onclick = stockModal;
+  $('#bStk').onclick = () => { STKSEL = null; stockModal(); };
   if ($('#chk')) $('#chk').onchange = e => { S.plan.ch = e.target.checked; save(); };
   if ($('#chT')) $('#chT').onclick = () => { S.plan.ch = !S.plan.ch; save(); tabHome(); toast(S.plan.ch ? '🎟️ 다음 반기에 청약을 넣어요' : '청약 신청을 취소했어요'); };
   if ($('#stkT')) $('#stkT').onclick = stockModal;
 }
+let STKSEL = null;
 function stockModal() {
-  let k = 'blue';
-  const draw = () => {
-    const have = S.stk[k], max = Math.max(0, S.cash);
-    modal(`<div class="evcat">주식 계좌 · 게임용 가상 시장</div><h3>📈 종잣돈 불리기</h3>
-      <div class="stabs">${Object.entries(STK).map(([kk, v]) => `<button class="${k === kk ? 'on' : ''}" data-k="${kk}">${v.ic} ${v.t}</button>`).join('')}</div>
-      <p class="small">${STK[k].d}${k === 'lev' ? ` — ${term('레버리지')}` : ''}</p>
-      <table class="qt"><tr><td>보유 평가금</td><td>${won(have)}</td></tr><tr><td>투자 원금</td><td>${won(S.stkIn[k])}</td></tr><tr><td>보유 현금</td><td>${won(S.cash)}</td></tr></table>
-      <label class="small">금액 <b id="sv">${won(Math.min(max, .1))}</b></label><input type="range" id="sr" min="0" max="${Math.max(max, have, .01)}" step="0.01" value="${Math.min(max, .1)}">
-      <button class="btn pri" id="sb" ${max > 0 ? '' : 'disabled'}>사기</button><button class="btn" id="ss" ${have > 0 ? '' : 'disabled'}>팔기</button>
-      <p class="small">수익률은 실제 시세가 아닌 게임용 가상 시나리오예요. 금융위기가 오면 우량주 −33%, 성장주 −50%, 코인 −65%까지 빠질 수 있어요.</p><button class="btn ghost" id="sx">닫기</button>`, 'wide');
-    $('#sx').onclick = () => { closeModal(); renderGame(); };
-    document.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { k = b.dataset.k; draw(); });
-    $('#sr').oninput = e => { $('#sv').textContent = won(+e.target.value); };
-    $('#sb').onclick = () => { const v = Math.min(+$('#sr').value, S.cash); if (v <= 0) return; buyStock(k, v); save(); toast(`${STK[k].ic} ${won(v)} 매수`); draw(); };
-    $('#ss').onclick = () => { const v = Math.min(+$('#sr').value, S.stk[k]); if (v <= 0) return; sellStock(k, v); save(); toast(`${won(v)} 매도`); draw(); };
+  stockInit();
+  const KN = { blue: ['🏛️ 우량주·지수', '변동 작음'], growth: ['🚀 성장주', '크게 오르내림'], coin: ['🪙 가상자산', '초고위험'], lev: ['🎢 레버리지', '강제 청산 위험'] };
+  const shut = () => { closeModal(); renderGame(); };
+  const listView = () => {
+    STKSEL = null;
+    const sv = stockValue(), si = stockIn(), sg = r2(sv - si);
+    modal(`<div class="evcat">주식 시장 · 게임용 가상 종목</div><h3>📈 종목 고르기</h3>
+      <div class="kpi"><div><small>보유 현금</small><b>${won(S.cash)}</b></div><div><small>주식 평가금</small><b>${won(sv)}</b></div><div><small>평가손익</small><b class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)}</b></div></div>
+      ${Object.entries(KN).map(([k, [n, sub]]) => `<div class="tkg"><div class="tkgh"><b>${n}</b><small>${sub}</small></div>${TICK.filter(t => t.k === k).map(t => { const c = pxChg(t.id), h = S.hold[t.id];
+        return `<button class="tkr" data-t="${t.id}"><span class="tki">${t.ic}</span><span class="tkn"><b>${t.n}</b><small>${t.sec}${h ? ` · <em>보유 ${wonS(h.v)}</em>` : ''}</small></span>${spark(S.px[t.id].slice(-12), 54, 22)}<span class="tkp"><b>${fmtPx(pxNow(t.id))}</b><small class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '▲' : '▼'}${Math.abs(c).toFixed(1)}%</small></span></button>`; }).join('')}</div>`).join('')}
+      <p class="small">종목·뉴스·주가는 모두 게임용 가상입니다. 사고팔 때마다 그 종목 뉴스가 뜨고, 다음 반기 주가에 반영돼요.</p><button class="btn ghost" id="sx">닫기</button>`, 'wide');
+    document.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { STKSEL = b.dataset.t; detail(); });
+    $('#sx').onclick = shut;
   };
-  draw();
+  const detail = () => {
+    const t = TK[STKSEL], h = S.hold[t.id], c = pxChg(t.id), have = h ? h.v : 0, pl = h ? r2(h.v - h.in) : 0, max = Math.max(0, S.cash);
+    const risk = { blue: ['낮음', '#3f9c58'], growth: ['높음', '#e08a1e'], coin: ['매우 높음', '#e5484d'], lev: ['매우 높음', '#e5484d'] }[t.k];
+    const top = Math.max(max, have, .01), init = Math.min(top, .1);
+    modal(`<button class="btn ghost sm" id="sbk">← 종목 목록</button>
+      <div class="tkd"><span class="tki big">${t.ic}</span><div><b>${t.n}</b><small>${t.sec} · 위험도 <em style="color:${risk[1]}">${risk[0]}</em>${t.div ? ' · 배당 연 ' + (t.div * 100).toFixed(1) + '%' : ''}</small></div><div class="tkp"><b>${fmtPx(pxNow(t.id))}</b><small class="${c >= 0 ? 'up' : 'dn'}">${c >= 0 ? '▲' : '▼'}${Math.abs(c).toFixed(1)}% /반기</small></div></div>
+      ${lineChart(S.px[t.id], { color: c >= 0 ? '#e5484d' : '#3b82f6', h: 90, fmt: fmtPx, label: '주가' })}
+      <p class="small">${t.d}</p>
+      <div class="kpi"><div><small>내 보유</small><b>${won(have)}</b></div><div><small>투자 원금</small><b>${won(h ? h.in : 0)}</b></div><div><small>평가손익</small><b class="${pl >= 0 ? 'up' : 'dn'}">${pl >= 0 ? '+' : ''}${won(pl)}</b></div></div>
+      <div class="small amt">금액 <b id="sv">${won(init)}</b><span class="qk">${[.05, .1, .3, 1].map(v => `<button data-q="${v}">${v >= 1 ? '1억' : Math.round(v * 10000) + '만'}</button>`).join('')}<button data-q="all">전부</button></span></div>
+      <input type="range" id="sr" min="0" max="${top}" step="0.01" value="${init}">
+      <div class="bsb"><button class="btn buy" id="sb" ${max > 0 ? '' : 'disabled'}>사기</button><button class="btn sell" id="ss" ${have > 0 ? '' : 'disabled'}>팔기</button></div>
+      <button class="btn ghost" id="sx">닫기</button>`, 'wide');
+    const sr = $('#sr'), upd = () => { $('#sv').textContent = won(+sr.value); };
+    sr.oninput = upd;
+    document.querySelectorAll('[data-q]').forEach(b => b.onclick = () => { sr.value = b.dataset.q === 'all' ? top : Math.min(+b.dataset.q, top); upd(); });
+    $('#sbk').onclick = listView; $('#sx').onclick = shut;
+    $('#sb').onclick = () => { const v = r2(Math.min(+sr.value, S.cash)); if (v <= 0) return toast('살 금액을 골라주세요'); stockNewsAnim(t.id, 'buy', v, () => { buyStock(t.id, v); save(); toast(`${t.ic} ${t.n} ${won(v)} 매수`); detail(); }); };
+    $('#ss').onclick = () => { const v = r2(Math.min(+sr.value, have)); if (v <= 0) return toast('팔 금액을 골라주세요'); stockNewsAnim(t.id, 'sell', v, () => { sellStock(t.id, v); save(); toast(`${t.ic} ${t.n} ${won(v)} 매도`); detail(); }); };
+  };
+  STKSEL && TK[STKSEL] ? detail() : listView();
+}
+function stockNewsAnim(id, side, amt, done) { // 매매 순간 3초 동안 그 종목 속보
+  const t = TK[id], is = pickIssue(id), tag = is.sign > 0 ? ['호재', '#e5484d', '📈'] : is.sign < 0 ? ['악재', '#2f5bea', '📉'] : ['중립', '#8a849c', '📰'];
+  const img = gimg(is.sign < 0 ? 'ev_crisis' : 'ev_stock');
+  const ov = document.createElement('div'); ov.className = 'wanim';
+  ov.innerHTML = `<div class="wabox snews"><div class="snh"><span class="brk">속보</span><b>${t.ic} ${t.n}</b><em style="background:${tag[1]}">${tag[0]}</em></div>
+    <div class="wasc ${GEN()} sm"><img class="kb" src="${img}" alt="">${fxSpans(is.sign > 0 ? ['📈', '🪙', '🔥'] : is.sign < 0 ? ['📉', '💦', '⚠️'] : ['📰', '💬', '❔'], 'upfx')}</div>
+    <div class="snt">${tag[2]} ${esc(is.h)}</div>
+    <div class="sns"><span>${side === 'buy' ? '🛒 매수 주문' : '💸 매도 주문'} ${won(amt)}</span><span>다음 반기 주가 <b style="color:${tag[1]}">${is.mag >= 0 ? '+' : ''}${is.mag.toFixed(1)}%</b></span></div>
+    <div class="snbar"><span class="wabar"><i></i></span></div><div class="waskip">화면을 누르면 건너뛰어요</div></div>`;
+  document.body.appendChild(ov);
+  let fin = false; const end = () => { if (fin) return; fin = true; ov.classList.add('out'); setTimeout(() => { ov.remove(); done(); }, 220); };
+  ov.onclick = end; setTimeout(end, 3000);
 }
 
 // ---------- 지도 ----------

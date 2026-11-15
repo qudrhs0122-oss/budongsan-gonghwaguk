@@ -320,6 +320,23 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .upfx{animation:upfx 2s ease-out infinite}@keyframes upfx{0%{opacity:0;transform:translateY(20px) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translateY(-110px) scale(1.15)}}
 .zfx{animation:zfx 2.2s ease-out infinite;font-weight:900;color:#6b5ad8}@keyframes zfx{0%{opacity:0;transform:translate(0,10px)}30%{opacity:1}100%{opacity:0;transform:translate(30px,-90px)}}
 .evsc.img{position:relative;height:120px;border-radius:16px;overflow:hidden;background:#eee}
+
+/* ===== 주식 종목 화면 ===== */
+.tkg{background:#faf9fd;border-radius:14px;padding:6px 6px 2px;margin:8px 0}.tkgh{display:flex;justify-content:space-between;align-items:baseline;margin:2px 4px 4px}.tkgh b{font-size:13.5px}.tkgh small{font-size:11px;color:#8a849c}
+.tkr{width:100%;display:flex;align-items:center;gap:8px;border:0;background:#fff;border-radius:12px;padding:7px 8px;margin-bottom:4px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer;font:inherit;color:inherit}
+.tkr:active{transform:scale(.98)}.tkr .spark{flex:none}
+.tki{width:34px;height:34px;flex:none;border-radius:10px;background:#f1eef9;display:flex;align-items:center;justify-content:center;font-size:19px}.tki.big{width:46px;height:46px;font-size:26px}
+.tkn{flex:1;min-width:0}.tkn b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tkn small{font-size:11px;color:#7a748c}.tkn em{font-style:normal;color:#6b5ad8;font-weight:800}
+.tkp{text-align:right;flex:none}.tkp b{display:block;font-size:12.5px}.tkp small{font-size:11px;font-weight:800}
+.tkd{display:flex;align-items:center;gap:10px;margin:10px 0 6px}.tkd>div:nth-child(2){flex:1;min-width:0}.tkd b{display:block;font-size:17px}.tkd small{font-size:11.5px;color:#7a748c}.tkd em{font-style:normal;font-weight:800}
+.amt{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:6px}.qk{display:inline-flex;gap:4px;margin-left:auto}.qk button{border:1px solid #ddd6ee;background:#fff;border-radius:8px;padding:2px 7px;font-size:11px;font-weight:800;cursor:pointer}
+#sr{width:100%}
+.bsb{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.btn.buy{background:#e5484d!important;color:#fff!important;border:0!important}.btn.sell{background:#3b6fe8!important;color:#fff!important;border:0!important}.bsb .btn:disabled{opacity:.35}
+.seglg em{font-style:normal;font-weight:800;margin-left:2px}
+.snews .snh{display:flex;align-items:center;gap:8px;margin-bottom:8px}.snh .brk{background:#e5484d;color:#fff;font-weight:900;font-size:12px;border-radius:8px;padding:2px 8px;animation:blink 1s infinite}@keyframes blink{50%{opacity:.45}}
+.snh b{flex:1;font-size:17px}.snh em{font-style:normal;color:#fff;font-weight:900;font-size:13px;border-radius:10px;padding:3px 10px}
+.wasc.sm{height:150px}.snt{font-size:17px;font-weight:900;margin:10px 2px 6px;line-height:1.35;animation:pop .4s cubic-bezier(.2,1.4,.5,1)}
+.sns{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;color:#5a5470;margin-bottom:8px}.snbar{display:flex}
 </style><script src="/auth.js" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>

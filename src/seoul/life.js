@@ -14,6 +14,7 @@ function migrate() {
   S.stk ??= { blue: 0, growth: 0, coin: 0, lev: 0 }; S.stkIn ??= { blue: 0, growth: 0, coin: 0, lev: 0 };
   S.stkReal ??= 0; S.overwarn ??= 0; S.crisisT ??= null; S.crisisLeft ??= 0;
   const st = S.st; st.chTry ??= 0; st.sideEarn ??= 0; st.bizPeak ??= 0; st.stkGainMax ??= 0; st.coinGain ??= 0; st.blueTurns ??= 0; st.blueGain ??= 0; st.crisisStkLoss ??= 0; st.crisisBuy ??= 0;
+  if (typeof stockInit === 'function') stockInit();
   if (S.crisisT == null) { // 가상 금융위기 시점: 2028~2031년 사이
     const y0 = S.startYear, lo = Math.max(2, (2028 - y0) * 2), hi = Math.min(MAXT - 4, (2031 - y0) * 2 + 1);
     S.crisisT = Math.floor(rnd(lo, hi + 1));
@@ -102,42 +103,6 @@ function stockShock() { // 역사적 사건 + 가상 금융위기
   if (S.mode === 'hist' && y === 2022) return { all: -.16, coinX: 2, tag: '금리 인상기' };
   if (S.crisisLeft === 1) return { all: .18, tag: '위기 후 반등' };
   return null;
-}
-function stepStocks() {
-  const out = { before: stockValue(), lines: [] }, sh = stockShock(), crisisNow = S.t === S.crisisT;
-  let growthRet = 0;
-  for (const k of ['blue', 'growth', 'coin']) {
-    if (S.stk[k] <= 0 && k !== 'growth') continue;
-    let ret = (STK[k].mu + gauss() * STK[k].sd) / 100;
-    if (sh) ret = sh.all * (k === 'coin' ? (sh.coinX || 1.5) : k === 'growth' ? 1.3 : 1) + ret * .3;
-    if (crisisNow) ret = STK[k].crash + rnd(-.05, .05);
-    ret = clamp(ret, -.9, 3);
-    if (k === 'growth') growthRet = ret;
-    S.stk[k] = r2(S.stk[k] * (1 + ret));
-  }
-  if (S.stk.lev > 0) {
-    S.stk.lev = r2(S.stk.lev * (1 + clamp(growthRet * 2, -1, 4)));
-    if (S.stk.lev < S.stkIn.lev * .3) { // 강제 청산: 남은 평가금은 날아가고 추가 채무 발생
-      const owe = r2(S.stkIn.lev * .35); S.credit = r2(S.credit + owe); S.flags.levLiq = true;
-      out.lines.push(`☠️ 레버리지 계좌가 반대매매로 강제 청산됐습니다. 남은 돈은 0원, 갚아야 할 빚 ${won(owe)}이 생겼습니다.`);
-      S.stk.lev = 0; S.stkIn.lev = 0;
-    }
-  }
-  if (S.stk.blue > .05) { S.st.blueTurns++; } else S.st.blueTurns = 0;
-  out.after = stockValue(); out.diff = r2(out.after - out.before);
-  const gain = r2(out.after - stockIn() + S.stkReal); S.st.stkGainMax = Math.max(S.st.stkGainMax, gain);
-  if (crisisNow && out.diff < 0) S.st.crisisStkLoss = r2(S.st.crisisStkLoss - out.diff);
-  if (out.before > 0) out.lines.unshift(`📈 주식 계좌 ${out.diff >= 0 ? '+' : ''}${won(out.diff)}${sh ? ` (${sh.tag})` : ''} → ${won(out.after)}`);
-  return out;
-}
-function buyStock(k, amt) { amt = r2(Math.min(amt, S.cash)); if (amt <= 0) return; S.cash = r2(S.cash - amt); S.stk[k] = r2(S.stk[k] + amt); S.stkIn[k] = r2(S.stkIn[k] + amt); log(`${STK[k].ic} ${STK[k].t} ${won(amt)} 매수`); }
-function sellStock(k, amt) {
-  amt = r2(Math.min(amt, S.stk[k])); if (amt <= 0) return;
-  const ratio = amt / S.stk[k], basis = r2(S.stkIn[k] * ratio), gain = r2(amt - basis);
-  S.stk[k] = r2(S.stk[k] - amt); S.stkIn[k] = r2(S.stkIn[k] - basis); S.cash = r2(S.cash + amt); S.stkReal = r2(S.stkReal + gain);
-  if (k === 'coin' && gain > 0) S.st.coinGain = r2(S.st.coinGain + gain);
-  if (k === 'blue' && gain > 0 && S.st.blueTurns >= 16) S.st.blueGain = r2(S.st.blueGain + gain);
-  log(`${STK[k].ic} ${STK[k].t} ${won(amt)} 매도 (${gain >= 0 ? '수익 +' : '손실 '}${won(gain)})`);
 }
 
 // ---------- 경제위기 ----------
