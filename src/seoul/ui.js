@@ -464,7 +464,39 @@ function renderDexInner(el) {
 }
 
 // ---------- 진행 ----------
+
+// ---------- 애니메이션: 반기 진행 · 이벤트 ----------
+function playWorkAnim(done) {
+  const k = S.plan.work, w = WORK[k], pv = workPreview(k), L = sceneLive(), m0 = S.t % 2 ? 7 : 1;
+  const ov = document.createElement('div'); ov.className = 'wanim';
+  ov.innerHTML = `<div class="wabox"><div class="wat">${w.ic} ${esc(L.cap)}…</div><div class="wasc">${L.svg.replace('preserveAspectRatio="xMinYMid slice"', 'preserveAspectRatio="xMidYMid slice"')}${pv.inc > 0 ? `<span class="wapop">+${wonS(pv.inc)}</span>` : ''}</div>
+    <div class="wamon"><b id="wam">${m0}월</b><span class="wabar"><i></i></span><small>${yearOf()}년 ${S.t % 2 ? '하반기' : '상반기'}</small></div><div class="waskip">화면을 누르면 건너뛰어요</div></div>`;
+  document.body.appendChild(ov);
+  let n = 0, fin = false; const tick = setInterval(() => { n++; const el = ov.querySelector('#wam'); if (el) el.textContent = `${Math.min(m0 + n, m0 + 5)}월`; }, 500);
+  const end = () => { if (fin) return; fin = true; clearInterval(tick); ov.classList.add('out'); setTimeout(() => { ov.remove(); done(); }, 220); };
+  ov.onclick = end; setTimeout(end, 3000);
+}
+function evScene(E) {
+  const c = E.cat || '', t = (E.t || '') + (E.d || '');
+  const T = (x, y, sz, s, cls = '', st = '') => `<text class="${cls}" style="${st}" x="${x}" y="${y}" font-size="${sz}" text-anchor="middle">${s}</text>`;
+  let bg = ['#eef1ff', '#dfe6ff'], a = '';
+  const bars = col => [0, 1, 2, 3, 4].map(i => `<rect class="grow" style="animation-delay:${i * .15}s" x="${250 + i * 22}" y="${110 - 20 - i * 12}" width="14" height="${20 + i * 12}" rx="3" fill="${col}"/>`).join('');
+  if (/결혼|청혼|사랑/.test(t)) { bg = ['#fff0f4', '#ffdbe6']; a = `${T(120, 92, 54, '💑', 'bob')}${T(270, 80, 40, '💍', 'tix')}${[0, 1, 2, 3].map(i => T(170 + i * 40, 70, 18 + i % 2 * 6, '❤️', 'zz', `animation-delay:${i * .5}s`)).join('')}`; }
+  else if (/아이|출산|임신|아기/.test(t)) { bg = ['#fff7e6', '#ffe9c2']; a = `${T(130, 92, 54, '👶', 'bob')}${T(260, 80, 34, '🍼', 'tix')}${[0, 1, 2].map(i => T(190 + i * 50, 60, 22, '🎈', 'zz', `animation-delay:${i * .6}s`)).join('')}`; }
+  else if (c.includes('갈림길')) { bg = ['#f3efff', '#e2dafc']; a = `<path d="M60,110 L200,70 L340,110" fill="none" stroke="#c9bdf2" stroke-width="16" stroke-linecap="round"/><path d="M200,110 L200,70" stroke="#c9bdf2" stroke-width="16"/>${T(200, 60, 40, '🪧', 'bob')}<g class="walk2">${T(60, 104, 34, '🚶')}</g>${T(330, 50, 22, '✨', 'spark')}${T(80, 40, 18, '⭐', 'spark d2')}`; }
+  else if (/청약|분양/.test(c)) { bg = ['#eef3ff', '#dbe5ff']; a = `${T(130, 92, 50, '🎟️', 'tix')}${T(270, 100, 60, '🏢')}${[0, 1, 2, 3, 4].map(i => T(80 + i * 60, 40, 16, ['🎉', '✨', '⭐', '🎊', '✨'][i], 'spark', `animation-delay:${i * .3}s`)).join('')}`; }
+  else if (/입주권|재건축|구축|도시/.test(c)) { bg = ['#fff5e8', '#ffe6c7']; a = `${T(110, 100, 56, '🏗️', 'bob')}<g>${T(250, 106, 30, '🧱', 'stack')}${T(250, 80, 30, '🧱', 'stack d2')}${T(250, 54, 30, '🧱', 'stack d3')}</g>${T(330, 100, 32, '🚧', 'shake')}`; }
+  else if (/주식/.test(c)) { bg = ['#fff2f2', '#ffe1e1']; a = `${T(110, 96, 54, '🧐', 'bob')}${bars('#e5484d')}${T(190, 60, 24, '🪙', 'coin')}${T(220, 70, 20, '🪙', 'coin d2')}`; }
+  else if (/시장|정책|갭투자/.test(c)) { bg = ['#eef6ff', '#d9eaff']; a = `${T(110, 96, 54, '📰', 'shake')}${bars('#5b7fe8')}${T(340, 44, 24, '📢', 'bob')}`; }
+  else if (/부업/.test(c)) { bg = ['#fff6ec', '#ffe5cc']; a = `<g class="ride">${T(0, 100, 50, '🛵')}${T(-6, 62, 22, '📦')}</g>${T(300, 60, 24, '🪙', 'coin')}${T(340, 70, 20, '🪙', 'coin d2')}`; }
+  else if (/노동/.test(c)) { bg = ['#f0f4ff', '#dde6ff']; a = `${T(130, 96, 56, '🧑‍💼', 'bob')}${T(260, 92, 40, '💼', 'tix')}${T(200, 44, 22, '✨', 'spark')}${T(310, 50, 18, '⭐', 'spark d2')}`; }
+  else if (/건강/.test(c)) { bg = ['#fff1f1', '#ffdede']; a = `<g class="ride">${T(0, 100, 50, '🚑')}</g>${T(320, 70, 40, '🏥')}${T(200, 50, 20, '💦', 'drip')}`; }
+  else if (/전월세/.test(c)) { bg = ['#f2fbf3', '#dcf3e0']; a = `${T(120, 100, 60, '🏠')}${T(240, 86, 34, '📄', 'shake')}${T(310, 90, 32, '🔑', 'tix')}`; }
+  else { bg = ['#f4f6ff', '#e3e8fb']; a = `${T(130, 96, 56, '🌱', 'bob')}${T(260, 90, 36, '🏙️')}${T(200, 44, 22, '✨', 'spark')}${T(320, 50, 18, '⭐', 'spark d2')}`; }
+  return `<div class="evsc"><svg class="scn live" viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="evg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></linearGradient></defs><rect width="400" height="120" fill="url(#evg)"/><ellipse cx="200" cy="122" rx="230" ry="16" fill="#fff" opacity=".6"/>${a}</svg></div>`;
+}
 function onNext() {
+  if (!onNext.go) { onNext.go = 1; return playWorkAnim(() => { onNext(); onNext.go = 0; }); }
   const r = nextTurn();
   if (r.end) { save(); if (r.R && r.R.work && r.R.work.lines.length && S.ended === 'e16') { renderGame(); return modal(`<h3>🚑</h3><ul class="rep">${r.R.work.lines.map(m => `<li>${esc(m)}</li>`).join('')}</ul><button class="btn pri" id="ok">…</button>`) || ($('#ok').onclick = () => { closeModal(); renderEnding(); }); } return renderEnding(); }
   const R = r.R, go = () => { if (R.crisis) return crisisModal(R.crisis, () => r.ev ? showEvent(r.ev) : renderGame()); if (r.ev) showEvent(r.ev); else renderGame(); };
@@ -503,7 +535,7 @@ function crisisModal(c, next) {
 }
 function showEvent(e) {
   const E = e.run();
-  modal(`<div class="evcat">이벤트 · ${E.cat}</div><h3>${esc(E.t)}</h3><p>${esc(E.d)}</p><div class="chs">${E.ch.map((c, i) => { const ok = !c.ok || c.ok(); return `<button class="ch" data-i="${i}" ${ok ? '' : 'disabled'}><b>${esc(c.l)}</b>${c.s ? `<small>${esc(c.s)}</small>` : ''}</button>`; }).join('')}</div>`, 'ev');
+  modal(`<div class="evcat">이벤트 · ${E.cat}</div>${evScene(E)}<h3>${esc(E.t)}</h3><p>${esc(E.d)}</p><div class="chs">${E.ch.map((c, i) => { const ok = !c.ok || c.ok(); return `<button class="ch" data-i="${i}" ${ok ? '' : 'disabled'}><b>${esc(c.l)}</b>${c.s ? `<small>${esc(c.s)}</small>` : ''}</button>`; }).join('')}</div>`, 'ev');
   document.querySelectorAll('[data-i]').forEach(b => b.onclick = () => {
     const res = E.ch[+b.dataset.i].f(); log(`${E.t}: ${res}`);
     const c2 = crisis(); for (const m of c2) log(m);
