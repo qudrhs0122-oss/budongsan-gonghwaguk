@@ -152,19 +152,18 @@ function tabHome() {
   const wcards = opts.map((k, idx) => { const w = WORK[k], pv = workPreview(k), on = S.plan.work === k;
     const inc = k === 'main' ? '월급만' : k.startsWith('biz') && k !== 'biz' ? '사업 수익' : pv.inc ? (pv.inc > 0 ? '+' : '') + wonS(pv.inc) : '—';
     const risk = S.hp + pv.hp <= 0 ? ' danger' : S.hp + pv.hp < 25 ? ' warnc' : '';
-    return `<button class="wopt ${on ? 'on' : ''}${risk}" data-w="${k}"><span class="wt"><span class="wi wb-${TAGW[k]}">${w.ic}</span><b>${idx + 1}. ${w.t}</b><em class="pill t-${TAGW[k]}">${on ? '✓ 선택' : TAGW[k]}</em></span><small>${w.d}</small><span class="wfx"><em class="${pv.inc > 0 ? 'pos' : pv.inc < 0 ? 'neg' : ''}">${inc}</em><em class="${pv.hp < 0 ? 'neg' : 'pos'}">체력 ${pv.hp > 0 ? '+' : ''}${pv.hp}</em><em class="${pv.hap < 0 ? 'neg' : 'pos'}">행복 ${pv.hap > 0 ? '+' : ''}${pv.hap}</em></span></button>`; }).join('');
+    return `<button class="wopt ${on ? 'on' : ''}${risk}" data-w="${k}" title="${w.d}"><em class="pill t-${TAGW[k]}">${on ? '✓' : TAGW[k]}</em><span class="wi wb-${TAGW[k]}">${w.ic}</span><b>${w.s}</b><span class="wfx"><em class="${pv.inc > 0 ? 'pos' : pv.inc < 0 ? 'neg' : ''}">${inc}</em><em class="${pv.hp < 0 ? 'neg' : 'pos'}">체력 ${pv.hp > 0 ? '+' : ''}${pv.hp}</em><em class="${pv.hap < 0 ? 'neg' : 'pos'}">행복 ${pv.hap > 0 ? '+' : ''}${pv.hap}</em></span></button>`; }).join('');
   const pk = picks3();
   const pcards = pk.map(x => { const a = x.a, kind = { buy: ['구축·매매', '실거주 매수'], bun: ['분양권', '계약금 + 프리미엄'], ipj: ['재개발 입주권', '권리가액 − 이주비 대출'] }[a.kind];
     return `<button class="pick ${x.short <= 0 ? 'ok' : ''}" data-a="${a.id}"><span class="pk">${a.kind === 'buy' ? '🏢' : a.kind === 'bun' ? '📄' : '🏗️'} ${kind[0]}</span><b>${esc(a.n)}</b><small>${GUN[a.gu].n}구 · 시세 ${wonS(price(a.id))}</small><span class="pneed">${x.short <= 0 ? '✅ 지금 매수 가능' : `${wonS(x.short)} 부족`}</span></button>`; }).join('');
   const sv = stockValue(), si = stockIn(), sg = r2(sv - si);
   const hint = !own && gap.short > 0 ? (S.hp >= 60 && !S.biz ? '💡 부족한 돈은 <b>투잡</b>으로 빨리 모으거나, <b>주식</b>으로 불리거나, <b>청약</b>을 노려 보세요.' : S.hp < 40 ? '💡 체력이 낮아요. 이번 반기는 <b>휴식</b>을 고르는 게 안전해요.' : '💡 꾸준한 저축이 가장 확실한 길이에요.') : '';
   $('#tab').innerHTML = `
-    <div class="chk2"><span>${yearOf()}년 ${S.t % 2 ? '가을' : '봄'} · ${ageOf()}세</span><span class="pill">CHAPTER ${chapterOf() + 1} / 10</span></div>
     ${goal}
     <div class="sech"><b>📖 오늘의 이야기</b><small>${when()}</small></div>
     <div class="story3"><div class="scnw">${scene()}<span class="stag">${CHAPTERS[chapterOf()]}</span></div><b>✨ ${esc(sh)}</b><p class="qbox">${esc(sq)}</p></div>
     <div class="sech"><b>🎮 이번 반기, 어떻게 할까요?</b><em class="pill hpp">⚡ 체력 ${S.hp}/100</em></div>
-    <div class="wlist">${wcards}</div>${S.overwarn ? `<p class="owarn">🚑 과로 경고 ${S.overwarn}/2 — 한 번 더 쓰러지면 위험해요.</p>` : ''}
+    <div class="wlist g3">${wcards}${opts.length < 6 ? (isHomeless() ? `<button class="wopt xt ${S.plan.ch ? 'on' : ''}" id="chT"><em class="pill t-도전">${S.plan.ch ? '✓' : '추첨'}</em><span class="wi wb-도전">🎟️</span><b>청약 넣기</b><span class="wfx"><em>가점 ${gajeom().total}점</em><em>${S.plan.ch ? '신청함' : '눌러서 신청'}</em></span></button>` : `<button class="wopt xt" id="stkT"><em class="pill t-도전">투자</em><span class="wi wb-도전">📈</span><b>주식 계좌</b><span class="wfx"><em>${wonS(stockValue())}</em></span></button>`) : ''}</div><p class="wdesc">${WORK[S.plan.work].ic} <b>${WORK[S.plan.work].t}</b> — ${WORK[S.plan.work].d}</p>${S.overwarn ? `<p class="owarn">🚑 과로 경고 ${S.overwarn}/2 — 한 번 더 쓰러지면 위험해요.</p>` : ''}
     <div class="sech"><b>🏙️ 지금 노려볼 서울 아파트</b><small>눌러서 자금 계산</small></div><div class="card flat"><div class="pgrid">${pcards}</div><button class="btn sm ghost" data-goto="map">🗺️ 서울 지도에서 더 찾아보기</button>${hint ? `<p class="small">${hint}</p>` : ''}</div>
     <div class="card"><h4>📈 주식 계좌 <small>종잣돈 불리기 · 선택</small></h4>${sv > 0 ? `<div class="stkrow"><b>${won(sv)}</b><span class="${sg >= 0 ? 'up' : 'dn'}">${sg >= 0 ? '+' : ''}${won(sg)} (${si ? pct(sg / si * 100) : '0%'})</span></div><p class="small">${Object.keys(STK).filter(k => S.stk[k] > 0).map(k => `${STK[k].ic} ${STK[k].t} ${wonS(S.stk[k])}`).join(' · ')}</p>` : '<p class="small">아직 투자하지 않았어요. 오르면 계약금이 빨리 모이지만, 위기 때 반토막 날 수도 있어요.</p>'}<button class="btn sm" id="bStk">📈 사고팔기</button></div>
     ${isHomeless() ? `<div class="card"><h4>🎟️ 청약 <small>내 ${term('가점')} ${gajeom().total}점</small></h4><label class="tgl"><input type="checkbox" id="chk" ${S.plan.ch ? 'checked' : ''}> 다음 반기에 청약 넣기</label><p class="small">당첨되면 계약금 10%를 바로 내야 해요. 무주택 기간과 가족이 늘수록 가점이 올라요.</p></div>` : ''}
@@ -182,6 +181,8 @@ function tabHome() {
   document.querySelectorAll('[data-ad]').forEach(b => b.onclick = () => adReward(b.dataset.ad));
   $('#bStk').onclick = stockModal;
   if ($('#chk')) $('#chk').onchange = e => { S.plan.ch = e.target.checked; save(); };
+  if ($('#chT')) $('#chT').onclick = () => { S.plan.ch = !S.plan.ch; save(); tabHome(); toast(S.plan.ch ? '🎟️ 다음 반기에 청약을 넣어요' : '청약 신청을 취소했어요'); };
+  if ($('#stkT')) $('#stkT').onclick = stockModal;
 }
 function stockModal() {
   let k = 'blue';
