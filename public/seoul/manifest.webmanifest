@@ -1,0 +1,55 @@
+{
+ "id": "/seoul/",
+ "name": "나의 첫 번째 서울 아파트 구하기",
+ "short_name": "첫 서울 아파트",
+ "description": "월세방에서 시작해 20년 동안 서울에서 첫 아파트를 마련하는 부동산 인생 시뮬레이션 게임. 40가지 엔딩.",
+ "lang": "ko",
+ "start_url": "/seoul/",
+ "scope": "/seoul/",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#1b1840",
+ "theme_color": "#3b2fa0",
+ "categories": [
+  "games",
+  "entertainment"
+ ],
+ "icons": [
+  {
+   "src": "img/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "img/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "img/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ],
+ "screenshots": [
+  {
+   "src": "img/shot1.png",
+   "sizes": "636x1048",
+   "type": "image/png",
+   "form_factor": "narrow"
+  },
+  {
+   "src": "img/shot2.png",
+   "sizes": "636x1048",
+   "type": "image/png",
+   "form_factor": "narrow"
+  },
+  {
+   "src": "img/shot3.png",
+   "sizes": "636x1048",
+   "type": "image/png",
+   "form_factor": "narrow"
+  }
+ ]
+}

@@ -439,9 +439,10 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .rwds{display:flex;flex-direction:column;gap:6px;margin:0 0 8px}.rwd{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;border:0;border-radius:14px;padding:10px 12px;font:inherit;font-size:13px;text-align:left;cursor:pointer;box-shadow:0 2px 8px rgba(60,50,140,.12)}
 .rwd b{font-weight:900}.rwd small{margin-left:auto;font-size:11px;opacity:.8}.rwd.hp{background:linear-gradient(90deg,#ffe3e3,#fff1d6);color:#a12b2b;animation:pulse 1.4s infinite}.rwd.bn{background:linear-gradient(90deg,#fff6cf,#ffe9a8);color:#6b4a00}
 @keyframes pulse{50%{box-shadow:0 0 0 4px rgba(229,72,77,.18)}}
-</style><script src="/auth.js?v=3" defer></script></head>
+</style><link rel="manifest" href="/seoul/manifest.webmanifest"><meta name="theme-color" content="#3b2fa0"><link rel="apple-touch-icon" href="/seoul/img/icon-192.png"><script src="/auth.js?v=3" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
 /*__JS__*/
 renderTitle(); splash(); accInit().then(() => { if (document.querySelector('.title2')) renderTitle(); });
-</script></body></html>
+</script><script>if("serviceWorker" in navigator&&location.hostname==="aptgame.kr")navigator.serviceWorker.register("/seoul/sw.js",{scope:"/seoul/"}).catch(()=>{});</script>
+</body></html>

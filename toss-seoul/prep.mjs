@@ -10,7 +10,8 @@ const rep = (a, b) => { if (!h.includes(a)) console.warn('찾지 못함:', a); h
 rep('<script src="/auth.js?v=3" defer></script>', '');                       // 카카오 로그인 없음 → 게스트(기기 저장)로만 동작
 rep("fetch('/api/config', { cache: 'no-store' })", 'Promise.resolve(null)');   // 애드센스 대신 토스 광고 브리지
 rep("sendBeacon('/api/stat'", "sendBeacon('https://aptgame.kr/api/stat'");     // 통계는 aptgame.kr 서버로
-rep('href="/"', 'href="#"');                                                   // 미니앱 밖으로 나가는 링크 제거
+rep('href="/"', 'href="#"');
+h = h.replace(/<link rel="manifest"[^>]*>/, '').replace(/<script>if\("serviceWorker"[\s\S]*?<\/script>\s*/, ''); // PWA 요소는 토스에서 불필요                                                   // 미니앱 밖으로 나가는 링크 제거
 rep("navigator.share({ title: '나의 첫 번째 서울 아파트 구하기', text, url })", "navigator.share({ title: '나의 첫 번째 서울 아파트 구하기', text: text + ' 토스에서 \\'첫 번째 서울 아파트\\' 검색!' })"); // 토스 안에서는 외부 사이트 링크 없이 공유
 rep("const all = text + '\\n' + url;", "const all = text;");
 h = h.replace(/<a class="other"[^>]*>[^<]*<\/a>/g, '');
