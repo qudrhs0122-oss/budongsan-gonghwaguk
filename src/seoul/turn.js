@@ -48,7 +48,7 @@ function nextTurn() {
   else if (S.plan.ch && isHomeless()) { e = EVENTS.find(x => x.id === 'cheong'); S.plan.ch = false; }
   else e = drawEvent();
   S.ev = e ? e.id : null;
-  if (S.t === 10 || S.t === 20 || S.t === 30) S.interAd = true;
+  if (S.t > 0 && S.t % 8 === 0) S.interAd = true; // 2챕터마다 챕터 전환 광고 (한 판에 4번)
   save();
   return { msgs, ev: e, R };
 }

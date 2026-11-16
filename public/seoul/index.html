@@ -433,6 +433,12 @@ details.card summary{font-weight:800;cursor:pointer;list-style:none}details.card
 .imjpm i{display:block;font-style:normal;font-size:11.5px;line-height:1.45;padding-left:9px;position:relative;margin-bottom:3px}.imjpm i::before{content:'·';position:absolute;left:1px;font-weight:900}
 .imjpm .pl{background:#eaf7ec}.imjpm .pl b{color:#2f8a43}.imjpm .mi{background:#fdeeee}.imjpm .mi b{color:#d0443f}
 .imjo{background:#f5f2ff;border-radius:12px;padding:8px 10px;font-weight:800;font-size:13px}.imjn{display:block;color:#9a94ab;font-size:10.5px;margin-top:6px}
+
+.btn.shr{background:#FEE500!important;color:#1d1a00!important;border:0!important;font-weight:900}
+
+.rwds{display:flex;flex-direction:column;gap:6px;margin:0 0 8px}.rwd{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;border:0;border-radius:14px;padding:10px 12px;font:inherit;font-size:13px;text-align:left;cursor:pointer;box-shadow:0 2px 8px rgba(60,50,140,.12)}
+.rwd b{font-weight:900}.rwd small{margin-left:auto;font-size:11px;opacity:.8}.rwd.hp{background:linear-gradient(90deg,#ffe3e3,#fff1d6);color:#a12b2b;animation:pulse 1.4s infinite}.rwd.bn{background:linear-gradient(90deg,#fff6cf,#ffe9a8);color:#6b4a00}
+@keyframes pulse{50%{box-shadow:0 0 0 4px rgba(229,72,77,.18)}}
 </style><script src="/auth.js?v=3" defer></script></head>
 <body><div id="app"></div><div id="modal"></div><div id="toast"></div><div id="tip"></div>
 <script>
@@ -1550,7 +1556,7 @@ function nextTurn() {
   else if (S.plan.ch && isHomeless()) { e = EVENTS.find(x => x.id === 'cheong'); S.plan.ch = false; }
   else e = drawEvent();
   S.ev = e ? e.id : null;
-  if (S.t === 10 || S.t === 20 || S.t === 30) S.interAd = true;
+  if (S.t > 0 && S.t % 8 === 0) S.interAd = true; // 2챕터마다 챕터 전환 광고 (한 판에 4번)
   save();
   return { msgs, ev: e, R };
 }
@@ -2190,7 +2196,8 @@ function renderDexInner(el) {
   el.innerHTML = h;
   el.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { DEXF = b.dataset.f; renderDexInner(el); });
   el.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { const k = b.dataset.e, e = ENDS[k], rr = RARE[e.r];
-    modal(d[k] ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 엔딩 ${k.slice(1)}</div><div class="eimg sm"><img src="img/end/${k}.webp" alt=""></div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${k === 'e40' ? E40_HINT : e.d}<br>달성: ${esc(d[k].name)} · ${d[k].mode === 'hist' ? '2015' : '2026'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<div class="evcat" style="color:${rr[1]}">${rr[0]}</div><h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${e.d}</p><button class="btn" data-close>닫기</button>`); });
+    modal(d[k] ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 엔딩 ${k.slice(1)}</div><div class="eimg sm"><img src="img/end/${k}.webp" alt=""></div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${k === 'e40' ? E40_HINT : e.d}<br>달성: ${esc(d[k].name)} · ${d[k].mode === 'hist' ? '2015' : '2026'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<div class="evcat" style="color:${rr[1]}">${rr[0]}</div><h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${k === 'e40' ? (store.get('_h40', 0) ? E40_HINT : '숨겨진 엔딩이에요. 조건은 비밀!') : e.d}</p>${k === 'e40' && !store.get('_h40', 0) ? '<button class="btn pri" id="h40">🎬 광고 보고 히든 엔딩 조건 보기</button>' : ''}<button class="btn" data-close>닫기</button>`);
+    if ($('#h40')) $('#h40').onclick = () => showAd(() => { store.set('_h40', 1); closeModal(); toast('🏆 히든 엔딩 조건이 열렸어요'); b.click(); }, false, 'reward_h40'); });
 }
 
 // ---------- 진행 ----------
@@ -2262,6 +2269,7 @@ function onNext() {
       <div class="rhwhen">📅 ${yearOf()}년 <em>${halfOf(S.t)}</em></div><div class="rhsub">${sub}</div>
       <div class="rhwho"><img src="${gimg('face')}" alt=""><div><b>${esc(S.name || '나')}, ${ageOf()}세</b><small>💼 ${job}${S.married >= 0 ? ' · 기혼' : ''}${S.kids.length ? ' · 자녀 ' + S.kids.length : ''}</small></div></div></div>
     <div class="rstats">${stat('c1', '💰', '현금', wonS(S.cash))}${stat('c2', '📊', '순자산', wonS(nw()))}${stat('c3', '⚡', '체력', `${S.hp}<i>/100</i>`, bar(S.hp, 'hp'))}${stat('c4', '❤️', '행복', `${S.happy}<i>/100</i>`, bar(S.happy, 'hap'))}</div>
+    ${rewardRow()}
     <div class="rrow"><div class="rcard rres"><div class="rrib">🏆 ${when(S.t - 1)} 결과</div><div class="rhead">${mood} <b>${head}</b></div>
         <div class="rdls">${dl(dc >= 0 ? 'pos' : 'neg', '💰', '현금', (dc >= 0 ? '+' : '') + wonS(dc))}${dl(d >= 0 ? 'pos2' : 'neg', '📊', '순자산', (d >= 0 ? '+' : '') + wonS(d))}${dl(R.g >= 0 ? 'up' : 'dn', '🏠', '서울 집값', pct(R.g))}</div></div>
       <div class="rcard rhome"><img src="img/res/apt.webp" alt=""><div class="rhb"><b>📍 ${own ? '나의 집' : '나의 첫 집까지'}</b>${own ? `<small>${esc(aptName(lv || S.props.find(p => p.kind === 'buy')))}</small>` : `<div class="gt"><i style="width:${clamp(have / Math.max(.01, have + gp.short) * 100, 3, 100)}%"></i></div><small class="${gp.short > 0 ? 'neg' : 'pos'}">${gp.short > 0 ? won(gp.short) + ' 부족' : '지금 살 수 있어요!'}</small>`}</div></div></div>
@@ -2273,7 +2281,8 @@ function onNext() {
       <button data-nx="grow" class="n2"><img src="img/res/grow.webp" alt=""><b>불릴까?</b><small>주식 · 코인 · 재테크</small></button>
       <button data-nx="home" class="n3"><img src="img/res/cheong.webp" alt=""><b>${own ? '갈아탈까?' : '청약을 넣을까?'}</b><small>${own ? '매도 · 매수 · 갈아타기' : '분양 · 재개발 · 재건축'}</small></button></div></div>
     <button class="btn rgo" id="ok">${r.ev || R.crisis ? '다음 이야기' : '다음 반기로'} <span>»</span></button>`, 'rpage');
-  const proceed = () => { closeModal(); newCh ? cineChapter(after) : after(); };
+  bindRewards();
+  const proceed = () => { closeModal(); if (newCh && S.interAd) { S.interAd = false; showAd(() => cineChapter(go), true, 'chapter_break'); } else if (newCh) cineChapter(after); else after(); };
   $('#ok').onclick = proceed;
   document.querySelectorAll('[data-nx]').forEach(b => b.onclick = () => {
     const k = b.dataset.nx;
@@ -2315,6 +2324,24 @@ function adReward(kind) {
     save(); if (kind !== 'report') renderGame();
   }, false, 'reward_' + kind);
 }
+function adBonus(tag, fn) { showAd(() => { fn(); save(); }, false, 'reward_' + tag); }
+function rewardRow() { // 반기 결과 화면의 보상형 광고 버튼
+  const out = [], ch = chapterOf(), inc = S.lastFlow ? S.lastFlow.inc : 0;
+  S.adCnt = S.adCnt || {};
+  if (S.hp <= 35 && (S.adCnt.hp || 0) < 2) out.push(`<button class="rwd hp" data-rw="hp">⚡ 쓰러지기 직전! <b>광고 보고 체력 +30</b><small>한 판에 ${2 - (S.adCnt.hp || 0)}번 남음</small></button>`);
+  if (inc > 0 && S.adCnt.bonusCh !== ch) out.push(`<button class="rwd bn" data-rw="bonus">🎁 <b>광고 보고 성과급 받기 +${wonS(r2(Math.max(.02, inc * .1)))}</b><small>챕터마다 1번</small></button>`);
+  return out.length ? `<div class="rwds">${out.join('')}</div>` : '';
+}
+function bindRewards() {
+  document.querySelectorAll('[data-rw]').forEach(b => b.onclick = () => {
+    const k = b.dataset.rw;
+    adBonus(k, () => {
+      if (k === 'hp') { S.adCnt.hp = (S.adCnt.hp || 0) + 1; S.hp = Math.min(100, S.hp + 30); S.overwarn = 0; toast('⚡ 푹 쉬었어요! 체력 +30'); }
+      if (k === 'bonus') { const v = r2(Math.max(.02, (S.lastFlow ? S.lastFlow.inc : 0) * .1)); S.adCnt.bonusCh = chapterOf(); S.cash = r2(S.cash + v); toast(`🎁 성과급 ${won(v)} 입금!`); }
+      b.remove();
+    });
+  });
+}
 function stat(ev, k) { try { const body = JSON.stringify({ g: 'seoul', ev, k: k || '' }); if (navigator.sendBeacon) navigator.sendBeacon('/api/stat', new Blob([body], { type: 'application/json' })); } catch (e) { } }
 fetch('/api/config', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(c => { const a = c && c.ads; if (!a || !a.h5 || !a.client) return;
   ADS.client = a.client; const sc = document.createElement('script'); sc.async = true; sc.crossOrigin = 'anonymous'; sc.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + a.client; sc.setAttribute('data-ad-frequency-hint', '30s'); if (a.test) sc.setAttribute('data-adbreak-test', 'on'); document.head.appendChild(sc);
@@ -2329,6 +2356,14 @@ function showAd(cb, inter, tag) {
 }
 
 // ---------- 엔딩 ----------
+function shareEnding(k) { // 엔딩 공유: 링크 미리보기에 그 엔딩 그림·제목이 뜸
+  const e = ENDS[k], good = e.p !== 4 && !['e16', 'e17', 'e21', 'e22', 'e24'].includes(k), w = wonS(nw());
+  const url = `https://aptgame.kr/seoul/e/${k}?n=${encodeURIComponent((S.name || '').slice(0, 10))}&w=${encodeURIComponent(w)}`;
+  const text = good ? `🏆 나 서울 아파트 게임에서 '${e.t}' 엔딩 봤다! 순자산 ${w}. 엔딩 40개 중에 너는 몇 번이야?` : `😭 20년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어? 해보고 알려줘`;
+  stat('share', k);
+  if (navigator.share) navigator.share({ title: '나의 첫 번째 서울 아파트 구하기', text, url }).then(() => stat('share_done', k)).catch(() => { });
+  else { const all = text + '\n' + url; (navigator.clipboard ? navigator.clipboard.writeText(all) : Promise.reject()).then(() => toast('📋 공유 문구와 링크를 복사했어요. 카톡에 붙여넣기 하세요!')).catch(() => prompt('아래 내용을 복사해서 공유하세요', all)); }
+}
 function endCine() { cine({ k: 'THE END', t: `${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년`, s: '당신의 부동산 인생, 그 결말은…', ms: 2600 }, renderEnding); }
 function renderEnding() {
   const k = S.ended, e = ENDS[k]; unlockEnding(k); stat('ending', k);
@@ -2337,11 +2372,11 @@ function renderEnding() {
   $('#app').innerHTML = `<div class="ending fade p${e.p}"><div class="ekick"><span class="rbadge" style="background:${RARE[e.r][1]}">${RARE[e.r][0]}</span> ${PARTS[e.p].slice(2)} · 엔딩 ${k.slice(1)}/40</div><div class="eimg"><img src="img/end/${k}.webp" alt="${esc(e.t)}"></div><h2>${e.ic} ${e.t}</h2><p class="story">${e.s}</p>
     <div class="card"><h4>📋 ${esc(S.name)}의 부동산 인생 결산</h4><table class="qt"><tr><td>기간</td><td>${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년 (${Math.max(1, Math.ceil(S.t / 2))}년)</td></tr><tr><td>나이</td><td>${ageOf(Math.min(S.t, MAXT - 1))}세</td></tr><tr><td>최종 순자산</td><td><b>${won(nw())}</b></td></tr><tr><td>보유 주택</td><td>${homes.map(p => esc(aptName(p))).join(', ') || '없음'}</td></tr><tr><td>총부채</td><td>${won(debtTotal())}</td></tr><tr><td>체력 / 행복</td><td>${S.hp} / ${S.happy}</td></tr><tr><td>투잡 / 쓰리잡 / 승진</td><td>${S.w.two}번 / ${S.w.three}번 / ${S.promos}번</td></tr><tr><td>주식 (평가금)</td><td>${won(stockValue())}</td></tr><tr><td>갈아타기 / 청약 당첨</td><td>${S.st.flips}회 / ${S.st.chWin}회</td></tr></table></div>
     <p class="small">엔딩 도감 ${Object.keys(d).length}/40 수집</p>
-    <button class="btn pri big" id="again">🔁 인생 다시 살기</button><button class="btn" id="dex">📖 엔딩 도감</button><button class="btn ghost" id="share">📤 결과 공유</button><a class="other" href="/">← aptgame.kr 다른 게임</a></div>`;
+    <button class="btn shr big" id="share">💬 내 엔딩 친구에게 자랑하기</button><button class="btn pri big" id="again">🔁 인생 다시 살기</button><button class="btn" id="dex">📖 엔딩 도감</button><a class="other" href="/">← aptgame.kr 다른 게임</a></div>`;
   if (window.APT && !S.rankSent) { S.rankSent = 1; save(); APT.endCard('seoul', Math.round(nw() * 10) / 10, `엔딩 ${k.slice(1)} ${e.t}`, '#again'); }
   $('#again').onclick = () => { store.set('_save', null); renderSetup(); };
   $('#dex').onclick = () => renderDexPage(renderEnding);
-  $('#share').onclick = () => { const t = `나의 첫 번째 서울 아파트 구하기 — 엔딩 ${k.slice(1)} "${e.t}" (순자산 ${won(nw())}) https://aptgame.kr/seoul/`; if (navigator.share) navigator.share({ text: t }).catch(() => { }); else { navigator.clipboard && navigator.clipboard.writeText(t); toast('결과 문구를 복사했어요'); } };
+  $('#share').onclick = () => shareEnding(k);
   if (e.p !== 4 && k !== 'e16' && k !== 'e17' && k !== 'e21' && k !== 'e22' && k !== 'e24') celebrate();
 }
 

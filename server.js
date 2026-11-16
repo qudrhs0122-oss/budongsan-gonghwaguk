@@ -225,6 +225,24 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
   }
 
+  // 엔딩 공유 페이지: 카톡 미리보기에 그 엔딩 그림·제목이 뜨고, 누르면 게임으로
+  const em = p.match(/^\/seoul\/e\/(e\d{1,2})\/?$/);
+  if (em) {
+    let E = {}; try { E = JSON.parse(fs.readFileSync(path.join(PUBLIC, 'seoul/ends.json'), 'utf8')); } catch (e) { }
+    const k = em[1], e = E[k]; if (!e) { res.writeHead(302, { Location: '/seoul/' }); return res.end(); }
+    const H = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const n = H((url.searchParams.get('n') || '').replace(/[<>&"'\n]/g, '').slice(0, 10)), w = H((url.searchParams.get('w') || '').replace(/[^0-9.,억만원\- ]/g, '').slice(0, 14));
+    const good = e.p !== 4 && !['e16', 'e17', 'e21', 'e22', 'e24'].includes(k);
+    const title = `${n ? n + '님은' : '친구는'} '${e.t}' 엔딩!${w ? ' (순자산 ' + w + ')' : ''}`;
+    const desc = good ? '20년 서울 내 집 마련 인생, 40가지 엔딩 중 당신은 어디까지? 나의 첫 번째 서울 아파트 구하기' : '20년을 버텼는데 이 결말… 당신은 더 잘할 수 있을까요? 나의 첫 번째 서울 아파트 구하기';
+    const img = `https://aptgame.kr/assets/end/${k}.jpg?v=1`, me = H(`https://aptgame.kr/seoul/e/${k}${url.search}`);
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=600' });
+    return res.end(`<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} | 나의 첫 번째 서울 아파트 구하기</title>
+<meta name="description" content="${desc}"><meta property="og:type" content="website"><meta property="og:site_name" content="aptgame.kr"><meta property="og:title" content="${title}"><meta property="og:description" content="${desc}"><meta property="og:url" content="${me}"><meta property="og:image" content="${img}"><meta property="og:image:width" content="800"><meta property="og:image:height" content="400"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${img}"><link rel="canonical" href="https://aptgame.kr/seoul/"><meta name="robots" content="noindex">
+<style>body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#16133a;color:#fff;display:flex;min-height:100vh;align-items:center;justify-content:center}.w{max-width:440px;width:100%;padding:20px;text-align:center}.w img{width:100%;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4)}.k{color:#ffd66b;font-weight:800;font-size:13px;letter-spacing:2px;margin:18px 0 6px}h1{font-size:22px;margin:0 0 6px}p{color:#cfcbe8;font-size:14px;line-height:1.6;margin:0 0 20px}a.b{display:block;background:linear-gradient(#ffd34d,#f5b301);color:#2a1f00;font-weight:900;font-size:18px;padding:16px;border-radius:16px;text-decoration:none}small{display:block;margin-top:14px;color:#8f8ab0}</style></head>
+<body><div class="w"><img src="/assets/end/${k}.jpg?v=1" alt="${H(e.t)}"><div class="k">${H(e.r)} · 엔딩 ${k.slice(1)}/40</div><h1>${title}</h1><p>${desc}</p><a class="b" href="/seoul/?from=share_${k}">🏠 나도 내 엔딩 찾으러 가기</a><small>aptgame.kr · 무료 웹게임</small></div></body></html>`);
+  }
+
   // 카카오 로그인 · 계정 랭킹
   if (p.startsWith('/auth/') || p === '/api/me' || p === '/api/me/delete' || p === '/api/score' || p === '/api/board' || p === '/api/dex') {
     if (await accounts.handle(req, res, p, url, json, body)) return;
