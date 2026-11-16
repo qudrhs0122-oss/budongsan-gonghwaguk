@@ -49,7 +49,7 @@ const DEFAULT_PUB = 'ca-pub-2150655592231599'; // 애드센스 게시자 ID
 const DEFAULT_BANNER_SLOT = '4104692035';      // 애드센스 '게임 배너' 광고 단위
 const AUTO_START_MS = 30000;      // 2명 이상 모이면 30초 뒤 시작
 const RECONNECT_MS = 60000;       // 게임 중 연결 끊김 허용 시간
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp' };
+const MIME = { '.webmanifest': 'application/manifest+json; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp' };
 
 /* ---------------- 연결 / 방 ---------------- */
 const clients = new Map();   // cid -> { cid, res, nick, char, room, online, lastSeen, dropTimer }
