@@ -5,6 +5,8 @@ const src = path.resolve('../public/seoul'), out = path.resolve('stage');
 fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
 fs.cpSync(path.join(src, 'img'), path.join(out, 'img'), { recursive: true });
 fs.copyFileSync(path.join(src, 'ends.json'), path.join(out, 'ends.json'));
+// 스토어용 스크린샷·PWA 아이콘·실제 단지 사진 자리 등 토스에 필요 없는 파일 제외
+for (const f of fs.readdirSync(path.join(out, 'img'))) if (/^(shot\d|icon-|setup_top\.webp$)/.test(f)) fs.rmSync(path.join(out, 'img', f), { force: true });
 let h = fs.readFileSync(path.join(src, 'index.html'), 'utf8');
 const rep = (a, b) => { if (!h.includes(a)) console.warn('찾지 못함:', a); h = h.split(a).join(b); };
 rep('<script src="/auth.js?v=3" defer></script>', '');                       // 카카오 로그인 없음 → 게스트(기기 저장)로만 동작
