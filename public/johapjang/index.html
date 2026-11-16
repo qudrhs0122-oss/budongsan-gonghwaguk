@@ -324,6 +324,8 @@ body:has(.cxpage){background:linear-gradient(180deg,#dfe2f3 0,#efe6ee 300px,#f3e
 .act .rec{position:absolute;left:6px;top:-8px;font-style:normal;font-size:10.5px;font-weight:800;background:linear-gradient(135deg,#2f8a4c,#4fb06a);color:#fff;border-radius:99px;padding:2px 7px;box-shadow:0 2px 5px rgba(40,120,60,.3)}
 .tip2{background:#eef7e8;border-radius:12px;padding:8px 10px;font-size:13px;margin:8px 0 0}.tip2 span{color:#6a6a5a;font-size:12px}
 .tut{display:flex;gap:10px;align-items:flex-start;margin:8px 0;line-height:1.5;font-size:14px}.tut>b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--gold);color:#fff;display:grid;place-items:center;font-size:13px}
+.recC{position:absolute;right:10px;top:-9px;background:#2f8a4c;color:#fff;font-style:normal;font-weight:900;font-size:11px;border-radius:10px;padding:2px 8px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.btn.reply{position:relative}
 </style><script type="module">
 // 원스토어 H5 Game SDK v1.1.0 (원스토어 앱/검증 도구 안에서만 동작, 일반 브라우저에서는 err 반환 후 무시)
 try {
@@ -781,7 +783,7 @@ function getEvent(){
 // ===== 특수 사건 (표결·판결) =====
 const VB=0.12, hasV=()=>S.items.legal>0, useV=()=>{if(hasV()){S.items.legal--;return VB;}return 0;};
 const vNote=()=>hasV()?`<br>⚖️ 법률 자문권 1장을 자동으로 사용합니다 (+${VB*100}%p, 보유 ${S.items.legal}장)`:"";
-function oddsText(p){return p>0.8?"압도적 우세":p>0.6?"우세":p>0.45?"박빙":p>0.3?"열세":"절대 열세";}
+function oddsText(p){return p>=1?"확실한 승리 (쉬움 모드)":p>0.8?"압도적 우세":p>0.6?"우세":p>0.45?"박빙":p>0.3?"열세":"절대 열세";}
 function riseNow(){return Math.max(0,(econ(S).dues-S.dues0)/S.dues0);}
 function voteOdds(ev){
   let p=0.55+(S.support-50)/85-(S.opposition-40)/150+(S.transparency-50)/280-(S.legal_risk-30)/250-riseNow()*0.6+(ev.diff||0);
@@ -789,16 +791,17 @@ function voteOdds(ev){
   return clamp(p,0.06,0.95);
 }
 function oddsBox(p,extra){return `<div class="odds">📊 사전 판세: <b>${oddsText(p)}</b> · 지지율 ${S.support}% · 비대위 ${S.opposition}%${extra||""}${vNote()}</div>`;}
+function easyP(p){ return (typeof isEasy==='function'&&isEasy())? (p>=0.7?1:Math.min(1,p+0.15)) : p; } // 쉬움: 우세하면 확정 승리
 function specialChoices(ev){
   if(ev.special==="vote"){
-    const p=Math.min(0.97,voteOdds(ev)+(hasV()?VB:0));
+    const p=easyP(Math.min(0.97,voteOdds(ev)+(hasV()?VB:0)));
     return {extra:oddsBox(p),choices:[{id:"A",text:ev.vote_text,fn:()=>{useV();
       if(Math.random()<p) return {d:apply(ev.win_fx||{}),r:ev.win,mood:"smile"};
       S.ending=ev.fail; return {d:{},r:ENDINGS[ev.fail].d,mood:"shock"};}}]};
   }
   if(ev.special==="dismiss_vote"){
     let p=0.5+(S.support-50)/90-(S.opposition-40)/140-(S.legal_risk-30)/220+(S.transparency-50)/250;
-    p=Math.min(0.97,clamp(p,0.06,0.94)+(hasV()?VB:0));
+    p=easyP(Math.min(0.97,clamp(p,0.06,0.94)+(hasV()?VB:0)));
     return {extra:oddsBox(p,`<br><span class="small">근거 없는 의혹은 투명성이 높을수록 힘을 잃고, 실제 법적 문제가 쌓여 있으면 비대위에 유리합니다.</span>`),
       choices:[{id:"A",text:"총회장에서 정면 승부한다",fn:()=>{S.dismissTries++;S.lastDismiss=S.month;useV();
           if(Math.random()<p) return {d:apply({opposition:-25,support:8,stress:10}),r:"개표 결과 해임안 부결. 박반대가 말없이 체육관을 나갔습니다. 조합장 자리를 지켰습니다.",mood:"smile"};
@@ -810,7 +813,7 @@ function specialChoices(ev){
   if(ev.special==="injunction_result"){
     let p=0.55+(S.transparency-50)/200-(S.legal_risk-30)/150;
     if(S.flags.inj_lawyer)p+=0.12; if(S.flags.inj_proof)p+=0.15; if(S.flags.inj_none)p-=0.3;
-    p=Math.min(0.97,clamp(p,0.05,0.95)+(hasV()?VB:0));
+    p=easyP(Math.min(0.97,clamp(p,0.05,0.95)+(hasV()?VB:0)));
     return {extra:oddsBox(p),choices:[{id:"A",text:"결정문을 연다",fn:()=>{useV();
       if(Math.random()<p){S.lawWin++;return {d:apply({opposition:-10,support:5,stress:-5}),r:"기각. 법원은 비대위가 주장한 사유가 직무집행을 정지할 만큼 소명되지 않았다고 봤습니다.",mood:"smile"};}
       S.lawLose++;S.ending="suspended";return {d:apply({opposition:10,support:-10}),r:"인용. 법원이 조합장 직무집행을 정지했습니다.",mood:"shock"};}}]};
@@ -818,7 +821,7 @@ function specialChoices(ev){
   if(ev.special==="suit_result"){
     const settled=S.flags.suit_fix||S.flags.suit_settle;
     let p=clamp(0.5+(S.transparency-50)/150-(S.legal_risk-30)/120+(S.flags.suit_lawyer?0.15:0),0.05,0.95);
-    if(!settled) p=Math.min(0.97,p+(hasV()?VB:0));
+    if(!settled) p=easyP(Math.min(0.97,p+(hasV()?VB:0)));
     return {extra:settled?"":oddsBox(p),choices:[{id:"A",text:"판결문을 확인한다",fn:()=>{
       if(settled){S.lawWin++;return {d:apply({support:3}),r:S.flags.suit_fix?"재결의로 흠을 보완해 소송은 각하됐습니다.":"원고 측과 합의해 소송이 취하됐습니다.",mood:"smile"};}
       if(Math.random()<p+useV()){S.lawWin++;return {d:apply({support:5,opposition:-8}),r:"원고 청구 기각. 관리처분계획은 유효합니다.",mood:"smile"};}
@@ -1820,7 +1823,7 @@ document.addEventListener("pointerdown",e=>{
 
 // ===================== 쉬움 모드 + 보기 쉽게 =====================
 (()=>{const old=Object.assign({},MODES); for(const k in MODES) delete MODES[k];
-  Object.assign(MODES,{easy:{n:"쉬움 (추천)",t:"15~20분",d:"선택 결과 미리보기 · 실패 완화 · 무료 부활 1회",ev:2,skip:0.35,easy:1}},old);})();
+  Object.assign(MODES,{easy:{n:"쉬움 (추천)",t:"15~20분",d:"턴제(시간 압박 없음) · 결과 미리보기 · 우세하면 표결 확정 승리 · 챕터마다 무료 다시 하기",ev:2,skip:0.35,easy:1}},old);})();
 const isEasy=()=>S&&S.mode==="easy";
 const _renderCreateE=renderCreate; renderCreate=function(){ if(!draft.mode) draft.mode="easy"; _renderCreateE(); };
 const _newGameE=newGame; newGame=function(){ const g=_newGameE.apply(this,arguments); if(g&&g.mode==="easy"&&g.items) g.items.legal+=2; return g; };
@@ -1874,6 +1877,8 @@ function previewChoices(){
     let eff=c.effects; if(c.alt) for(const a of c.alt){ if((a.flag&&S.flags[a.flag])||(a.noflag&&!S.flags[a.noflag])){eff=a.effects;break;} }
     if(c.special_effect==="audit") {b.insertAdjacentHTML("beforeend",`<span class="fxrow"><i class="fxc">결과는 그동안의 기록에 달렸어요</i></span>`);return;}
     if(eff) b.insertAdjacentHTML("beforeend",fxChips(eff)); else if(c.hint) b.insertAdjacentHTML("beforeend",`<span class="fxrow"><i class="fxc">${c.hint}</i></span>`); });
+  if(isEasy()){ let best=null,bs=-99; document.querySelectorAll("#app [data-i]").forEach(b=>{ const sc=b.querySelectorAll(".fxc.gd").length-b.querySelectorAll(".fxc.bd").length*1.2-(b.textContent.includes("▼▼")?.5:0); if(sc>bs){bs=sc;best=b;} });
+    if(best&&!document.querySelector("#app .recC")) best.insertAdjacentHTML("afterbegin",`<em class="recC">👍 추천</em>`); }
 }
 // 장식 확장: 추천 일정·위험 막대·수치 탭·튜토리얼
 const _decorateE=decorate;
@@ -1896,9 +1901,9 @@ decorate=function(){ _decorateE(); if(!S) return;
 };
 // 쉬움 모드 무료 부활 1회
 const _renderFailE=renderFail;
-renderFail=function(){ _renderFailE(); if(!isEasy()||S.easyRv||!S.cp) return; const key=S.ending;
-  $("#giveup").insertAdjacentHTML("beforebegin",`<button class="btn center" id="freeRv" style="background:linear-gradient(135deg,#2f8a4c,#4fb06a);color:#fff;border:0">🎁 쉬움 모드 무료 부활 (한 판 1회)</button>`);
-  $("#freeRv").onclick=()=>{ const cp=S.cp, rv=S.revives, used=S.rvUsed; S=ensure2(JSON.parse(cp)); S.easyRv=1; S.revives=rv; S.rvUsed=used; S.ending=null; apply(FAILS[key].fx); S.lastDismiss=S.month; addLog("🎁 무료 부활: "+ENDINGS[key].t); save(); render(); }; };
+renderFail=function(){ _renderFailE(); if(!isEasy()||S.easyRv===S.chi||!S.cp) return; const key=S.ending;
+  $("#giveup").insertAdjacentHTML("beforebegin",`<button class="btn center" id="freeRv" style="background:linear-gradient(135deg,#2f8a4c,#4fb06a);color:#fff;border:0">🎁 무료로 다시 하기 (챕터마다 1회)</button>`);
+  $("#freeRv").onclick=()=>{ const cp=S.cp, rv=S.revives, used=S.rvUsed; const ch0=S.chi; S=ensure2(JSON.parse(cp)); S.easyRv=ch0; S.revives=rv; S.rvUsed=used; S.ending=null; apply(FAILS[key].fx); S.lastDismiss=S.month; addLog("🎁 무료 부활: "+ENDINGS[key].t); save(); render(); }; };
 
 render();
 
@@ -1906,6 +1911,7 @@ render();
 let __last=Date.now(), __saveAcc=0;
 function liveTick(){
   const now=Date.now(), dt=Math.min(1,(now-__last)/1000); __last=now;
+  if(typeof isEasy==='function'&&isEasy()) return; // 쉬움: 시간이 저절로 흐르지 않음 (턴제)
   if(!S||!S.month&&S.month!==0) return;
   if(adOn||!["event","chat","quiz","result"].includes(S.phase)||document.hidden||$("#modalRoot").innerHTML) return;
   S.dayAcc=(S.dayAcc||0)+dt/SEC_PER_DAY;
