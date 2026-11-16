@@ -3,3 +3,7 @@ ranking.json
 .DS_Store
 stats.json
 accounts.json
+toss-seoul/node_modules/
+toss-seoul/dist/
+toss-seoul/stage/
+toss-seoul/*.ait
