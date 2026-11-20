@@ -130,11 +130,38 @@ async function tick() {
   busy = false;
 }
 
+/* ---------- Meta signed_request 검증 ---------- */
+function readForm(rq) {
+  return new Promise(resolve => {
+    let b = '', done = false; const fin = v => { if (!done) { done = true; resolve(v); } };
+    rq.on('data', d => { b += d; if (b.length > 2e4) { fin(''); rq.destroy(); } });
+    rq.on('end', () => fin(b)); rq.on('error', () => fin(''));
+  });
+}
+function verifySigned(sr) {
+  if (!APP_SECRET || typeof sr !== 'string') return null;
+  const [sig, payload] = sr.split('.');
+  if (!sig || !payload) return null;
+  try {
+    const want = crypto.createHmac('sha256', APP_SECRET).update(payload).digest();
+    const got = Buffer.from(sig.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+    if (got.length !== want.length || !crypto.timingSafeEqual(got, want)) return null;
+    const data = JSON.parse(Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
+    if (!data || String(data.algorithm || '').toUpperCase() !== 'HMAC-SHA256') return null;
+    return data;
+  } catch (e) { return null; }
+}
+
 /* ---------- 연결 (OAuth) ---------- */
 async function handle(req, res, url) {
   const p = url.pathname;
   if (p === '/threads/uninstall' || p === '/threads/delete') { // Meta 앱 필수 콜백: 연결 해제·데이터 삭제 요청
-    if (p === '/threads/delete' || p === '/threads/uninstall') { S.conn = null; await save(); }
+    // Meta가 보낸 요청인지 확인: POST + signed_request(앱 시크릿 HMAC-SHA256) 서명 검증 + 연결된 계정 uid 일치일 때만 해제 (BUG-20261121-3)
+    if (req.method !== 'POST') { res.writeHead(405, { Allow: 'POST', 'Content-Type': 'text/plain; charset=utf-8' }); res.end('method not allowed'); return true; }
+    const raw = await readForm(req);
+    const data = verifySigned(new URLSearchParams(raw).get('signed_request') || '');
+    if (!data) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'invalid signed_request' })); return true; }
+    if (S.conn && S.conn.uid && String(data.user_id || '') === S.conn.uid) { S.conn = null; await save(); }
     const code = crypto.randomBytes(6).toString('hex');
     res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ url: SITE + '/privacy.html', confirmation_code: code })); return true;
   }
