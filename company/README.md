@@ -44,3 +44,13 @@ QA검증팀 ──버그 접수──▶ 개발팀 ──수정·QA통과──�
 - `board/결재함.md` — 사장님 결재 대기 목록
 - `reports/YYYY-MM-DD/` — 부서별 일일 보고서
 - QA 도구: `tools/qa/run.sh` (게이트), `tools/qa/seoul_sim.js` (봇), `tools/qa/smoke.py` (페이지 점검)
+
+## 예약 작업 ID (부서 출근표)
+| 부서 | ID |
+|---|---|
+| QA검증팀 | trig_01C6qif2cGVpvyePX9mvH2Xk |
+| 개발팀 | trig_011i4bEG9Axqp845WGASdkBg |
+| 라이브운영·데이터팀 | trig_01RhkjuLwpQ9nttzUq2CH2fb |
+| 경영지원실 | trig_01MhAxVAVpf63qTvoYVF2Dpe (휴대폰 알림 켜짐) |
+| 마케팅팀 | trig_014dYD8NYes8i4GwZg6mCH4p |
+| 기획팀 | trig_01QLJaY87ELjYBM3WavULomM |
