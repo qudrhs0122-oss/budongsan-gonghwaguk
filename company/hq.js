@@ -25,7 +25,7 @@ function items(dir, prefix) {
   return ls(path.join(C, dir)).filter(f => f.endsWith('.md')).sort().reverse().map(f => {
     const t = read(path.join(C, dir, f));
     const post = (t.match(/```threads\n([\s\S]*?)```/) || [])[1];
-    return { id: f.replace(/\.md$/, ''), post: post ? post.trim() : '', channel: field(t, '채널'), title: title(t, f), status: (field(t, '상태').split(/[\s(]/)[0] || '접수'), sev: field(t, '심각도').split(/[\s(/]/)[0], game: field(t, '게임'), text: t.slice(0, 4000) };
+    return { id: f.replace(/\.md$/, ''), post: post ? post.trim() : '', channel: field(t, '채널'), when: field(t, '예약'), title: title(t, f), status: (field(t, '상태').split(/[\s(]/)[0] || '접수'), sev: field(t, '심각도').split(/[\s(/]/)[0], game: field(t, '게임'), text: t.slice(0, 4000) };
   });
 }
 

@@ -10,6 +10,7 @@ const path = require('path');
 const crypto = require('crypto');
 const https = require('https');
 const accounts = require('./accounts');
+const threads = require('./threads');
 // 재건축 조합장 키우기: GitHub Pages(johapjang-game 저장소)를 실시간으로 가져와 /johapjang/ 에서 보여줌
 const JH_ORIGIN = process.env.JOHAPJANG_ORIGIN || 'https://qudrhs0122-oss.github.io/johapjang-game';
 const JH_OG = '<meta property="og:type" content="website"><meta property="og:site_name" content="aptgame.kr"><meta property="og:title" content="재건축 조합장 키우기 | 부동산공화국"><meta property="og:description" content="10년 뒤 입주할 수 있을까, 아니면 먼저 해임당할까? 선택형 재건축 경영 시뮬레이션"><meta property="og:url" content="https://aptgame.kr/johapjang/"><meta property="og:image" content="https://aptgame.kr/assets/og2.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://aptgame.kr/johapjang/"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2150655592231599" crossorigin="anonymous"></script><script src="/auth.js" defer></script>';
@@ -295,7 +296,8 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(pub ? 200 : 404, { 'Content-Type': 'text/plain; charset=utf-8' });
     return res.end(pub ? `google.com, ${pub}, DIRECT, f08c47fec0942fa0\n` : 'not configured');
   }
-  if (p === '/api/hq') { let d; try { d = require('./company/hq.js').build(); } catch (e) { return json(res, 500, { error: 'hq' }); } return json(res, 200, d); }
+  if (p.startsWith('/threads/')) { if (await threads.handle(req, res, url)) return; }
+  if (p === '/api/hq') { let d; try { d = require('./company/hq.js').build(); d.threads = threads.status(); } catch (e) { return json(res, 500, { error: 'hq' }); } return json(res, 200, d); }
   if (p === '/hq') { res.writeHead(301, { Location: '/hq/' }); return res.end(); }
   if (p === '/api/ping') return json(res, 200, { ok: true, online: [...clients.values()].filter(c => c.online).length, rooms: rooms.size });
   if (p === '/api/ranking') {
@@ -327,4 +329,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 process.on('uncaughtException', e => console.error('uncaught', e));
+threads.start().catch(e => console.error('threads', e.message));
 accounts.load().then(() => server.listen(PORT, () => console.log(`부동산 공화국 서버 실행 중: http://localhost:${PORT}`)));

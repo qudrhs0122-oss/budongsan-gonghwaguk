@@ -147,7 +147,7 @@ svg.chart{width:100%;height:140px;display:block}
       <div class="pan"><h4>🖊️ 결재함 <span>대화창에서 "P-001 승인"이라고 말하면 처리</span></h4><div id="ap"></div></div>
     </div>
     <div class="row" style="margin-top:12px">
-      <div class="pan"><h4>🧵 스레드 게시 대기열 <span>누르면 한 번에 올리기</span></h4><div id="thr"></div><h4 style="margin-top:14px">🎨 기획안 · 💰 수익화 안건</h4><div id="props"></div></div>
+      <div class="pan"><h4>🧵 스레드 자동 게시 <span id="thSt"></span></h4><div id="thr"></div><h4 style="margin-top:14px">🎨 기획안 · 💰 수익화 안건</h4><div id="props"></div></div>
       <div class="pan"><h4>📈 플레이 수 <span>운영팀 집계</span></h4><div id="chart"></div></div>
     </div>
   </div>
@@ -194,7 +194,7 @@ function bigNum(x){
     case 'dev':return [b.filter(z=>/수정완료|확인완료/.test(z.status)).length,'수정한 버그'];
     case 'ops':{const m=D.metrics.at(-1);return [m?m.seoul+m.jh:0,'어제 플레이'];}
     case 'briefing':return [D.approvals.filter(a=>/대기/.test(a.status)).length,'결재 대기'];
-    case 'marketing':return [D.marketing.filter(z=>!/게시완료/.test(z.status)).length,'게시 대기 스레드'];
+    case 'marketing':{const P=(D.threads||{}).posted||{};return [Object.values(P).filter(p=>p.url).length,'게시한 스레드'];}
     case 'planning':return [D.proposals.filter(z=>/^P-/.test(z.id)).length,'기획안'];
     case 'revenue':return [D.proposals.filter(z=>/^R-/.test(z.id)).length,'수익화 안건'];
   }
@@ -244,8 +244,14 @@ function render(){
   $('#kb').innerHTML=cols.map(([c,l])=>{const it=D.bugs.filter(z=>z.status.startsWith(c)&&!(c==='수정완료'&&z.status.startsWith('확인')));
     return `<div class="col"><h5>${l}<b>${it.length}</b></h5>${it.map(z=>`<div class="tk" onclick="openItem('bugs','${esc(z.id)}')"><small>${esc(z.id)}</small>${z.sev?`<span class="sev ${esc(z.sev)}">${esc(z.sev)}</span>`:''}${esc(z.title)}</div>`).join('')||'<div class="empty">없음</div>'}</div>`}).join('');
   $('#ap').innerHTML=D.approvals.length?D.approvals.map(a=>`<div class="li"><span class="no">${esc(a.no)}</span>${esc(a.what)}<span class="tag ${esc(a.status)}">${esc(a.dept)} · ${esc(a.status)}</span></div>`).join(''):'<div class="empty">결재할 안건이 없어요 ✨<br>마케팅팀(월·목)·기획팀(수)이 출근하면 올라와요</div>';
-  const tq=D.marketing.filter(z=>!/게시완료|반려/.test(z.status));
-  $('#thr').innerHTML=tq.length?tq.map(z=>`<div class="li" onclick="openItem('marketing','${esc(z.id)}')"><span class="no" style="color:#a3e635">${esc(z.id)}</span>${esc(z.title)}<span class="tag">${z.post?'🧵 올리기':esc(z.status)}</span></div>`).join(''):'<div class="empty">마케팅팀이 매일 아침 스레드 글을 채워둬요</div>';
+  const T=D.threads||{posted:{}};
+  $('#thSt').innerHTML=T.connected?`<b style="color:var(--ok)">● @${esc(T.username)} 연결됨</b> · ${T.auto?'자동 게시 ON':'일시정지'} · 하루 최대 ${T.daily}개`:(T.ready?`<a href="/threads/connect" style="color:var(--warn)">⚠️ 스레드 계정 연결하기 →</a>`:'<span style="color:var(--warn)">⚠️ 스레드 앱 설정 대기 (사장님 할 일 참고)</span>');
+  const tq=D.marketing.filter(z=>!/반려/.test(z.status)).slice(0,12);
+  $('#thr').innerHTML=tq.length?tq.map(z=>{const P=T.posted[z.id];let tag;
+    if(P&&P.url)tag=`✅ 게시됨${P.stat?` · 👁 ${P.stat.views||0} ♥ ${P.stat.likes||0} 💬 ${P.stat.replies||0}`:''}`;
+    else if(P&&P.pending)tag='⏳ 올리는 중';else if(P&&P.err)tag='❌ 실패';
+    else tag=z.when?`⏰ ${esc(z.when.slice(5))} 예약`:'예약시간 없음';
+    return `<div class="li" onclick="openItem('marketing','${esc(z.id)}')"><span class="no" style="color:#a3e635">${esc(z.id)}</span>${esc(z.title)}<span class="tag">${tag}</span></div>`}).join(''):'<div class="empty">마케팅팀이 매일 아침 스레드 글을 채워둬요</div>';
   const pm=D.proposals.map(z=>['proposals',z]);
   $('#props').innerHTML=pm.length?pm.map(([t,z])=>`<div class="li" onclick="openItem('${t}','${esc(z.id)}')"><span class="no">${esc(z.id)}</span>${esc(z.title)}<span class="tag ${esc(z.status)}">${esc(z.status)}</span></div>`).join(''):'<div class="empty">아직 없음</div>';
   // 차트
@@ -283,7 +289,8 @@ function openDept(id){
 }
 function pick(b,i,id){const r=D.depts.find(z=>z.id===id).reports[i];[...b.parentNode.children].forEach(c=>c.classList.remove('on'));b.classList.add('on');$('#mC').innerHTML=r.text?mdr(r.text):`<p>${esc(r.date)} · ${esc(r.gist)}</p><p style="color:var(--mu)">(지난 보고서 전문은 저장소 company/reports/${esc(r.date)}/ 에 있어요)</p>`;}
 function openItem(t,id){const z=D[t].find(q=>q.id===id);$('#mT').textContent=`${id} · ${z.title}`;$('#mTabs').innerHTML='';
-  const act=z.post?`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><a class="go" style="width:auto;text-decoration:none;--dc:#e6ecff" href="https://www.threads.net/intent/post?text=${encodeURIComponent(z.post)}" target="_blank" rel="noopener">🧵 스레드에 바로 올리기 ↗</a><button class="go" style="width:auto;--dc:#a3e635" onclick="cp('${t}','${id}',this)">📋 글 복사</button></div><pre style="white-space:pre-wrap;font-family:'Noto Sans KR';font-size:13.5px">${esc(z.post)}</pre>`:'';
+  const PP=t==='marketing'&&D.threads&&D.threads.posted[id];
+  const act=PP&&PP.url?`<a class="go" style="width:auto;display:inline-flex;text-decoration:none;margin-bottom:12px;--dc:#2ee6a6" href="${esc(PP.url)}" target="_blank" rel="noopener">✅ 스레드에 게시됨 — 보러 가기 ↗</a><pre style="white-space:pre-wrap;font-family:'Noto Sans KR';font-size:13.5px">${esc(z.post)}</pre>`:z.post?`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><a class="go" style="width:auto;text-decoration:none;--dc:#e6ecff" href="https://www.threads.net/intent/post?text=${encodeURIComponent(z.post)}" target="_blank" rel="noopener">🧵 스레드에 바로 올리기 ↗</a><button class="go" style="width:auto;--dc:#a3e635" onclick="cp('${t}','${id}',this)">📋 글 복사</button></div><pre style="white-space:pre-wrap;font-family:'Noto Sans KR';font-size:13.5px">${esc(z.post)}</pre>`:'';
   $('#mC').innerHTML=act+mdr(z.post?z.text.replace(/```threads[\s\S]*?```/,''):z.text);$('#md').classList.add('on');}
 async function cp(t,id,b){const z=D[t].find(q=>q.id===id);try{await navigator.clipboard.writeText(z.post);b.textContent='✅ 복사됨';}catch(e){b.textContent='길게 눌러 복사하세요';}}
 function closeM(){$('#md').classList.remove('on')}
