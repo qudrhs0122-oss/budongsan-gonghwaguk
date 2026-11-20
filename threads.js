@@ -133,6 +133,11 @@ async function tick() {
 /* ---------- 연결 (OAuth) ---------- */
 async function handle(req, res, url) {
   const p = url.pathname;
+  if (p === '/threads/uninstall' || p === '/threads/delete') { // Meta 앱 필수 콜백: 연결 해제·데이터 삭제 요청
+    if (p === '/threads/delete' || p === '/threads/uninstall') { S.conn = null; await save(); }
+    const code = crypto.randomBytes(6).toString('hex');
+    res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ url: SITE + '/privacy.html', confirmation_code: code })); return true;
+  }
   if (p === '/threads/connect') {
     if (!APP_ID || !APP_SECRET) { res.writeHead(302, { Location: '/hq/?threads=notready' }); return res.end(), true; }
     const st = crypto.randomBytes(12).toString('hex'); states.set(st, Date.now());
