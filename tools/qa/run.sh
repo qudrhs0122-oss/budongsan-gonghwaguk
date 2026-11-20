@@ -29,6 +29,7 @@ print(f\"- {d['games']}판 플레이, 엔딩 {d['distinctEndings']}/{d['totalEnd
 print('- 한 번도 안 나온 엔딩: '+(', '.join(d['neverReached']) or '없음'))
 for e in d['errors']: print('- ❌ '+e)
 for m,c in d.get('assetLost',[]): print(f'- ⚠️ 자산 상실 {c}회: {m}…')
+for m,c in d.get('warnings',[]): print(f'- ⚠️ 경고 {c}회: {m}')
 " >> $R
 [ $s -ne 0 ] && fail=1
 

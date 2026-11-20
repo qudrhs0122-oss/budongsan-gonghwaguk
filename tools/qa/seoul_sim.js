@@ -6,7 +6,7 @@ global.localStorage = { _: {}, getItem(k) { return this._[k] || null }, setItem(
 global.document = { addEventListener() {}, querySelector() { return null }, querySelectorAll() { return [] }, createElement() { return {} } };
 global.window = global; global.navigator = {}; global.fetch = () => Promise.reject();
 eval(fs.readFileSync(process.argv[2] || '/tmp/seoul_all.js', 'utf8') + `
-global.ENDS_=ENDS;global.LOST=[];global.run=function(strat,mode,diff){
+global.ENDS_=ENDS;global.LOST=[];global.WARN=[];global.run=function(strat,mode,diff){
   newGame(mode,diff||'d5','봇',null); const W=strat; let guard=0; const errs=[];
   while(!S.ended && guard++<400){
     const opts=workOptions();
@@ -19,6 +19,8 @@ global.ENDS_=ENDS;global.LOST=[];global.run=function(strat,mode,diff){
     S.plan.ch = W.ch && isHomeless();
     if(W.buy){ const own=S.props.some(p=>p.kind==='buy'); if(!own){ const c=APTS.filter(a=>a.kind==='buy'&&S.avail[a.id]).map(a=>[a,buyQuote(a.id,'live')]).filter(x=>x[1].ok).sort((a,b)=>b[1].p-a[1].p)[0]; if(c) doBuy(c[0].id,'live'); } }
     for(const a of APTS) if(a.kind==='buy' && !(price(a.id)>0)) errs.push('아파트 가격 이상: '+a.id+' t='+S.t);
+    // [화면 정합성] '매수 가능' 버튼이 켜졌는데 대출 슬라이더(step 0.05억)가 한도를 내림해서 실제 매수가 실패하는 경우 (BUG-20261121-1)
+    for(const a of APTS){ if(a.kind!=='buy'||!S.avail[a.id]) continue; const q=buyQuote(a.id,'live'); if(!q.ok||!(q.lim.max>0)) continue; const sn=Math.floor(q.lim.max/.05+1e-9)*.05; if(S.cash+q.resBack < r2(q.p+q.tax+q.fee-sn)) { WARN.push('매수 가능 표시인데 대출 슬라이더 기본값으로는 매수 실패'); break; } }
     const before=S.props.map(p=>({uid:p.uid,name:aptName(p),kind:p.kind})); const wasMarried=S.married>=0, kids0=S.kids.length;
     const r=nextTurn();
     if(!isFinite(nw())) errs.push('순자산 NaN t='+S.t);
@@ -41,6 +43,8 @@ global.ENDS_=ENDS;global.LOST=[];global.run=function(strat,mode,diff){
     if(S.married>=0 && S.married>S.t) errs.push('스토리: 결혼 시점이 미래 t='+S.t);
   }
   if(!S.ended) errs.push('엔딩 미도달(무한루프 의심)');
+  // [스토리 정합성] 집을 산 적이 있는데 '20년 동안 서울 집을 사지 못한' 엔딩 (BUG-20261121-2)
+  if(S.ended==='e29' && S.everOwned) WARN.push("스토리: 집을 산 적 있는데 e29 서울 집값에 패배(20년 동안 집을 사지 못함) 엔딩");
   return {e:S.ended, nw:nw(), own:S.props.some(p=>p.kind==='buy'), errs};
 }`);
 const N = +(process.argv[3] || 40);
@@ -59,6 +63,7 @@ for (const mode of ['hist', 'real']) for (const [n, st] of Object.entries(strats
 out.errors = [...new Set(out.errors.map(e => e.replace(/ t=\d+/, '')))].slice(0, 50);
 out.distinctEndings = Object.keys(out.endings).length;
 const lc = {}; for (const m of LOST) lc[m] = (lc[m] || 0) + 1; out.assetLost = Object.entries(lc).sort((a, b) => b[1] - a[1]).slice(0, 8); // 집·분양권을 잃은 사건 (스토리상 납득 가능한지 QA가 검토)
+const wc = {}; for (const m of WARN) wc[m] = (wc[m] || 0) + 1; out.warnings = Object.entries(wc).sort((a, b) => b[1] - a[1]); // 경고: 게이트는 통과시키되 매일 보고 (해당 버그 수정완료 후 errors로 승격)
 out.totalEndings = Object.keys(ENDS_).length;
 out.neverReached = Object.keys(ENDS_).filter(k => !out.endings[k]);
 console.log(JSON.stringify(out));
