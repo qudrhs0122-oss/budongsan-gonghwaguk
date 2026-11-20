@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>AGENT HQ · 부동산공화국 게임즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+KR:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b14;--pan:#0d1424;--pan2:#111a2e;--ln:#1e2a44;--tx:#e6ecff;--mu:#7d8bab;--dim:#4a5674;--ok:#2ee6a6;--sb:#5b8cff;--idle:#8aa0c8;--off:#ff5d6c;--warn:#ffb547;--mono:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 600px at 10% -10%,#13204066,transparent),radial-gradient(900px 500px at 100% 0,#2a0f3a44,transparent),var(--bg);color:var(--tx);font:14px/1.5 'Noto Sans KR',system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:1480px;margin:0 auto;padding:14px}
+.mono{font-family:var(--mono)}
+/* 상단 바 */
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:linear-gradient(180deg,#0f172b,#0b1222);border:1px solid var(--ln);border-radius:14px;padding:12px 14px}
+.brand{display:flex;gap:10px;align-items:center;min-width:250px}
+.logo{width:40px;height:40px;border-radius:10px;border:1px solid #2b3c62;display:grid;place-items:center;font-size:20px;background:#0a1020;position:relative}
+.logo:after{content:'';position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.brand b{font-family:var(--mono);font-weight:800;letter-spacing:2px;font-size:17px}
+.brand small{display:block;color:var(--ok);font-size:12px}
+.clock{color:var(--mu);font-family:var(--mono);font-size:12px;margin-left:6px}
+.demo{font-family:var(--mono);font-size:10px;color:var(--warn);border:1px solid #6b4a12;border-radius:5px;padding:1px 6px;margin-left:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;flex:1}
+.chip{border:1px solid;border-radius:11px;padding:6px 12px;min-width:92px;background:#0a1120}
+.chip i{display:block;font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;opacity:.85}
+.chip b{font-family:var(--mono);font-size:24px;font-weight:800;line-height:1.1}
+.chip i:before{content:'●';margin-right:5px;font-size:9px}
+.c-ok{border-color:#1d5a48;color:var(--ok)}.c-sb{border-color:#24407a;color:var(--sb)}.c-idle{border-color:#2a3654;color:var(--idle)}.c-off{border-color:#5d1f2a;color:var(--off)}.c-bug{border-color:#6b3f12;color:var(--warn)}.c-ap{border-color:#4a2a6b;color:#c084fc}
+.floor{font-family:var(--mono);font-size:11px;color:var(--warn);text-align:right}
+.floor div{color:var(--mu);border:1px solid var(--ln);border-radius:20px;padding:4px 10px;margin-top:4px;font-family:'Noto Sans KR';font-size:12px}
+.floor div:before{content:'● ';color:var(--sb)}
+/* 섹션 헤더 */
+.sec{display:flex;align-items:center;gap:14px;margin:18px 2px 10px;flex-wrap:wrap}
+.sec h2{font-family:var(--mono);font-size:13px;letter-spacing:2px;font-weight:800}
+.sec h2:before{content:'●';color:var(--ok);margin-right:8px;text-shadow:0 0 8px var(--ok)}
+.sec .sub{color:var(--mu);font-size:11px}
+.sec .link{font-family:var(--mono);font-size:10px;color:var(--ok);letter-spacing:1px;border-left:1px solid var(--ln);padding-left:14px}
+.tabs{margin-left:auto;display:flex;border:1px solid var(--ln);border-radius:9px;overflow:hidden}
+.tabs button{background:none;border:0;color:var(--mu);padding:6px 12px;font:600 12px 'Noto Sans KR';cursor:pointer}
+.tabs button.on{background:#1a2440;color:var(--tx)}
+/* 부서 카드 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.card{background:linear-gradient(180deg,var(--pan2),var(--pan));border:1px solid var(--ln);border-radius:14px;padding:14px;position:relative;overflow:hidden}
+.card:before{content:'';position:absolute;inset:0 0 auto 0;height:2px;background:var(--dc);box-shadow:0 0 14px var(--dc)}
+.ch{display:flex;justify-content:space-between;align-items:flex-start}
+.ch h3{font-size:15px;font-weight:800;display:flex;gap:7px;align-items:center}
+.ch .u{font-family:var(--mono);font-size:10px;color:var(--dc);letter-spacing:1.5px;margin-left:30px;margin-top:-2px}
+.big{text-align:right}.big b{font-family:var(--mono);font-size:28px;font-weight:800;color:var(--dc);line-height:1}.big small{display:block;font-size:10px;color:var(--mu)}
+.st{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;letter-spacing:1px;border:1px solid;border-radius:6px;padding:1px 7px;margin:8px 0 0 30px}
+.st:before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
+.st.ACTIVE,.st.WORKING{color:var(--ok)}.st.WORKING:before{animation:pulse 1s infinite}.st.STANDBY{color:var(--sb)}.st.IDLE{color:var(--idle)}.st.OFFLINE{color:var(--off)}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--ln);border-radius:10px;margin:12px 0 10px;background:#0a1120}
+.mini div{text-align:center;padding:7px 2px}.mini div+div{border-left:1px solid var(--ln)}
+.mini b{display:block;font-family:var(--mono);font-size:17px;font-weight:800}.mini small{font-size:10px;color:var(--mu)}
+.bar{display:flex;justify-content:space-between;font-size:11px;color:var(--mu)}.bar b{font-family:var(--mono);color:var(--dc)}
+.track{height:5px;background:#18223a;border-radius:4px;margin:4px 0 12px;overflow:hidden}.track i{display:block;height:100%;background:var(--dc);border-radius:4px;box-shadow:0 0 8px var(--dc);transition:width 1s}
+.dk{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--mu);margin-bottom:6px}.dk b{color:var(--dc)}
+.desk{display:flex;align-items:center;gap:9px;padding:5px 0}
+.av{width:26px;height:26px;border-radius:50%;background:#1a2440;display:grid;place-items:center;font-size:13px;border:1px solid #2a3a60;position:relative}
+.av:after{content:'';position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:var(--dim);border:2px solid var(--pan)}
+.av.on:after{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.desk p{flex:1;line-height:1.25}.desk p b{font-family:var(--mono);font-size:12px;display:block}.desk p span{font-size:11px;color:var(--mu)}
+.desk em{font-style:normal;font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:1px}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 10px}.tags span{font-family:var(--mono);font-size:10px;color:var(--mu);border:1px solid var(--ln);border-radius:5px;padding:1px 6px}
+.gist{font-size:12px;color:#b7c3e0;background:#0a1120;border-radius:8px;padding:7px 9px;margin-bottom:10px;min-height:34px;border-left:2px solid var(--dc)}
+.go{width:100%;display:flex;justify-content:space-between;background:transparent;border:1px solid color-mix(in srgb,var(--dc) 45%,transparent);color:var(--dc);border-radius:9px;padding:7px 10px;font:700 12px 'Noto Sans KR';cursor:pointer}
+.go:hover{background:color-mix(in srgb,var(--dc) 12%,transparent)}
+/* CEO 카드 */
+.ceo{--dc:#ffd166}
+/* 패널 */
+.row{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+@media(max-width:900px){.row{grid-template-columns:1fr}}
+@media(max-width:640px){.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:1 1 100%}.chip{min-width:0;padding:5px 8px}.chip b{font-size:20px}.chip i{font-size:9px;letter-spacing:.5px;white-space:nowrap}.floor{flex:1 1 100%;text-align:left}.brand{min-width:0}.sec .tabs{margin-left:0}}
+.pan{background:var(--pan);border:1px solid var(--ln);border-radius:14px;padding:14px}
+.pan h4{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;margin-bottom:10px;display:flex;justify-content:space-between}
+.pan h4 span{color:var(--mu);font-family:'Noto Sans KR';font-weight:400;letter-spacing:0}
+/* 근무 흐름 타임라인 */
+.tl{position:relative;display:flex;justify-content:space-between;padding:18px 4px 4px}
+.tl:before{content:'';position:absolute;left:14px;right:14px;top:31px;height:2px;background:#1e2a44}
+.tl .now{position:absolute;top:22px;width:2px;height:20px;background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.tl .now:after{content:'NOW';position:absolute;top:-14px;left:-12px;font:700 9px var(--mono);color:var(--warn)}
+.node{position:relative;text-align:center;width:16%;font-size:11px}
+.node i{display:block;width:28px;height:28px;margin:0 auto 6px;border-radius:50%;background:#0a1120;border:2px solid var(--dc);display:grid;place-items:center;font-style:normal;font-size:13px}
+.node.done i{background:var(--dc);box-shadow:0 0 10px var(--dc)}
+.node.skip{opacity:.35}
+.node b{display:block;font-family:var(--mono);font-size:11px}.node span{color:var(--mu);font-size:10px}
+/* 칸반 */
+.kb{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:700px){.kb{grid-template-columns:repeat(2,1fr)}}
+.col{background:#0a1120;border:1px solid var(--ln);border-radius:10px;padding:8px;min-height:90px}
+.col h5{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--mu);margin-bottom:6px;display:flex;justify-content:space-between}
+.tk{background:var(--pan2);border:1px solid var(--ln);border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12px;cursor:pointer}
+.tk small{display:block;font-family:var(--mono);font-size:9px;color:var(--mu)}
+.sev{font-size:9px;border-radius:4px;padding:0 5px;margin-right:4px;font-family:var(--mono)}
+.sev.치명{background:#5d1f2a;color:#ffb3bb}.sev.높음{background:#5a3a10;color:#ffd08a}.sev.보통{background:#1e3460;color:#aac4ff}.sev.낮음{background:#1f2b3f;color:#9fb0cf}
+.empty{color:var(--dim);font-size:12px;text-align:center;padding:16px 0}
+.li{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed #1a2540;font-size:12.5px;cursor:pointer}.li:last-child{border:0}
+.li .no{font-family:var(--mono);font-size:11px;color:#c084fc;min-width:52px}
+.li .tag{margin-left:auto;font-size:10px;font-family:var(--mono);border:1px solid var(--ln);border-radius:5px;padding:0 6px;color:var(--mu);white-space:nowrap}
+.li .tag.대기,.li .tag.결재대기{color:var(--warn);border-color:#6b4a12}.li .tag.승인,.li .tag.구현완료{color:var(--ok);border-color:#1d5a48}.li .tag.반려{color:var(--off);border-color:#5d1f2a}
+.feed .li{cursor:default}.feed .li time{font-family:var(--mono);font-size:10px;color:var(--mu);min-width:44px}
+svg.chart{width:100%;height:140px;display:block}
+.hint{font-size:12px;color:var(--mu);background:#0a1120;border:1px dashed #2a3654;border-radius:10px;padding:10px;margin-top:10px}
+.hint b{color:var(--warn)}
+/* 모달 */
+.md{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:14px;z-index:9}
+.md.on{display:flex}
+.mb{background:var(--pan);border:1px solid #2a3a60;border-radius:16px;max-width:760px;width:100%;max-height:86vh;display:flex;flex-direction:column}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--ln)}
+.mh b{font-size:15px}.mh button{white-space:nowrap;background:none;border:1px solid var(--ln);color:var(--tx);border-radius:8px;padding:4px 10px;cursor:pointer}
+.mt{display:flex;gap:6px;padding:8px 16px 0;flex-wrap:wrap}.mt button{font:600 11px var(--mono);background:#0a1120;border:1px solid var(--ln);color:var(--mu);border-radius:6px;padding:3px 8px;cursor:pointer}.mt button.on{color:var(--tx);border-color:var(--sb)}
+.mc{padding:14px 18px 20px;overflow:auto;font-size:13.5px;line-height:1.7}
+.mc h1,.mc h2,.mc h3{font-size:15px;margin:12px 0 6px}.mc h1{font-size:17px}.mc ul{padding-left:18px}.mc code{font-family:var(--mono);background:#0a1120;padding:1px 5px;border-radius:4px;font-size:12px}.mc pre{background:#0a1120;padding:10px;border-radius:8px;overflow:auto;font:12px var(--mono)}.mc table{border-collapse:collapse;font-size:12px}.mc td,.mc th{border:1px solid var(--ln);padding:3px 7px}
+.foot{color:var(--dim);font-size:11px;text-align:center;margin:22px 0 8px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">🏢</div><div><b>AGENT HQ</b><span class="clock mono" id="clk">--</span><small><span id="deptN">6</span>개 부서 · 3개 게임 <span class="demo">LIVE</span></small></div></div>
+    <div class="chips">
+      <div class="chip c-ok"><i>ACTIVE</i><b id="nA">0</b></div>
+      <div class="chip c-sb"><i>STANDBY</i><b id="nS">0</b></div>
+      <div class="chip c-idle"><i>IDLE</i><b id="nI">0</b></div>
+      <div class="chip c-off"><i>OFFLINE</i><b id="nO">0</b></div>
+      <div class="chip c-bug"><i>OPEN BUGS</i><b id="nB">0</b></div>
+      <div class="chip c-ap"><i>결재 대기</i><b id="nP">0</b></div>
+    </div>
+    <div class="floor">TOP FLOOR · 대표실<div id="floorMsg">불러오는 중…</div></div>
+  </header>
+
+  <div class="sec"><h2>ORGANIZATION COMMAND</h2><span class="sub" id="secSub">-</span><span class="link">CONTROL LINK STABLE</span>
+    <div class="tabs"><button class="on" data-v="org">조직 관제</button><button data-v="board">업무 보드</button></div></div>
+
+  <div id="vOrg">
+    <div class="grid" id="grid"></div>
+    <div class="sec"><h2>TODAY'S SHIFT</h2><span class="sub">오늘의 근무 흐름 (한국 시간)</span></div>
+    <div class="pan"><div class="tl" id="tl"></div></div>
+  </div>
+
+  <div id="vBoard" hidden>
+    <div class="row">
+      <div class="pan"><h4>🐞 BUG BOARD <span>QA가 접수 → 개발팀이 수정</span></h4><div class="kb" id="kb"></div></div>
+      <div class="pan"><h4>🖊️ 결재함 <span>대화창에서 "P-001 승인"이라고 말하면 처리</span></h4><div id="ap"></div></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <div class="pan"><h4>🧵 스레드 게시 대기열 <span>누르면 한 번에 올리기</span></h4><div id="thr"></div><h4 style="margin-top:14px">🎨 기획안 · 💰 수익화 안건</h4><div id="props"></div></div>
+      <div class="pan"><h4>📈 플레이 수 <span>운영팀 집계</span></h4><div id="chart"></div></div>
+    </div>
+  </div>
+
+  <div class="sec"><h2>ACTIVITY FEED</h2><span class="sub">부서 보고 최신순</span></div>
+  <div class="pan feed" id="feed"></div>
+  <p class="foot">AGENT HQ · aptgame.kr · 60초마다 자동 새로고침 · <span id="upd"></span></p>
+</div>
+
+<div class="md" id="md"><div class="mb"><div class="mh"><b id="mT"></b><button onclick="closeM()">닫기</button></div><div class="mt" id="mTabs"></div><div class="mc" id="mC"></div></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let D=null;
+// 한국 시간
+const kst=()=>{const d=new Date(Date.now()+9*3600e3);return {y:d.getUTCFullYear(),mo:d.getUTCMonth(),d:d.getUTCDate(),h:d.getUTCHours(),m:d.getUTCMinutes(),s:d.getUTCSeconds(),dow:d.getUTCDay(),date:d.toISOString().slice(0,10)}};
+const pad=n=>String(n).padStart(2,'0');
+const runsOn=(w,dow)=>!w.days||w.days.includes(dow);
+const DOW='일월화수목금토';
+const FOUND='2026-11-20'; // 창립일: 이 날은 첫 출근 전이라 미출근으로 치지 않음
+function status(x){
+  const k=kst(), now=k.h*60+k.m, t=x.when.h*60+x.when.m, last=x.reports[0]?.date;
+  if(last===k.date) return 'ACTIVE';
+  if(!runsOn(x.when,k.dow)) return 'IDLE';
+  if(now<t) return 'STANDBY';
+  if(now<t+90) return 'WORKING';
+  if(!x.reports.length && k.date<=FOUND) return 'STANDBY';
+  return 'OFFLINE';
+}
+const stLabel={ACTIVE:'ACTIVE · 근무 완료',WORKING:'WORKING · 근무 중',STANDBY:'STANDBY · 출근 대기',IDLE:'IDLE · 휴무',OFFLINE:'OFFLINE · 미출근'};
+function nextRun(w){const k=kst();for(let i=0;i<8;i++){const dow=(k.dow+i)%7;const mins=w.h*60+w.m-(k.h*60+k.m)+i*1440;if(runsOn(w,dow)&&mins>0){const h=Math.floor(mins/60),m=mins%60;return h>=24?`${Math.floor(h/24)}일 뒤`:`${h}h ${pad(m)}m`;}}return '-';}
+function uptime(x){ // 최근 7일 예정 출근 대비 보고서 비율
+  const k=kst(); let exp=0,got=0; const dates=new Set(x.reports.map(r=>r.date));
+  for(let i=0;i<7;i++){const d=new Date(Date.UTC(k.y,k.mo,k.d-i));const dow=d.getUTCDay();const ds=d.toISOString().slice(0,10);
+    if(i===0&&(k.h*60+k.m)<x.when.h*60+x.when.m&&!dates.has(ds))continue; if(ds<=FOUND&&!dates.has(ds))continue;
+    if(runsOn(x.when,dow)){exp++;if(dates.has(ds))got++;}}
+  return exp?Math.round(got/exp*100):100;
+}
+function bigNum(x){
+  const b=D.bugs, open=b.filter(z=>!/확인완료|보류/.test(z.status));
+  switch(x.id){
+    case 'qa':return [b.length,'누적 접수 버그'];
+    case 'dev':return [b.filter(z=>/수정완료|확인완료/.test(z.status)).length,'수정한 버그'];
+    case 'ops':{const m=D.metrics.at(-1);return [m?m.seoul+m.jh:0,'어제 플레이'];}
+    case 'briefing':return [D.approvals.filter(a=>/대기/.test(a.status)).length,'결재 대기'];
+    case 'marketing':return [D.marketing.filter(z=>!/게시완료/.test(z.status)).length,'게시 대기 스레드'];
+    case 'planning':return [D.proposals.filter(z=>/^P-/.test(z.id)).length,'기획안'];
+    case 'revenue':return [D.proposals.filter(z=>/^R-/.test(z.id)).length,'수익화 안건'];
+  }
+}
+const AV=['🤖','🧑‍💻','🛰️','🧾','✍️','🔎','📦','🧭','📈'];
+function render(){
+  const k=kst(); const cnt={ACTIVE:0,STANDBY:0,IDLE:0,OFFLINE:0};
+  const open=D.bugs.filter(z=>!/확인완료|보류/.test(z.status)).length;
+  const pend=D.approvals.filter(a=>/대기/.test(a.status)).length;
+  let html='';
+  D.depts.forEach((x,i)=>{
+    const st=status(x); cnt[st==='WORKING'?'ACTIVE':st]++;
+    const [n,nl]=bigNum(x), up=uptime(x), on=st==='ACTIVE'||st==='WORKING';
+    const r=x.reports[0];
+    html+=`<div class="card" style="--dc:${x.color}">
+      <div class="ch"><div><h3><span>${x.icon}</span>${esc(x.name)}</h3><div class="u">${x.unit}</div></div><div class="big"><b>${n}</b><small>${nl}</small></div></div>
+      <span class="st ${st}">${stLabel[st]}</span>
+      <div class="mini"><div><b>${x.reports.length}</b><small>최근 보고</small></div><div><b style="font-size:13px;line-height:1.9">${nextRun(x.when)}</b><small>다음 출근</small></div><div><b style="font-size:13px;line-height:1.9">${pad(x.when.h)}:${pad(x.when.m)}</b><small>${x.when.days?x.when.days.map(d=>DOW[d]).join('·'):'매일'}</small></div></div>
+      <div class="bar"><span>가동률 (7일)</span><b>${up}%</b></div><div class="track"><i style="width:${up}%"></i></div>
+      <div class="dk"><span>LIVE DESKS</span><b>${on?x.desks.length:0}명 가동</b></div>
+      ${x.desks.map((d,j)=>`<div class="desk"><div class="av ${on?'on':''}">${AV[(i*3+j)%AV.length]}</div><p><b>${esc(d[0])}</b><span>${esc(d[1])}</span></p><em>${on?'ONLINE':'GLOBAL'}</em></div>`).join('')}
+      <div class="tags">${x.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>
+      <div class="gist">${r?`<b class="mono" style="font-size:10px;color:var(--mu)">${r.date}</b> ${esc(r.gist)}`:'<span style="color:var(--dim)">아직 보고서 없음 · 첫 출근 대기</span>'}</div>
+      <button class="go" onclick="openDept('${x.id}')"><span>${esc(x.name)} 보고서 보기</span><span>↗</span></button>
+    </div>`;
+  });
+  // 대표실 카드
+  html+=`<div class="card ceo"><div class="ch"><div><h3><span>👑</span>대표실</h3><div class="u">CEO OFFICE</div></div><div class="big"><b>${pend}</b><small>결재 대기</small></div></div>
+    <span class="st ${pend?'STANDBY':'ACTIVE'}">${pend?'APPROVAL NEEDED':'ALL CLEAR'}</span>
+    <div class="mini"><div><b>${open}</b><small>열린 버그</small></div><div><b>${D.proposals.length}</b><small>기획안</small></div><div><b>${D.marketing.length}</b><small>홍보 초안</small></div></div>
+    <div class="dk" style="--dc:#ffd166"><span>사장님 직접 해야 하는 일</span><b>${D.todo.filter(t=>!t.done).length}건</b></div>
+    ${D.todo.map(t=>`<div class="desk"><div class="av ${t.done?'on':''}">${t.done?'✅':'✍️'}</div><p><span style="color:${t.done?'var(--dim)':'#d7def0'};${t.done?'text-decoration:line-through':''}">${esc(t.text)}</span></p></div>`).join('')}
+    <div class="hint">그 외엔 <b>결재</b>만 하면 돼요. 아무 Claude 대화창에서 <b>"P-001 승인"</b>처럼 말하세요. 작은 안건은 자동 승인돼요.</div>
+    <div style="height:10px"></div><button class="go" onclick="setView('board')"><span>결재함 열기</span><span>↗</span></button></div>`;
+  $('#grid').innerHTML=html;
+  $('#nA').textContent=pad(cnt.ACTIVE);$('#nS').textContent=pad(cnt.STANDBY);$('#nI').textContent=pad(cnt.IDLE);$('#nO').textContent=pad(cnt.OFFLINE);$('#nB').textContent=pad(open);$('#nP').textContent=pad(pend);
+  $('#deptN').textContent=D.depts.length;$('#secSub').textContent=`${D.depts.length}개 부서 가동 · 오늘 보고 ${D.depts.filter(x=>x.reports[0]?.date===k.date).length}건`;
+  const b=D.depts.find(x=>x.id==='briefing').reports[0];
+  $('#floorMsg').textContent=b?`${b.date} 브리핑: ${b.gist}`:(cnt.OFFLINE?`⚠️ 미출근 부서 ${cnt.OFFLINE}곳`:`열린 버그 ${open}건 · 결재 대기 ${pend}건`);
+  // 타임라인
+  const now=k.h*60+k.m; const ord=[...D.depts].sort((a,b)=>(a.when.h*60+a.when.m)-(b.when.h*60+b.when.m));
+  const first=0,last=24*60; let tl=`<div class="now" style="left:calc(${(now-first)/(last-first)*100}% )"></div>`;
+  tl+=ord.map(x=>{const run=runsOn(x.when,k.dow), done=x.reports[0]?.date===k.date;return `<div class="node ${done?'done':''} ${run?'':'skip'}" style="--dc:${x.color}"><i>${x.icon}</i><b>${pad(x.when.h)}:${pad(x.when.m)}</b><span>${esc(x.name)}${run?'':' (휴무)'}</span></div>`}).join('');
+  $('#tl').innerHTML=tl;
+  // 칸반
+  const cols=[['접수','접수'],['수정중','수정중'],['수정완료','수정완료'],['확인완료','확인완료']];
+  $('#kb').innerHTML=cols.map(([c,l])=>{const it=D.bugs.filter(z=>z.status.startsWith(c)&&!(c==='수정완료'&&z.status.startsWith('확인')));
+    return `<div class="col"><h5>${l}<b>${it.length}</b></h5>${it.map(z=>`<div class="tk" onclick="openItem('bugs','${esc(z.id)}')"><small>${esc(z.id)}</small>${z.sev?`<span class="sev ${esc(z.sev)}">${esc(z.sev)}</span>`:''}${esc(z.title)}</div>`).join('')||'<div class="empty">없음</div>'}</div>`}).join('');
+  $('#ap').innerHTML=D.approvals.length?D.approvals.map(a=>`<div class="li"><span class="no">${esc(a.no)}</span>${esc(a.what)}<span class="tag ${esc(a.status)}">${esc(a.dept)} · ${esc(a.status)}</span></div>`).join(''):'<div class="empty">결재할 안건이 없어요 ✨<br>마케팅팀(월·목)·기획팀(수)이 출근하면 올라와요</div>';
+  const tq=D.marketing.filter(z=>!/게시완료|반려/.test(z.status));
+  $('#thr').innerHTML=tq.length?tq.map(z=>`<div class="li" onclick="openItem('marketing','${esc(z.id)}')"><span class="no" style="color:#a3e635">${esc(z.id)}</span>${esc(z.title)}<span class="tag">${z.post?'🧵 올리기':esc(z.status)}</span></div>`).join(''):'<div class="empty">마케팅팀이 매일 아침 스레드 글을 채워둬요</div>';
+  const pm=D.proposals.map(z=>['proposals',z]);
+  $('#props').innerHTML=pm.length?pm.map(([t,z])=>`<div class="li" onclick="openItem('${t}','${esc(z.id)}')"><span class="no">${esc(z.id)}</span>${esc(z.title)}<span class="tag ${esc(z.status)}">${esc(z.status)}</span></div>`).join(''):'<div class="empty">아직 없음</div>';
+  // 차트
+  const M=D.metrics;
+  if(M.length<2) $('#chart').innerHTML='<div class="empty">운영팀이 매일 아침 플레이 수를 쌓으면 여기에 그래프가 그려져요</div>';
+  else{const W=600,H=140,mx=Math.max(1,...M.map(m=>m.seoul+m.jh));const pts=k2=>M.map((m,i)=>`${i/(M.length-1)*W},${H-8-(k2(m)/mx)*(H-24)}`).join(' ');
+    $('#chart').innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline fill="none" stroke="#2ee6a6" stroke-width="2.5" points="${pts(m=>m.seoul)}"/><polyline fill="none" stroke="#c084fc" stroke-width="2" points="${pts(m=>m.jh)}"/></svg><div class="bar"><span>${esc(M[0].date)}</span><span><b style="color:#2ee6a6">● 서울아파트</b> <b style="color:#c084fc">● 조합장</b></span><span>${esc(M.at(-1).date)}</span></div>`;}
+  // 피드
+  const dn=Object.fromEntries(D.depts.map(x=>[x.id,x]));
+  $('#feed').innerHTML=D.feed.length?D.feed.slice(0,15).map(f=>{const x=dn[f.dept]||{icon:'📄',name:f.dept,color:'#888'};return `<div class="li"><time>${f.date.slice(5)}</time><span style="color:${x.color}">${x.icon} ${esc(x.name)}</span><span style="color:#b7c3e0">${esc(f.gist)}</span></div>`}).join(''):'<div class="empty">아직 활동 없음</div>';
+}
+// 간단 마크다운
+function mdr(t){
+  const L=esc(t).split('\n');let o='',ul=false,pre=false;
+  for(let l of L){
+    if(l.startsWith('```')){o+=pre?'</pre>':'<pre>';pre=!pre;continue}
+    if(pre){o+=l+'\n';continue}
+    const li=l.match(/^\s*[-*]\s+(.*)/);
+    if(li&&!ul){o+='<ul>';ul=true}if(!li&&ul){o+='</ul>';ul=false}
+    l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>');
+    if(li)o+=`<li>${li[1].replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>')}</li>`;
+    else if(/^###?\s/.test(l))o+=`<h3>${l.replace(/^#+\s/,'')}</h3>`;
+    else if(/^#\s/.test(l))o+=`<h1>${l.slice(2)}</h1>`;
+    else if(/^\|/.test(l)){if(!/^\|[\s-|]+\|$/.test(l))o+=`<div class="mono" style="font-size:12px">${l}</div>`}
+    else if(l.trim())o+=`<p>${l}</p>`;
+  }
+  return o+(ul?'</ul>':'')+(pre?'</pre>':'');
+}
+function openDept(id){
+  const x=D.depts.find(z=>z.id===id);$('#mT').textContent=`${x.icon} ${x.name} 보고서`;
+  const rs=x.reports;
+  $('#mTabs').innerHTML=rs.map((r,i)=>`<button class="${i?'':'on'}" onclick="pick(this,${i},'${id}')">${r.date}</button>`).join('');
+  $('#mC').innerHTML=rs[0]?mdr(rs[0].text):`<div class="empty">아직 보고서가 없어요. 다음 출근: ${nextRun(x.when)} 뒤</div>`;
+  $('#md').classList.add('on');
+}
+function pick(b,i,id){const r=D.depts.find(z=>z.id===id).reports[i];[...b.parentNode.children].forEach(c=>c.classList.remove('on'));b.classList.add('on');$('#mC').innerHTML=r.text?mdr(r.text):`<p>${esc(r.date)} · ${esc(r.gist)}</p><p style="color:var(--mu)">(지난 보고서 전문은 저장소 company/reports/${esc(r.date)}/ 에 있어요)</p>`;}
+function openItem(t,id){const z=D[t].find(q=>q.id===id);$('#mT').textContent=`${id} · ${z.title}`;$('#mTabs').innerHTML='';
+  const act=z.post?`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><a class="go" style="width:auto;text-decoration:none;--dc:#e6ecff" href="https://www.threads.net/intent/post?text=${encodeURIComponent(z.post)}" target="_blank" rel="noopener">🧵 스레드에 바로 올리기 ↗</a><button class="go" style="width:auto;--dc:#a3e635" onclick="cp('${t}','${id}',this)">📋 글 복사</button></div><pre style="white-space:pre-wrap;font-family:'Noto Sans KR';font-size:13.5px">${esc(z.post)}</pre>`:'';
+  $('#mC').innerHTML=act+mdr(z.post?z.text.replace(/```threads[\s\S]*?```/,''):z.text);$('#md').classList.add('on');}
+async function cp(t,id,b){const z=D[t].find(q=>q.id===id);try{await navigator.clipboard.writeText(z.post);b.textContent='✅ 복사됨';}catch(e){b.textContent='길게 눌러 복사하세요';}}
+function closeM(){$('#md').classList.remove('on')}
+$('#md').addEventListener('click',e=>{if(e.target.id==='md')closeM()});
+function setView(v){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#vOrg').hidden=v!=='org';$('#vBoard').hidden=v!=='board';}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+function tick(){const k=kst();$('#clk').textContent=`${pad(k.h)}시 ${pad(k.m)}분 ${pad(k.s)}초`;}
+async function load(){try{const r=await fetch('/api/hq',{cache:'no-store'});D=await r.json();render();$('#upd').textContent='갱신 '+new Date().toLocaleTimeString('ko-KR');}catch(e){$('#floorMsg').textContent='서버 연결 대기 중… (무료 서버가 깨어나는 데 1분쯤 걸릴 수 있어요)';}}
+tick();setInterval(tick,1000);load();setInterval(load,60000);setInterval(()=>D&&render(),30000);
+</script>
+</body>
+</html>

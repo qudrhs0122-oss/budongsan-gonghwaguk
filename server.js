@@ -295,6 +295,8 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(pub ? 200 : 404, { 'Content-Type': 'text/plain; charset=utf-8' });
     return res.end(pub ? `google.com, ${pub}, DIRECT, f08c47fec0942fa0\n` : 'not configured');
   }
+  if (p === '/api/hq') { let d; try { d = require('./company/hq.js').build(); } catch (e) { return json(res, 500, { error: 'hq' }); } return json(res, 200, d); }
+  if (p === '/hq') { res.writeHead(301, { Location: '/hq/' }); return res.end(); }
   if (p === '/api/ping') return json(res, 200, { ok: true, online: [...clients.values()].filter(c => c.online).length, rooms: rooms.size });
   if (p === '/api/ranking') {
     const r = rankNow();
