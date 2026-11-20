@@ -44,7 +44,9 @@ function nextTurn() {
   let e = null;
   if (S.gradT && S.t >= S.gradT) { S.gradT = 0; S.salary = r2(S.salary * 1.25); log(`🎓 대학원을 졸업했습니다! 연봉이 ${won(S.salary)}으로 올랐습니다.`); }
   const cr = CROSS[S.t] || (S.crossRetry === S.t && S.married < 0 ? CROSS[15] : null);
+  const prep = S.props.find(p => p.kind === 'bun' && !p.prepShown && yearOf() >= p.mv - 1);
   if (cr) { e = { id: 'cross', run: cr }; S.crossT = S.t; }
+  else if (prep) { prep.prepShown = true; S.bunPrepUid = prep.uid; e = BUNPREP; }
   else if (S.plan.ch && isHomeless()) { e = EVENTS.find(x => x.id === 'cheong'); S.plan.ch = false; }
   else e = drawEvent();
   S.ev = e ? e.id : null;

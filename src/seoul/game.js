@@ -206,11 +206,27 @@ function progressProps() {
   }
   return msgs;
 }
-function moveInBun(p) {
-  const v = bunValue(p), R = rules();
+// 분양권 잔금 계산 (입주 안내 이벤트와 입주 처리에서 같이 사용)
+function bunNeed(p) {
+  const v = bunValue(p);
   const need = r2(p.total * .9 - (p.prepaid || 0) + acqTax(p.total, S.props.filter(x => x.kind === 'buy').length + 1)); // 중도금(대출 상환)+잔금+취득세
   const lim = loanLimit(v, { replacing: S.props.length === 1 });
   const cashNeed = r2(Math.max(0, need - lim.max));
+  const jr = (!p.vb && AP[p.aid] && AP[p.aid].jr) || .5, dep = r2(Math.min(v * .8, v * jr * S.J));
+  return { v, need, lim, cashNeed, dep, cashNeedT: r2(Math.max(0, need - dep)) };
+}
+function moveInBun(p) {
+  const R = rules(), { v, need, lim, cashNeed, dep, cashNeedT } = bunNeed(p);
+  // 입주 1년 전 안내에서 '세입자 받아 잔금 충당'을 고른 경우 (전세 끼는 것이 허용될 때만)
+  if (p.rentOut && R.gap && S.cash >= cashNeedT) {
+    S.cash = r2(S.cash - cashNeedT);
+    Object.assign(p, { kind: 'buy', loan: 0, buyP: p.total + (p.premPaid || 0), buyT: S.t, live: false, tenant: { dep, until: S.t + 4, J0: S.J }, vb: p.vb, base: v, G0: S.G });
+    delete p.rentOut;
+    S.everOwned = true; if (!S.firstHome) S.firstHome = { t: S.t, uid: p.uid };
+    if (p.fromCh) { S.st.chGain = Math.max(S.st.chGain, v - p.total); }
+    if (p.musun) S.st.musun = true;
+    return [`🔑 ${aptName(p)} 준공! 세입자의 전세보증금 ${won(dep)}으로 잔금을 치르고 집주인이 됐습니다. (내 현금 ${won(cashNeedT)} 사용)`];
+  }
   if (S.cash >= cashNeed) {
     S.cash = r2(S.cash - cashNeed);
     Object.assign(p, { kind: 'buy', loan: r2(need - cashNeed), buyP: p.total + (p.premPaid || 0), buyT: S.t, live: !S.props.some(x => x.live && x !== p), vb: p.vb, base: v, G0: S.G });
@@ -220,15 +236,16 @@ function moveInBun(p) {
     if (p.musun) S.st.musun = true;
     return [`🎉 ${aptName(p)} 입주! 잔금을 치르고 새 아파트의 주인이 됐습니다. (잔금대출 ${won(p.loan)})`];
   }
-  // 잔금 부족
+  // 잔금 부족 — 왜 그렇게 됐는지 숫자로 설명
+  const why = `ℹ️ 필요한 돈 ${won(need)} 중 잔금대출 한도 ${won(lim.max)}(${lim.why}), 내 현금 ${won(Math.max(0, S.cash))} → ${won(r2(cashNeed - Math.max(0, S.cash)))} 부족`;
   if (R.bunResale || p.resaleOk) {
     const sell = r2(v * .95), got = r2(sell - p.total * .9 + (p.prepaid || 0) - (p.loan || 0));
     S.cash = r2(S.cash + Math.max(0, got)); S.props = S.props.filter(x => x !== p);
     if (got < p.total * .1) S.flags.depositLost = true;
-    return [`📉 ${aptName(p)}: 잔금 ${won(cashNeed)}이 모자라 입주 직전 급매로 넘겼습니다. 손에 쥔 돈 ${won(Math.max(0, got))}.`];
+    return [`📉 ${aptName(p)}: 잔금 ${won(cashNeed)}이 모자라 입주 직전 급매로 넘겼습니다. 손에 쥔 돈 ${won(Math.max(0, got))}.`, why];
   }
   S.props = S.props.filter(x => x !== p); S.flags.depositLost = true;
-  return [`💸 ${aptName(p)}: 잔금 ${won(cashNeed)}을 마련하지 못해 계약이 해지되고 계약금 ${won(p.total * .1)}을 잃었습니다.`];
+  return [`💸 ${aptName(p)}: 잔금 ${won(cashNeed)}을 마련하지 못해 계약이 해지되고 계약금 ${won(p.total * .1)}을 잃었습니다.`, why];
 }
 function completeIpj(p) {
   const v = r2(price(p.aid) * (p.conv ? 1.7 : 1.05));

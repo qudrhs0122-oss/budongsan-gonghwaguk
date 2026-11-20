@@ -16,8 +16,11 @@ function payOrCredit(amt) { S.cash = r2(S.cash - amt); }
 
 const EVENTS = [
   // ── 시장 ──
-  { id: 'rateUp', w: () => S.rate < 5 ? 6 : 0, run: () => {
-    const y = yearOf();
+  { id: 'rateUp', w: () => { // 2015 모드 실제 역사 구간(2015~2025)에는 실제 인상기(2021~22)에만, 한 번 나오면 2년(4반기)은 쉬기 (BUG-20261121-5)
+    if (S.rate >= 5 || S.t - (S.rateUpT ?? -99) < 4) return 0;
+    if (S.mode === 'hist' && S.t < HIST.length && (yearOf() < 2021 || yearOf() > 2022)) return 0;
+    return 6; }, run: () => {
+    const y = yearOf(); S.rateUpT = S.t;
     return { cat: '시장', t: `${y}년, 금리가 급등했습니다!`, d: '은행에서 연락이 왔습니다. 다음 달부터 대출 이자가 오릅니다. 이대로라면 저축액이 크게 줄어듭니다.',
       ch: [
         { l: '그대로 버틴다', s: '현금 유지 · 이자 부담 증가', f: () => { S.rate = r2(S.rate + .75); return `기준금리가 ${S.rate.toFixed(2)}%로 올랐습니다. 매달 나가는 이자가 늘어납니다.`; } },
@@ -40,7 +43,7 @@ const EVENTS = [
     ch: [{ l: '비상금을 점검한다', f: () => { S.jShock = -14; if (gapProps().length) { S.flags.jCrashHit = true; return '갖고 있는 전세 낀 집의 다음 재계약이 걱정됩니다. 현금을 넉넉히 준비하세요.'; } return '세입자 입장에서는 나쁘지 않은 소식입니다.'; } }] }) },
   { id: 'tenantOut', w: () => gapProps().length ? 3 : 0, run: () => { const p = pick(gapProps()); return { cat: '갭투자', t: '세입자 퇴거 요청', d: `${aptName(p)} 세입자가 회사 발령으로 만기 전에 나가겠다며 보증금 ${won(p.tenant.dep)} 반환을 요청했습니다.`,
     ch: [
-      { l: '새 세입자를 구해 돌려준다', s: '현재 전세 시세로 다시 계약', f: () => { const nd = r2(propValue(p) * AP[p.aid].jr * S.J); const diff = r2(nd - p.tenant.dep); S.cash = r2(S.cash + diff); p.tenant = { dep: nd, until: S.t + 4, J0: S.J }; S.st.jReturn++; return diff >= 0 ? `새 보증금이 ${won(diff)} 더 높아 차액이 들어왔습니다.` : `새 보증금이 낮아 ${won(-diff)}을 보태 돌려줬습니다.`; } },
+      { l: '새 세입자를 구해 돌려준다', s: '현재 전세 시세로 다시 계약', f: () => { const nd = r2(propValue(p) * (AP[p.aid] ? AP[p.aid].jr || .5 : .5) * S.J); const diff = r2(nd - p.tenant.dep); S.cash = r2(S.cash + diff); p.tenant = { dep: nd, until: S.t + 4, J0: S.J }; S.st.jReturn++; return diff >= 0 ? `새 보증금이 ${won(diff)} 더 높아 차액이 들어왔습니다.` : `새 보증금이 낮아 ${won(-diff)}을 보태 돌려줬습니다.`; } },
       { l: '집을 팔아 정리한다', f: () => { const g = sellProp(p); return `매도 대금으로 보증금을 정리했습니다. 손에 남은 돈 ${won(g)}.`; } },
     ] }; } },
   // ── 청약 ──
@@ -56,7 +59,7 @@ const EVENTS = [
           if (S.cash < b.p * .1) { S.chPend = { n: b.n, gu: b.gu, p: b.p }; return '🎉 당첨! 서울 아파트에 당첨될 기회가 찾아왔습니다. 하지만 계약하려면 돈이 더 필요해요.'; }
           S.cash = r2(S.cash - b.p * .1); S.st.chWin++;
           S.props.push({ uid: S.uid++, vb: true, vname: b.n, vgu: b.gu, kind: 'bun', total: b.p, base: b.p, G0: S.G, prem: rnd(1.15, 1.45), mv: yearOf() + 3, buyT: S.t, loan: 0, fromCh: true, resaleOk: rules().bunResale });
-          return `🎉 당첨! 계약금 ${won(b.p * .1)}을 냈습니다. ${yearOf() + 3}년 입주 예정입니다. 중도금은 집단대출로, 잔금은 입주 때 냅니다.`;
+          return `🎉 당첨! 계약금 ${won(b.p * .1)}을 냈습니다. ${yearOf() + 3}년 입주 예정입니다. 중도금은 집단대출로, 잔금은 입주 때 냅니다. 입주 때 중도금 상환·잔금으로 약 ${won(b.p * .9)}(대출 포함)이 필요해요.`;
         } },
         { l: '이번엔 넘긴다', f: () => '다음 공고를 기다립니다.' },
       ] };
@@ -68,7 +71,7 @@ const EVENTS = [
         if (S.cash < b.p * .1) { S.flags.chGiveUp = true; return '기적처럼 당첨! 하지만 계약금이 없어 포기했습니다…'; }
         S.cash = r2(S.cash - b.p * .1);
         S.props.push({ uid: S.uid++, vb: true, vname: b.n + ' (무순위)', vgu: b.gu, kind: 'bun', total: b.p, base: b.p, G0: S.G, prem: rnd(1.3, 1.6), mv: yearOf() + 2, buyT: S.t, loan: 0, musun: true, resaleOk: rules().bunResale });
-        return `🍀 무순위 당첨! 계약금 ${won(b.p * .1)}을 냈습니다. ${yearOf() + 2}년 입주 예정.`; } }, { l: '안 넣는다', f: () => '넘겼습니다.' }] }; } },
+        return `🍀 무순위 당첨! 계약금 ${won(b.p * .1)}을 냈습니다. ${yearOf() + 2}년 입주 예정. 입주 때 중도금 상환·잔금으로 약 ${won(b.p * .9)}(대출 포함)이 필요해요.`; } }, { l: '안 넣는다', f: () => '넘겼습니다.' }] }; } },
   { id: 'special', w: () => (S.married >= 0 || S.kids.length) && isHomeless() ? 2 : 0, run: () => ({ cat: '청약', t: '특별공급 자격 발생', d: '신혼부부·다자녀 특별공급 자격이 생겼습니다. 다음 청약에서 당첨 확률이 크게 오릅니다.',
     ch: [{ l: '좋아!', f: () => { S.married = Math.max(S.married, S.t - 1); return '특별공급 대상자로 등록했습니다.'; } }] }) },
   // ── 구축 ──
@@ -79,7 +82,7 @@ const EVENTS = [
   // ── 분양권 ──
   { id: 'delay', w: () => owns('bun').length ? 3 : 0, run: () => { const p = pick(owns('bun')); return { cat: '분양권', t: '공사 지연', d: `${aptName(p)} 현장에 자재 수급 문제가 생겨 입주가 1년 늦어진다는 공지가 왔습니다.`,
     ch: [{ l: '기다린다', f: () => { p.mv++; return `입주 예정이 ${p.mv}년으로 미뤄졌습니다.`; } }] }; } },
-  { id: 'option', w: () => owns('bun').length ? 2 : 0, run: () => { const p = pick(owns('bun')); const c = r2(p.total * .02); return { cat: '분양권', t: '옵션비 증가', d: `${aptName(p)} 발코니 확장·시스템 에어컨 옵션 비용이 ${won(c)}로 확정됐습니다.`,
+  { id: 'option', w: () => owns('bun').length ? 2 : 0, run: () => { const p = pick(owns('bun')); const c = r2(p.total * .02); return { cat: '분양권', t: '옵션비 증가', d: `${aptName(p)} 발코니 확장·시스템 에어컨 옵션 비용이 ${won(c)}으로 확정됐습니다.`,
     ch: [{ l: '옵션을 넣는다', f: () => { payOrCredit(c); S.happy += 3; return '입주 때 쾌적하게 살 수 있겠습니다.'; } }, { l: '기본형으로 간다', f: () => '옵션 없이 가기로 했습니다.' }] }; } },
   { id: 'midBlock', w: () => owns('bun').length && S.t > 3 ? 1.5 : 0, run: () => { const p = pick(owns('bun')); const c = r2(p.total * .2); return { cat: '분양권', t: '중도금 대출 불가', d: `대출 규제로 ${aptName(p)} 중도금 집단대출 일부가 막혔습니다. 중도금 ${won(c)}을 직접 내야 합니다.`,
     ch: [
@@ -96,7 +99,7 @@ const EVENTS = [
     ch: [{ l: '조합의 합의안 찬성', f: () => { const add = r2(p.dues * .1); p.dues = r2(p.dues + add); S.st.duesUp++; p.slow = false; return `공사가 재개됩니다. 분담금 +${won(add)}.`; } }, { l: '버틴다', f: () => { p.slow = true; p.wait = (p.wait || 0) + 2; return '공사가 멈췄습니다. 이주비 이자가 쌓입니다.'; } }] }; } },
   { id: 'rbStart', w: () => S.props.some(p => p.kind === 'buy' && !p.vb && (AP[p.aid].tr.rb || 0) >= .4 && S.t - p.buyT >= 4) ? 3 : 0, run: () => {
     const p = pick(S.props.filter(p => p.kind === 'buy' && !p.vb && (AP[p.aid].tr.rb || 0) >= .4 && S.t - p.buyT >= 4)); const v = propValue(p);
-    return { cat: '재건축', t: `${aptName(p)} 재건축 조합 설립!`, d: `드디어 ${aptName(p)} 재건축 조합이 설립됐습니다. 집이 조합원 입주권으로 바뀌고, 이주·철거 뒤 새 아파트가 지어집니다. 준공 때 분담금은 약 ${won(v * .35)}로 예상됩니다.${p.live ? ' 사는 집이라 이주해야 합니다(이주비 대출로 전세를 구합니다).' : ''}`,
+    return { cat: '재건축', t: `${aptName(p)} 재건축 조합 설립!`, d: `드디어 ${aptName(p)} 재건축 조합이 설립됐습니다. 집이 조합원 입주권으로 바뀌고, 이주·철거 뒤 새 아파트가 지어집니다. 준공 때 분담금은 약 ${won(v * .35)}으로 예상됩니다.${p.live ? ' 사는 집이라 이주해야 합니다(이주비 대출로 전세를 구합니다).' : ''}`,
       ch: [
         { l: '조합원으로 끝까지 간다', s: '신축 입주까지 몇 년 · 분담금 필요', f: () => { if (p.live) { S.res = { type: 'jeonse', dep: r2(v * .4), loan: r2(v * .4) }; } if (p.tenant) { S.cash = r2(S.cash - p.tenant.dep); p.tenant = null; } Object.assign(p, { kind: 'ipj', conv: true, paid: p.buyP, paid0: p.buyP, dues: r2(v * .35), stage: 0, live: false, verified: true, slow: false, wait: 0 }); return '조합원이 됐습니다. 이주비 대출로 근처 전셋집에 들어갔습니다. 이제 사업 단계를 지켜보세요.'; } },
         { l: '조합 설립 호재에 판다', f: () => { S.px[p.aid] = r2(S.px[p.aid] * 1.08); const g = sellProp(p); return `호재로 시세가 오른 틈에 팔았습니다. 손에 쥔 돈 ${won(g)}.`; } },
@@ -171,7 +174,7 @@ const CROSS = {
       { l: '⏳ 집부터 마련하고 결혼하자고 한다', s: '행복 −8 · 1년 뒤 다시', ok: () => S.married < 0, f: () => { S.happy = clamp(S.happy - 8, 0, 100); S.crossRetry = S.t + 2; return '상대가 서운해했지만 기다려 주기로 했습니다.'; } },
       { l: '🏃 일과 돈에 집중하며 혼자 산다', s: '행복 −4 · 체력 +5', f: () => { S.happy = clamp(S.happy - 4, 0, 100); S.hp = clamp(S.hp + 5, 0, 100); S.flags.single = true; return '혼자만의 속도로 살기로 했습니다.'; } },
       ] }),
-  23: () => ({ cat: '🔀 인생의 갈림길', t: '자산을 어떻게 굴릴까?', d: '마흔을 넘었습니다. 지금까지 모은 것을 어떻게 키우느냐에 노후가 달려 있습니다.',
+  23: () => ({ cat: '🔀 인생의 갈림길', t: '자산을 어떻게 굴릴까?', d: '마흔이 됐습니다. 지금까지 모은 것을 어떻게 키우느냐에 노후가 달려 있습니다.',
     ch: [{ l: '🚚 상급지로 갈아탄다', s: '좋은 동네 매물 찾기 · 갈아타기 엔딩 ↑', f: () => { S.goal = 'move'; S.imjang = 3; return '주말마다 상급지 임장을 다니기로 했습니다. 임장 기회 3회.'; } },
       { l: '📈 주식 비중을 늘린다', s: '현금 30%를 우량주로', ok: () => S.cash > .2, f: () => { buyStock('usx', r2(S.cash * .3)); return '우량주를 사 모으기 시작했습니다. 길게 가져갈 생각입니다.'; } },
       { l: '💵 현금을 쌓아 기회를 기다린다', s: '위기 때 급매 기회', f: () => { S.cashMode = true; S.happy = clamp(S.happy + 2, 0, 100); return '쓸 데 없는 돈은 쓰지 않고 위기를 기다립니다.'; } },
@@ -179,9 +182,23 @@ const CROSS = {
   31: () => ({ cat: '🔀 인생의 갈림길', t: '인생 2막을 준비할 때', d: '어느덧 쉰을 바라봅니다. 남은 시간, 무엇을 지키고 무엇을 키울까요?',
     ch: [{ l: '🩺 건강부터 챙긴다', s: '체력 +30 · 행복 +5', f: () => { S.hp = clamp(S.hp + 30, 0, 100); S.happy = clamp(S.happy + 5, 0, 100); S.cash = r2(S.cash - .05); return '종합검진을 받고 운동을 시작했습니다.'; } },
       { l: '🏝️ 조기 은퇴를 준비한다', s: '부수입 늘리기', f: () => { S.passive = r2((S.passive || 0) + .02); return '배당과 월세로 생활비를 만드는 계획을 세웠습니다.'; } },
-      { l: '📚 아이 교육에 투자한다', s: '2,000만 원 · 행복 +8', ok: () => S.kids.length > 0, f: () => { S.cash = r2(S.cash - .2); S.happy = clamp(S.happy + 8, 0, 100); return '아이의 꿈을 응원하기로 했습니다.'; } },
+      ...(S.kids.length ? [{ l: '📚 아이 교육에 투자한다', s: '2,000만 원 · 행복 +8', f: () => { S.cash = r2(S.cash - .2); S.happy = clamp(S.happy + 8, 0, 100); return '아이의 꿈을 응원하기로 했습니다.'; } }] : []),
       { l: '🔥 마지막 승부, 한 채 더!', s: '추가 매수 의지 · 임장 +3', f: () => { S.imjang = 3; S.goal = 'more'; return '마지막으로 한 번 더 크게 움직여 보기로 했습니다.'; } }] }),
 };
+// 분양권 입주 1년 전 '잔금 준비 안내' (BUG-20261120-2) — 랜덤으로 뽑히지 않고 nextTurn에서 분양권마다 한 번만 나온다
+const BUNPREP = { id: 'bunPrep', w: () => 0, run: () => {
+  const p = S.props.find(x => x.uid === S.bunPrepUid && x.kind === 'bun') || owns('bun')[0];
+  if (!p) return { cat: '분양권', t: '입주 준비', d: '입주를 앞둔 분양권이 없습니다.', ch: [{ l: '확인', f: () => '확인했습니다.' }] };
+  const R = rules(), q = bunNeed(p), short = r2(Math.max(0, q.cashNeed - S.cash)), shortT = r2(Math.max(0, q.cashNeedT - S.cash));
+  const room = r2(Math.max(0, Math.min(1.5, income() * 1.2) - S.credit)), canSell = R.bunResale || p.resaleOk;
+  return { cat: '분양권', t: `${aptName(p)} 입주 1년 전 — 잔금 준비`, d: `${p.mv}년 입주 때 중도금 상환·잔금·취득세로 약 ${won(q.need)}이 필요합니다. 지금 규제 기준 잔금대출 한도는 ${won(q.lim.max)}(${q.lim.why})라서 내 현금 ${won(q.cashNeed)}이 있어야 해요. ${short > 0 ? `지금 현금 ${won(Math.max(0, S.cash))} → ${won(short)} 부족합니다. 이대로 입주 때까지 못 메우면 ${canSell ? '급매로 넘기게' : '계약이 해지되고 계약금을 잃게'} 됩니다.` : '지금 현금이면 잔금을 낼 수 있어요. 큰돈은 쓰지 말고 지켜 두세요.'}`,
+    ch: [
+      { l: '🔑 세입자를 받아 보증금으로 잔금을 낸다', s: R.gap ? `예상 전세보증금 ${won(q.dep)} · 내 현금 ${won(q.cashNeedT)} 필요${shortT > 0 ? ` (${won(shortT)} 부족)` : ''} · 나는 지금 집에 계속 거주` : '현 규제에서는 전세 끼고 잔금 치르기가 막혀 있어요', ok: () => R.gap && q.cashNeedT < q.cashNeed, f: () => { p.rentOut = true; return `입주 때 세입자를 받기로 했습니다. 보증금 약 ${won(q.dep)}으로 잔금을 치르고, 나는 지금 집에 그대로 삽니다.`; } },
+      { l: '📄 지금 분양권을 판다', s: canSell ? `예상 시세 ${won(q.v)} · 계약금·프리미엄을 돌려받음` : '전매 제한으로 팔 수 없어요', ok: () => canSell, f: () => { const c0 = S.cash; sellProp(p); return `${aptName(p)} 분양권을 팔았습니다. ${won(r2(S.cash - c0))}이 들어왔습니다.`; } },
+      { l: '🤝 가족 도움·신용대출로 메운다', s: room > .04 ? `신용대출 최대 ${won(Math.min(room, Math.max(short, .1)))} · 행복 −8 · 이자 부담` : '신용대출 한도가 없어요', ok: () => short > 0 && room > .04, f: () => { const take = r2(Math.min(room, short + .05)); S.credit = r2(S.credit + take); S.cash = r2(S.cash + take); S.happy = clamp(S.happy - 8, 0, 100); return `부모님께 손을 벌리고 신용대출 ${won(take)}을 받았습니다. 마음이 무겁지만 잔금은 지킬 수 있을 것 같아요.${take < short ? ` 그래도 ${won(r2(short - take))}은 더 모아야 합니다.` : ''}`; } },
+      { l: '그대로 간다', s: short > 0 ? '1년 동안 직접 모아 본다' : '잔금 준비 완료', f: () => short > 0 ? `1년 안에 ${won(short)}을 더 모아야 합니다. 큰 지출은 미뤄 두세요.` : '잔금 준비는 끝났습니다. 새 아파트 입주만 기다리면 돼요.' },
+    ] };
+} };
 function drawEvent() {
   const pool = EVENTS.map(e => [e, Math.max(0, e.w())]).filter(x => x[1] > 0 && x[0].id !== S.lastEv);
   let tot = pool.reduce((a, x) => a + x[1], 0), r = Math.random() * tot;

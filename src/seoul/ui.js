@@ -456,7 +456,7 @@ function aptModal(aid) {
     const q = buyQuote(aid, 'live'), qg = buyQuote(aid, 'gap');
     const owned = S.props.some(p => p.aid === aid);
     body = `<div class="quote"><h5>🏡 실거주 매수 자금 계산</h5>${quoteTable(q)}
-      ${q.lim.max > 0 ? `<label class="small">대출 사용액 <b id="lv">${won(q.lim.max)}</b></label><input type="range" id="loanR" min="0" max="${q.lim.max}" step="0.05" value="${q.lim.max}">` : ''}
+      ${q.lim.max > 0 ? `<label class="small">대출 사용액 <b id="lv">${won(q.lim.max)}</b></label><input type="range" id="loanR" min="0" max="${q.lim.max}" step="any" value="${q.lim.max}">` : ''}
       <button class="btn pri" id="bLive" ${q.ok ? '' : 'disabled'}>${q.ok ? '실거주로 매수하고 입주' : `자금 부족 · ${won(q.cashNeed - S.cash - q.resBack)} 더 필요`}</button></div>
       ${R.gap ? `<div class="quote"><h5>🎯 전세 끼고 매수 (갭투자)</h5>${quoteTable(qg)}<button class="btn" id="bGap" ${qg.ok ? '' : 'disabled'}>${qg.ok ? '전세 끼고 매수' : `자금 부족 · ${won(qg.cashNeed - S.cash)} 더 필요`}</button><p class="small">2년마다 전세 재계약. 전세가가 떨어지면 차액을 돌려줘야 해요.</p></div>` : `<p class="small warn">🚫 현재 규제(${R.name})에서는 전세 낀 매수가 금지돼 있어요. 사면 2년 실거주해야 합니다.</p>`}
       ${owned ? '<p class="small">이미 보유 중인 단지예요.</p>' : ''}`;
@@ -479,7 +479,7 @@ function aptModal(aid) {
   if ($('#bGoAs')) $('#bGoAs').onclick = () => { closeModal(); TAB = 'assets'; renderGame(); };
   if ($('#bImj')) $('#bImj').onclick = () => { S.imjang--; S.seen[aid] = 1; save(); aptModal(aid); };
   if ($('#loanR')) $('#loanR').oninput = e => { $('#lv').textContent = won(+e.target.value); };
-  if ($('#bLive')) $('#bLive').onclick = () => { const lu = $('#loanR') ? +$('#loanR').value : 0; if (doBuy(aid, 'live', lu)) { closeModal(); save(); toast(`🎉 ${a.n} 매수! 이삿짐을 옮겼습니다.`); celebrate(); renderGame(); } };
+  if ($('#bLive')) $('#bLive').onclick = () => { const r = $('#loanR'), lim = buyQuote(aid, 'live').lim.max; let lu = r ? +r.value : 0; if (r && lu >= +r.max - .05 - 1e-9) lu = lim; if (doBuy(aid, 'live', lu)) { closeModal(); save(); toast(`🎉 ${a.n} 매수! 이삿짐을 옮겼습니다.`); celebrate(); renderGame(); } else { const q2 = buyQuote(aid, 'live'); const short = r2(q2.p + q2.tax + q2.fee - Math.min(lu, lim) - S.cash - q2.resBack); toast(short > 0 ? `💸 현금 ${won(short)} 부족해요. 대출 사용액을 늘려 보세요.` : '매수할 수 없어요. 자금을 다시 확인해 주세요.'); } };
   if ($('#bGap')) $('#bGap').onclick = () => { if (doBuy(aid, 'gap')) { closeModal(); save(); toast(`🎯 ${a.n} 전세 끼고 매수 완료`); renderGame(); } };
   if ($('#bBun')) $('#bBun').onclick = () => { if (buyBun(aid)) { closeModal(); save(); toast('📄 분양권을 샀습니다'); renderGame(); } };
   if ($('#bIpjV')) $('#bIpjV').onclick = () => { if (buyIpj(aid, seen ? 'imjang' : 'paid')) { closeModal(); save(); toast('📜 입주권 매수 (권리 검증 완료)'); renderGame(); } };
@@ -524,7 +524,7 @@ function tabAssets() {
     ${S.credit > 0 ? `<div class="card"><h4>🏦 신용대출 ${won(S.credit)}</h4><button class="btn sm" id="bCr" ${S.cash > .05 ? '' : 'disabled'}>여유 현금으로 갚기</button></div>` : ''}`;
   document.querySelectorAll('[data-sell]').forEach(b => b.onclick = () => sellModal(+b.dataset.sell));
   document.querySelectorAll('[data-repay]').forEach(b => b.onclick = () => { const p = S.props.find(x => x.uid === +b.dataset.repay); const amt = r2(Math.min(p.loan, S.cash)); p.loan = r2(p.loan - amt); S.cash = r2(S.cash - amt); log(`💳 ${aptName(p)} 대출 ${won(amt)} 상환`); save(); renderGame(); });
-  document.querySelectorAll('[data-rent]').forEach(b => b.onclick = () => { const p = S.props.find(x => x.uid === +b.dataset.rent); const dep = r2(propValue(p) * AP[p.aid].jr * S.J); p.live = false; p.tenant = { dep, until: S.t + 4, J0: S.J }; S.cash = r2(S.cash + dep); S.res = { type: 'wolse', dep: 0, loan: 0 }; log(`🔑 ${aptName(p)} 전세 ${won(dep)}에 놓고 월세로 이사`); save(); renderGame(); });
+  document.querySelectorAll('[data-rent]').forEach(b => b.onclick = () => { const p = S.props.find(x => x.uid === +b.dataset.rent); const dep = r2(propValue(p) * (AP[p.aid] ? AP[p.aid].jr || .5 : .5) * S.J); p.live = false; p.tenant = { dep, until: S.t + 4, J0: S.J }; S.cash = r2(S.cash + dep); S.res = { type: 'wolse', dep: 0, loan: 0 }; log(`🔑 ${aptName(p)} 전세 ${won(dep)}에 놓고 월세로 이사`); save(); renderGame(); });
   document.querySelectorAll('[data-movein]').forEach(b => b.onclick = () => { const p = S.props.find(x => x.uid === +b.dataset.movein); if (S.cash + (S.res.dep - S.res.loan) < p.tenant.dep) return toast(`보증금 ${won(p.tenant.dep)}을 돌려줄 현금이 부족해요.`); S.cash = r2(S.cash - p.tenant.dep); moveIntoOwned(p); log(`🏡 ${aptName(p)} 세입자를 내보내고 입주`); save(); renderGame(); });
   document.querySelectorAll('[data-res]').forEach(b => b.onclick = () => changeRes(...b.dataset.res.split(':')));
   if ($('#bCr')) $('#bCr').onclick = () => { const amt = r2(Math.min(S.credit, S.cash)); S.credit = r2(S.credit - amt); S.cash = r2(S.cash - amt); save(); renderGame(); };
@@ -620,7 +620,10 @@ function onNext() {
   if (!onNext.go) { onNext.go = 1; return playWorkAnim(() => { onNext(); onNext.go = 0; }); }
   const r = nextTurn();
   if (r.end) { save(); if (r.R && r.R.work && r.R.work.lines.length && S.ended === 'e16') { renderGame(); return modal(`<h3>🚑</h3><ul class="rep">${r.R.work.lines.map(m => `<li>${esc(m)}</li>`).join('')}</ul><button class="btn pri" id="ok">…</button>`) || ($('#ok').onclick = () => { closeModal(); endCine(); }); } return endCine(); }
-  const R = r.R, ev = () => r.ev ? (r.ev.id === 'cross' ? cine({ k: '🔀 인생의 갈림길', t: '선택의 순간', s: `${yearOf()}년 · ${29 + Math.floor(S.t / 2)}세` }, () => showEvent(r.ev)) : showEvent(r.ev)) : renderGame(), go = () => { if (R.crisis) return crisisModal(R.crisis, ev); ev(); };
+  const R = r.R, ev = () => r.ev ? (r.ev.id === 'cross' ? cine({ k: '🔀 인생의 갈림길', t: '선택의 순간', s: `${yearOf()}년 · ${29 + Math.floor(S.t / 2)}세` }, () => showEvent(r.ev)) : showEvent(r.ev)) : renderGame(), go0 = () => { if (R.crisis) return crisisModal(R.crisis, ev); ev(); };
+  // 분양권·입주권을 잃은 순간은 시장 소식에 묻히지 않게 결과 팝업으로 먼저 보여준다 (BUG-20261120-2)
+  const lost = r.msgs.filter(m => /계약이 해지|급매로 넘겼|현금청산|^ℹ️ 필요한 돈/.test(m));
+  const go = () => { if (!lost.length) return go0(); modal(`<div class="evcat">⚠️ 내 자산 소식</div><h3>분양권·입주권에 문제가 생겼어요</h3>${lost.map(m => `<p>${esc(m)}</p>`).join('')}<button class="btn pri" id="ok">계속</button>`); $('#ok').onclick = () => { closeModal(); go0(); }; };
   const after = () => { if (S.interAd) { S.interAd = false; showAd(go, true, 'turn_break'); } else go(); };
   renderGame();
   const W = WORK[R.work.k], d = r2(R.nw1 - R.nw0), dc = r2(R.cash1 - R.cash0);
@@ -763,7 +766,7 @@ function cheongWinModal() {
   const stock = stockValue();
   modal(`<div class="evcat">청약 결과</div><h3>🎉 축하합니다! 청약에 당첨됐어요!</h3>${evBanner('cheong', ['🎉', '✨', '🎊'])}
     <p><b>${esc(c.n)}</b>에 당첨될 기회가 찾아왔습니다. 하지만 계약하려면 돈이 더 필요해요.</p>
-    <div class="tbl"><div><span>계약에 필요한 돈 (계약금 10%)</span><b>${won(dep)}</b></div><div><span>현재 보유 현금</span><b>${won(S.cash)}</b></div><div><span>부족한 금액</span><b class="neg">${won(short)}</b></div></div>
+    <div class="tbl"><div><span>계약에 필요한 돈 (계약금 10%)</span><b>${won(dep)}</b></div><div><span>현재 보유 현금</span><b>${won(S.cash)}</b></div><div><span>부족한 금액</span><b class="neg">${won(short)}</b></div><div><span>입주 때 필요 (중도금 상환·잔금, 대출 포함)</span><b>약 ${won(c.p * .9)}</b></div></div>
     <p class="nextq"><b>다음 선택:</b> 계약금을 마련할까, 기회를 포기할까?</p>
     <div class="chs">
       ${stock >= short ? `<button class="ch" data-c="stk"><b>📈 주식을 팔아 마련한다</b><small>주식 ${won(short)} 매도</small></button>` : ''}
