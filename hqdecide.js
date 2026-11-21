@@ -33,7 +33,8 @@ function req(method, p, body) {
 }
 const enc = p => p.split('/').map(encodeURIComponent).join('/');
 async function getFile(p) { const r = await req('GET', `/repos/${MAIN_REPO}/contents/${enc(p)}?ref=${BRANCH}`); return r.status === 200 && r.j ? { sha: r.j.sha, text: Buffer.from(r.j.content, 'base64').toString('utf8') } : null; }
-async function putFile(p, text, sha, msg) { const r = await req('PUT', `/repos/${MAIN_REPO}/contents/${enc(p)}`, { message: msg, content: Buffer.from(text, 'utf8').toString('base64'), sha, branch: BRANCH }); return r.status === 200 || r.status === 201; }
+let lastErr = '';
+async function putFile(p, text, sha, msg) { const r = await req('PUT', `/repos/${MAIN_REPO}/contents/${enc(p)}`, { message: msg, content: Buffer.from(text, 'utf8').toString('base64'), ...(sha ? { sha } : {}), branch: BRANCH }); const ok = r.status === 200 || r.status === 201; if (!ok) { lastErr = `GitHub ${r.status} ${(r.j && r.j.message) || ''}`.trim(); console.error('hq putFile', p, lastErr); } return ok; }
 
 // 저장소 파일을 고치고 서버 로컬 사본도 같이 고쳐서 상황판에 즉시 반영
 async function edit(rel, fn, msg) {
@@ -44,7 +45,7 @@ async function edit(rel, fn, msg) {
       const next = fn(cur); if (next == null || next === cur) return { ok: true, same: true };
       if (await putFile(rel, next, f && f.sha, msg + ' [skip render]')) { try { fs.mkdirSync(path.dirname(local), { recursive: true }); fs.writeFileSync(local, next); } catch (e) {} return { ok: true, saved: true }; }
     }
-    return { ok: false, error: '저장소 기록 실패' };
+    return { ok: false, error: '저장소 기록 실패: ' + lastErr };
   }
   let cur = ''; try { cur = fs.readFileSync(local, 'utf8'); } catch (e) {}
   const next = fn(cur); if (next != null) try { fs.writeFileSync(local, next); } catch (e) {}
@@ -104,7 +105,7 @@ async function decide(no, decision, option) {
     await edit(`${dir}/${no}.md`, t => /^\s*상태\s*[:：].*$/m.test(t) ? t.replace(/^(\s*상태\s*[:：]).*$/m, `$1 ${st} (사장님 결재 ${today})`) : `상태: ${st} (사장님 결재 ${today})\n` + t, `[사장님 결재] ${no} ${st}`);
     break;
   }
-  return { ok: r.ok, saved: !!r.saved, status: st };
+  return { ok: r.ok, saved: !!r.saved, status: st, error: r.error };
 }
 
 const TODO = 'company/board/사장님할일.md', ORD = 'company/board/지시사항.md';
