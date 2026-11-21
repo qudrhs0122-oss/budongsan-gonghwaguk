@@ -19,14 +19,17 @@ global.ENDS_=ENDS;global.LOST=[];global.WARN=[];global.run=function(strat,mode,d
     S.plan.ch = W.ch && isHomeless();
     if(W.buy){ const own=S.props.some(p=>p.kind==='buy'); if(!own){ const c=APTS.filter(a=>a.kind==='buy'&&S.avail[a.id]).map(a=>[a,buyQuote(a.id,'live')]).filter(x=>x[1].ok).sort((a,b)=>b[1].p-a[1].p)[0]; if(c) doBuy(c[0].id,'live'); } }
     for(const a of APTS) if(a.kind==='buy' && !(price(a.id)>0)) errs.push('아파트 가격 이상: '+a.id+' t='+S.t);
-    // [화면 정합성] '매수 가능' 버튼이 켜졌는데 대출 슬라이더(step 0.05억)가 한도를 내림해서 실제 매수가 실패하는 경우 (BUG-20261121-1)
-    for(const a of APTS){ if(a.kind!=='buy'||!S.avail[a.id]) continue; const q=buyQuote(a.id,'live'); if(!q.ok||!(q.lim.max>0)) continue; const sn=Math.floor(q.lim.max/.05+1e-9)*.05; if(S.cash+q.resBack < r2(q.p+q.tax+q.fee-sn)) { WARN.push('매수 가능 표시인데 대출 슬라이더 기본값으로는 매수 실패'); break; } }
-    const before=S.props.map(p=>({uid:p.uid,name:aptName(p),kind:p.kind})); const wasMarried=S.married>=0, kids0=S.kids.length;
+    // [화면 정합성] '매수 가능' 버튼이 켜졌는데 [실거주로 매수하고 입주]가 실패하는 경우 (BUG-20261121-1 수정완료 → 11/22 오류로 승격)
+    // 화면 동작 그대로: 슬라이더 기본값=최대, 최댓값 근처면 실제 한도(q.lim.max) 사용 → doBuy를 실제로 불러 보고 상태는 되돌린다
+    { const snap=JSON.stringify(S); for(const a of APTS){ if(a.kind!=='buy'||!S.avail[a.id]) continue; const q=buyQuote(a.id,'live'); if(!q.ok) continue; const ok=doBuy(a.id,'live',q.lim.max>0?q.lim.max:0); S=JSON.parse(snap); if(!ok){ errs.push('화면: 매수 가능 표시인데 실거주 매수 실패 '+a.id); break; } } }
+    const before=S.props.map(p=>({uid:p.uid,name:aptName(p),kind:p.kind,prep:!!p.prepShown})); const wasMarried=S.married>=0, kids0=S.kids.length;
     const r=nextTurn();
     if(!isFinite(nw())) errs.push('순자산 NaN t='+S.t);
     // [스토리 정합성] 가진 집·분양권·입주권이 말없이 사라지면 안 됨 (모든 알림 문구에 이름이 나와야 함)
     const said=JSON.stringify(r.msgs||[])+JSON.stringify(S.log.slice(0,12));
     for(const b of before) if(!S.props.some(p=>p.uid===b.uid) && !said.includes(b.name.replace(/ \(.*\)$/,''))) errs.push('스토리: '+b.kind+' "'+b.name+'"이(가) 안내 없이 사라짐 t='+S.t);
+    // [스토리 정합성] 분양권이 잔금 부족으로 해지·급매될 때는 반드시 그 전에 '입주 1년 전 — 잔금 준비'(해지 위기) 안내를 봤어야 함 (BUG-20261120-2, 사장님 지시 11/21)
+    for(const b of before) if(b.kind==='bun' && !S.props.some(p=>p.uid===b.uid) && /계약이 해지|입주 직전 급매/.test(JSON.stringify(r.msgs||[])) && !b.prep) errs.push('스토리: 분양권 "'+b.name+'"이(가) 잔금 준비 안내 없이 해지·급매됨');
     for(const m of (r.msgs||[])) if(/계약이 해지|급매로 넘겼|현금청산/.test(m)) LOST.push(/계약이 해지/.test(m)?'분양권 잔금 부족 → 계약 해지(계약금 몰수)':/입주 직전 급매/.test(m)?'분양권 잔금 부족 → 입주 직전 급매':/분담금/.test(m)?'입주권 분담금 부족 → 급매':'입주권 현금청산');
     if(r.end) break;
     if(r.ev){ const E=r.ev.run();
@@ -37,7 +40,13 @@ global.ENDS_=ENDS;global.LOST=[];global.WARN=[];global.run=function(strat,mode,d
       if(/분양권|입주권/.test(E.cat||'') && !S.props.some(p=>p.kind==='bun'||p.kind==='ipj')) errs.push('스토리: 분양권·입주권이 없는데 관련 이벤트 "'+E.t+'"');
       const ch=E.ch.filter(c=>!c.ok||c.ok()); if(!ch.length){errs.push('선택지 없음: '+r.ev.id);break;}
       for(const c of ch){ if(S.married>=0 && /결혼한다/.test(c.l)) errs.push('스토리: 기혼인데 "결혼한다" 선택지 ('+E.t+')'); if(/이미 .*했다면|\(.*라면\)/.test(c.l)) errs.push('스토리: 조건부 선택지 문구 노출 "'+c.l+'"'); }
-      const c=ch[Math.floor(Math.random()*ch.length)]; try{c.f();}catch(e){errs.push('이벤트 '+r.ev.id+': '+e.message)} crisis(); }
+      // [스토리 정합성] 이미 선택을 마친 '한 번뿐인' 사건이 다시 나옴 (BUG-20261122-1, 경고 → 수정완료 후 오류로 승격)
+      if(r.ev.id==='special' && S.flags.qaSpecial) WARN.push('스토리: 특별공급 자격 발생이 또 나옴(이미 등록함)');
+      if(r.ev.id==='blog' && S.flags.qaBlog) WARN.push('스토리: 블로그를 접었는데 또 블로그 수익화 성공');
+      if(r.ev.id==='store' && S.flags.qaStore) WARN.push('스토리: 스마트스토어를 이미 해 봤는데 같은 창업 제안');
+      if(r.ev.id==='bigco' && S.flags.qaBigco) WARN.push('스토리: 대기업 경력직 합격이 또 나옴');
+      if(r.ev.id==='special') S.flags.qaSpecial=1; if(r.ev.id==='blog') S.flags.qaBlog=1; if(r.ev.id==='bigco') S.flags.qaBigco=1;
+      const c=ch[Math.floor(Math.random()*ch.length)]; if(r.ev.id==='store' && /해 본다/.test(c.l)) S.flags.qaStore=1; try{c.f();}catch(e){errs.push('이벤트 '+r.ev.id+': '+e.message)} crisis(); }
     if(wasMarried && S.married<0) errs.push('스토리: 결혼 상태가 사라짐 t='+S.t);
     if(S.kids.length<kids0) errs.push('스토리: 자녀 수가 줄어듦 t='+S.t);
     if(S.married>=0 && S.married>S.t) errs.push('스토리: 결혼 시점이 미래 t='+S.t);
