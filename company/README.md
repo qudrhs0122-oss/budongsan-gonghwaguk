@@ -60,3 +60,5 @@ QA검증팀 ──버그 접수──▶ 개발팀 ──수정·QA통과──�
 | 마케팅팀 | trig_014dYD8NYes8i4GwZg6mCH4p |
 | 기획팀 | trig_01QLJaY87ELjYBM3WavULomM |
 | 수익화팀 | trig_01REshf9xoAe5N2kEVeUtPEh |
+| 출시·플랫폼팀 | trig_01DBEC7WUXyFyxuji9aWVSpH |
+| 재무팀 | trig_01TCTnScqPA8zjbrVLtYyowE (사장님 컴퓨터 크롬 사용) |
