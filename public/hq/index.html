@@ -98,6 +98,7 @@ body{background:radial-gradient(1200px 600px at 10% -10%,#13204066,transparent),
 .sev.치명{background:#5d1f2a;color:#ffb3bb}.sev.높음{background:#5a3a10;color:#ffd08a}.sev.보통{background:#1e3460;color:#aac4ff}.sev.낮음{background:#1f2b3f;color:#9fb0cf}
 .empty{color:var(--dim);font-size:12px;text-align:center;padding:16px 0}
 .li{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed #1a2540;font-size:12.5px;cursor:pointer}.li:last-child{border:0}
+.apr{align-items:flex-start}.dec{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}.dec button{font:700 12px 'Noto Sans KR';border-radius:8px;padding:6px 12px;cursor:pointer;border:1px solid}.dec .ok{background:#0f2e26;border-color:#1d5a48;color:var(--ok)}.dec .no{background:transparent;border-color:#5d1f2a;color:var(--off)}
 .li .no{font-family:var(--mono);font-size:11px;color:#c084fc;min-width:52px}
 .li .tag{margin-left:auto;font-size:10px;font-family:var(--mono);border:1px solid var(--ln);border-radius:5px;padding:0 6px;color:var(--mu);white-space:nowrap}
 .li .tag.대기,.li .tag.결재대기{color:var(--warn);border-color:#6b4a12}.li .tag.승인,.li .tag.구현완료{color:var(--ok);border-color:#1d5a48}.li .tag.반려{color:var(--off);border-color:#5d1f2a}
@@ -144,7 +145,7 @@ svg.chart{width:100%;height:140px;display:block}
   <div id="vBoard" hidden>
     <div class="row">
       <div class="pan"><h4>🐞 BUG BOARD <span>QA가 접수 → 개발팀이 수정</span></h4><div class="kb" id="kb"></div></div>
-      <div class="pan"><h4>🖊️ 결재함 <span>대화창에서 "P-001 승인"이라고 말하면 처리</span></h4><div id="ap"></div></div>
+      <div class="pan"><h4>🖊️ 결재함 <span>버튼을 누르면 AI 직원들이 바로 실행해요</span></h4><div id="ap"></div></div>
     </div>
     <div class="row" style="margin-top:12px">
       <div class="pan"><h4>🧵 스레드 자동 게시 <span id="thSt"></span></h4><div id="thr"></div><h4 style="margin-top:14px">🎨 기획안 · 💰 수익화 안건</h4><div id="props"></div></div>
@@ -203,7 +204,7 @@ const AV=['🤖','🧑‍💻','🛰️','🧾','✍️','🔎','📦','🧭','�
 function render(){
   const k=kst(); const cnt={ACTIVE:0,STANDBY:0,IDLE:0,OFFLINE:0};
   const open=D.bugs.filter(z=>!/확인완료|보류/.test(z.status)).length;
-  const pend=D.approvals.filter(a=>/대기/.test(a.status)).length;
+  const pend=D.approvals.filter(a=>!((D.hq||{}).overlay||{})[a.no]&&/대기/.test(a.status)).length;
   let html='';
   D.depts.forEach((x,i)=>{
     const st=status(x); cnt[st==='WORKING'?'ACTIVE':st]++;
@@ -243,7 +244,13 @@ function render(){
   const cols=[['접수','접수'],['수정중','수정중'],['수정완료','수정완료'],['확인완료','확인완료']];
   $('#kb').innerHTML=cols.map(([c,l])=>{const it=D.bugs.filter(z=>z.status.startsWith(c)&&!(c==='수정완료'&&z.status.startsWith('확인')));
     return `<div class="col"><h5>${l}<b>${it.length}</b></h5>${it.map(z=>`<div class="tk" onclick="openItem('bugs','${esc(z.id)}')"><small>${esc(z.id)}</small>${z.sev?`<span class="sev ${esc(z.sev)}">${esc(z.sev)}</span>`:''}${esc(z.title)}</div>`).join('')||'<div class="empty">없음</div>'}</div>`}).join('');
-  $('#ap').innerHTML=D.approvals.length?D.approvals.map(a=>`<div class="li"><span class="no">${esc(a.no)}</span>${esc(a.what)}<span class="tag ${esc(a.status)}">${esc(a.dept)} · ${esc(a.status)}</span></div>`).join(''):'<div class="empty">결재할 안건이 없어요 ✨<br>마케팅팀(월·목)·기획팀(수)이 출근하면 올라와요</div>';
+  const OV=(D.hq&&D.hq.overlay)||{};
+  const AP=D.approvals.map(a=>OV[a.no]?{...a,status:OV[a.no].status}:a);
+  $('#ap').innerHTML=(D.hq&&D.hq.canWrite===false?'<div class="hint" style="margin:0 0 8px">⚠️ 서버가 저장소에 기록할 권한이 없어 결재가 재시작 때 사라질 수 있어요. Claude에게 알려주세요.</div>':'')+(AP.length?AP.map(a=>{
+    const wait=/대기/.test(a.status), opts=[...String(a.what).matchAll(/([①②③④])/g)].map(m=>m[1]);
+    const btns=wait?`<div class="dec">${opts.length?opts.map(o=>`<button class="ok" onclick="dec('${esc(a.no)}','approve','${o}',this)">${o}로 승인</button>`).join(''):`<button class="ok" onclick="dec('${esc(a.no)}','approve','',this)">✅ 승인</button>`}<button class="no" onclick="dec('${esc(a.no)}','reject','',this)">반려</button></div>`:'';
+    return `<div class="li apr"><div style="flex:1"><span class="no">${esc(a.no)}</span>${esc(a.what)}${btns}</div><span class="tag ${esc(a.status.replace(/\(.*/,''))}">${esc(a.dept)} · ${esc(a.status)}</span></div>`}).join(''):'<div class="empty">결재할 안건이 없어요 ✨<br>AI 직원들이 알아서 처리 중이에요</div>');
+  $('#nP').textContent=pad(AP.filter(a=>/대기/.test(a.status)).length);
   const T=D.threads||{posted:{}};
   $('#thSt').innerHTML=T.connected?`<b style="color:var(--ok)">● @${esc(T.username)} 연결됨</b> · ${T.auto?'자동 게시 ON':'일시정지'} · 하루 최대 ${T.daily}개`:(T.ready?`<a href="/threads/connect" style="color:var(--warn)">⚠️ 스레드 계정 연결하기 →</a>`:'<span style="color:var(--warn)">⚠️ 스레드 앱 설정 대기 (사장님 할 일 참고)</span>');
   const tq=D.marketing.filter(z=>!/반려/.test(z.status)).slice(0,12);
@@ -294,6 +301,23 @@ function openItem(t,id){const z=D[t].find(q=>q.id===id);$('#mT').textContent=`${
   $('#mC').innerHTML=act+mdr(z.post?z.text.replace(/```threads[\s\S]*?```/,''):z.text);$('#md').classList.add('on');}
 async function cp(t,id,b){const z=D[t].find(q=>q.id===id);try{await navigator.clipboard.writeText(z.post);b.textContent='✅ 복사됨';}catch(e){b.textContent='길게 눌러 복사하세요';}}
 function closeM(){$('#md').classList.remove('on')}
+async function dec(no,decision,option,btn){
+  const box=btn.closest('.dec'); if(box)box.style.opacity=.5;
+  let r=await fetch('/api/hq/decide',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({no,decision,option})});
+  if(r.status===401){ if(box)box.style.opacity=1; return askCode(()=>dec(no,decision,option,btn)); }
+  const j=await r.json().catch(()=>({}));
+  if(j.ok){ toast(`${no} ${j.status} 완료 — ${decision==='approve'?'개발팀이 다음 출근 때 바로 처리해요':'반려로 기록했어요'}`); load(); }
+  else { if(box)box.style.opacity=1; toast('처리 실패: '+(j.error||r.status)); }
+}
+function askCode(next){
+  $('#mT').textContent='👑 사장님 확인 (처음 한 번만)';$('#mTabs').innerHTML='';
+  $('#mC').innerHTML=`<p>Claude가 알려준 <b>사장님 결재 코드</b>를 넣어주세요. 이 기기에서는 1년 동안 다시 묻지 않아요.</p><input id="ceoC" autocomplete="off" placeholder="XXXX-XXXX-XXXX" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--ln);background:#0a1120;color:var(--tx);font:600 16px var(--mono);margin:10px 0"><button class="go" id="ceoGo" style="--dc:#ffd166"><span>확인</span><span>↵</span></button><p id="ceoE" style="color:var(--off);font-size:12px;margin-top:8px"></p>`;
+  $('#md').classList.add('on');
+  const go=async()=>{const r=await fetch('/api/hq/owner',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:$('#ceoC').value})});
+    if(r.ok){closeM();next();}else{const j=await r.json().catch(()=>({}));$('#ceoE').textContent=j.error||'다시 시도해 주세요';}};
+  $('#ceoGo').onclick=go;$('#ceoC').onkeydown=e=>{if(e.key==='Enter')go();};setTimeout(()=>$('#ceoC').focus(),50);
+}
+function toast(t){let el=$('#toast');if(!el){el=document.createElement('div');el.id='toast';el.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1a2440;border:1px solid #2ee6a6;color:#e6ecff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:20;max-width:90vw';document.body.appendChild(el);}el.textContent=t;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',4000);}
 $('#md').addEventListener('click',e=>{if(e.target.id==='md')closeM()});
 function setView(v){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#vOrg').hidden=v!=='org';$('#vBoard').hidden=v!=='board';}
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
