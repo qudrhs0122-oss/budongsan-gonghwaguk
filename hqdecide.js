@@ -22,7 +22,7 @@ const DATA_REPO = process.env.GH_REPO || '';
 const DATA_BRANCH = process.env.GH_BRANCH || 'main';
 const ACT_PATH = 'hq/actions.json';
 const { apply } = require('./company/hqapply');
-let actions = [], actSha = null;
+let actions = [], actSha = null, mirrorOk = null;
 let canWrite = null; // 저장소 커밋 가능 여부 (시작 때 확인)
 const tries = new Map(); // IP별 코드 시도 횟수 (무차별 대입 방지)
 
@@ -75,9 +75,19 @@ async function saveAction(a) {
   }
   return { saved: false, err: '충돌 재시도 실패' };
 }
+async function mirror(files, msg) { // 게임 저장소에도 바로 기록 (GH_TOKEN에 게임 저장소 쓰기 권한이 있을 때만 성공)
+  let ok = true;
+  for (const rel of files) {
+    let text = ''; try { text = fs.readFileSync(path.join(__dirname, rel), 'utf8'); } catch (e) { continue; }
+    const f = await getFile(rel); if (f && f.text === text) continue;
+    if (!(await putFile(rel, text, f && f.sha, msg + ' [skip render]'))) { ok = false; break; }
+  }
+  return ok;
+}
 async function act(a) { // 행동 기록(영구) + 서버 로컬 파일에 즉시 반영
   a.id = a.t.toString(36) + Math.random().toString(36).slice(2, 6);
-  apply(__dirname, a);
+  const changed = apply(__dirname, a);
+  mirrorOk = await mirror([...changed, 'company/board/.hq_applied'].filter(f => { if (f !== 'company/board/.hq_applied') return true; try { fs.appendFileSync(path.join(__dirname, f), a.id + '\n'); } catch (e) {} return true; }), `[사장님 ${a.type === 'decide' ? '결재' : a.type === 'order' ? '지시' : '할 일'}] ${a.no || a.dept || ''}`.trim());
   const r = await saveAction(a);
   return r.saved ? { ok: true, saved: true } : { ok: false, error: '기록 실패: ' + r.err };
 }
@@ -121,7 +131,7 @@ async function decide(no, decision, option) {
   const r = await act({ t: Date.now(), type: 'decide', no, status: st });
   return { ...r, status: st };
 }
-const DEPTS = ['qa', 'dev', 'ops', 'briefing', 'marketing', 'revenue', 'planning', 'release'];
+const DEPTS = ['qa', 'dev', 'ops', 'briefing', 'marketing', 'revenue', 'planning', 'release', 'finance'];
 const todo = (action, text) => act({ t: Date.now(), type: 'todo', action, text });
 function order(dept, text) {
   const clean = String(text).replace(/[\r\n]+/g, ' ').replace(/\|/g, '/').trim().slice(0, 500);
@@ -172,6 +182,6 @@ async function handle(rq, res, url) {
   }
   return false;
 }
-function status(rq) { return { owner: isOwner(rq), canWrite: !!(GH_TOKEN && DATA_REPO), overlay }; }
+function status(rq) { return { owner: isOwner(rq), canWrite: !!(GH_TOKEN && DATA_REPO), mirrorOk, overlay }; }
 function start() { check().catch(() => { canWrite = false; }); loadActions().catch(e => console.error('hq actions', e.message)); }
 module.exports = { handle, status, start, gate };

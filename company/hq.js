@@ -11,6 +11,7 @@ const DEPTS = [
   { id: 'briefing', name: '경영지원실', unit: 'UNIT EXEC', icon: '📋', color: '#2ee6a6', when: { h: 8, m: 20 }, desks: [['chief-of-staff', '아침 브리핑'], ['approval-clerk', '결재함 정리'], ['weekly-writer', '주간 보고(월)']], tags: ['briefing', '결재함', 'push'] },
   { id: 'marketing', name: '마케팅팀', unit: 'UNIT MAR', icon: '📣', color: '#a3e635', when: { h: 10, m: 40 }, desks: [['threads-writer', '스레드 글 (매일)'], ['trend-scout', '부동산 화제 찾기'], ['store-copy', '스토어·공유 문구']], tags: ['threads', 'hook', 'cta'] },
   { id: 'release', name: '출시·플랫폼팀', unit: 'UNIT REL', icon: '🚀', color: '#38bdf8', when: { h: 15, m: 40, days: [1, 4] }, desks: [['store-scout', '새 마켓 조사·입점 준비'], ['build-packer', '앱 번들·스토어 자료'], ['review-tracker', '심사 상태·업데이트']], tags: ['toss', 'onestore', 'ms-store'] },
+  { id: 'finance', name: '재무팀', unit: 'UNIT FIN', icon: '💵', color: '#facc15', when: { h: 20, m: 40, days: [1, 4] }, desks: [['ledger-keeper', '매출 장부'], ['report-reader', '애드센스·토스·쿠팡 리포트'], ['cost-watch', '비용·순이익']], tags: ['ledger', 'monthly', 'profit'] },
   { id: 'revenue', name: '수익화팀', unit: 'UNIT REV', icon: '💰', color: '#ffd166', when: { h: 15, m: 10, days: [2, 5] }, desks: [['ad-optimizer', '광고 배치·빈도'], ['funnel-analyst', '이탈·전환 분석'], ['biz-dev', '제휴·후원 수익원']], tags: ['adsense', 'rewarded', 'toss-ads'] },
   { id: 'planning', name: '기획(콘텐츠)팀', unit: 'UNIT PLN', icon: '🎨', color: '#c084fc', when: { h: 14, m: 20, days: [3] }, desks: [['news-scout', '부동산 뉴스'], ['event-designer', '이벤트 기획'], ['balance-tuner', '밸런스 조정']], tags: ['events.js', 'endings', 'policy'] },
 ];
@@ -44,8 +45,11 @@ function build() {
   const pend = (box.split('## 처리 완료')[0].split('\n').filter(l => /^\|\s*[A-Z]+-?\d/.test(l))).map(l => { const c = l.split('|').map(s => s.trim()); return { no: c[1], dept: c[2], what: c[3], date: c[4], status: c[5] }; });
   const metrics = read(path.join(C, 'reports', 'metrics.csv')).trim().split('\n').slice(1).filter(Boolean).slice(-30).map(l => { const c = l.split(','); return { date: c[0], seoul: +c[1] || 0, jh: +c[2] || 0, memo: c.slice(3).join(',') }; });
   const orders = read(path.join(C, 'board', '지시사항.md')).split('\n').filter(l => /^- \[[ x]\] \(/.test(l)).map(l => { const m = l.match(/^- \[([ x])\] \(([a-z]+)\) (.*)$/); return m ? { done: m[1] === 'x', dept: m[2], text: m[3], raw: l.slice(6).trim() } : null; }).filter(Boolean);
+  const csv = f => read(path.join(C, 'finance', f)).trim().split('\n').slice(1).filter(Boolean).map(l => l.split(','));
+  const ledger = csv('ledger.csv').map(c => ({ date: c[0], src: c[1], period: c[2], krw: +c[3] || 0, status: c[4], memo: c.slice(5).join(',') }));
+  const costs = csv('costs.csv').map(c => ({ date: c[0], item: c[1], krw: +c[2] || 0, status: c[3], memo: c.slice(4).join(',') }));
   const todo = read(path.join(C, 'board', '사장님할일.md')).split('\n').filter(l => /^- \[[ x]\]/.test(l)).map(l => ({ done: l[3] === 'x', text: l.slice(6).trim() }));
-  return { now: Date.now(), todo, orders, depts, bugs: items('board/bugs'), proposals: items('board/proposals'), marketing: items('board/marketing'), approvals: pend, metrics, feed, weekly: days.length };
+  return { now: Date.now(), ledger, costs, todo, orders, depts, bugs: items('board/bugs'), proposals: items('board/proposals'), marketing: items('board/marketing'), approvals: pend, metrics, feed, weekly: days.length };
 }
 
 module.exports = { build };

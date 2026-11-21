@@ -148,6 +148,7 @@ svg.chart{width:100%;height:140px;display:block}
     <div class="pan" style="margin-bottom:12px"><h4>📮 대표 지시사항 <span>부서를 고르고 지시하면 그 부서가 다음 출근 때 가장 먼저 처리해요</span></h4>
       <div class="ordf"><select id="ordD"></select><textarea id="ordT" placeholder="예) 스레드는 하루 3개로 늘리고 청약 화제 위주로 써"></textarea><button class="go" style="--dc:#ffd166" onclick="sendOrder(this)"><span>📮 지시 보내기</span><span>↵</span></button></div>
       <div id="ordL"></div></div>
+    <div class="pan" style="margin-bottom:12px"><h4>💵 매출 장부 <span>재무팀 집계 · 수익원별 최신값</span></h4><div id="fin"></div></div>
     <div class="row">
       <div class="pan"><h4>🐞 BUG BOARD <span>QA가 접수 → 개발팀이 수정</span></h4><div class="kb" id="kb"></div></div>
       <div class="pan"><h4>🖊️ 결재함 <span>버튼을 누르면 AI 직원들이 바로 실행해요</span></h4><div id="ap"></div></div>
@@ -202,11 +203,14 @@ function bigNum(x){
     case 'briefing':return [D.approvals.filter(a=>/대기/.test(a.status)).length,'결재 대기'];
     case 'marketing':{const P=(D.threads||{}).posted||{};return [Object.values(P).filter(p=>p.url).length,'게시한 스레드'];}
     case 'planning':return [D.proposals.filter(z=>/^P-/.test(z.id)).length,'기획안'];
+    case 'finance':{const m=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);return [fmtW(monthRev(m)),m.slice(5)+'월 매출'];}
     case 'release':return [(D.orders||[]).filter(o=>o.dept==='release'&&o.done).length+D.approvals.filter(a=>/출시/.test(a.dept)).length,'입점 안건'];
     case 'revenue':return [D.proposals.filter(z=>/^R-/.test(z.id)).length,'수익화 안건'];
   }
   return [x.reports.length,'보고'];
 }
+function monthRev(m){const L=(D.ledger||[]).filter(r=>r.period===m);const last={};L.forEach(r=>{if(!last[r.src]||r.date>=last[r.src].date)last[r.src]=r;});return Object.values(last).reduce((a,r)=>a+r.krw,0);}
+function fmtW(n){return n>=1e8?(n/1e8).toFixed(1)+'억':n>=1e4?Math.round(n/1e4)+'만':String(n);}
 const AV=['🤖','🧑‍💻','🛰️','🧾','✍️','🔎','📦','🧭','📈'];
 function render(){
   const k=kst(); const cnt={ACTIVE:0,STANDBY:0,IDLE:0,OFFLINE:0};
@@ -276,6 +280,12 @@ function render(){
     $('#chart').innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline fill="none" stroke="#2ee6a6" stroke-width="2.5" points="${pts(m=>m.seoul)}"/><polyline fill="none" stroke="#c084fc" stroke-width="2" points="${pts(m=>m.jh)}"/></svg><div class="bar"><span>${esc(M[0].date)}</span><span><b style="color:#2ee6a6">● 서울아파트</b> <b style="color:#c084fc">● 조합장</b></span><span>${esc(M.at(-1).date)}</span></div>`;}
   // 피드
   const dn=Object.fromEntries(D.depts.map(x=>[x.id,x]));
+  { const m=new Date(Date.now()+9*3600e3).toISOString().slice(0,7);const L=(D.ledger||[]);const last={};L.filter(r=>r.period===m).forEach(r=>{if(!last[r.src]||r.date>=last[r.src].date)last[r.src]=r;});
+    const rows=Object.values(last), tot=rows.reduce((a,r)=>a+r.krw,0), cost=(D.costs||[]).reduce((a,c)=>a+c.krw,0);
+    const months=[...new Set(L.map(r=>r.period))].sort().slice(-6);
+    $('#fin').innerHTML=`<div class="mini" style="margin-top:0"><div><b style="color:#facc15">${tot.toLocaleString()}원</b><small>${m.slice(5)}월 매출</small></div><div><b>${cost.toLocaleString()}원</b><small>월 비용</small></div><div><b style="color:${tot-cost>=0?'var(--ok)':'var(--off)'}">${(tot-cost).toLocaleString()}원</b><small>순이익</small></div></div>`+
+      (rows.length?rows.sort((a,b)=>b.krw-a.krw).map(r=>`<div class="li" style="cursor:default"><span style="flex:1">${esc(r.src)}</span><span class="mono" style="color:#facc15">${r.krw.toLocaleString()}원</span><span class="tag">${esc(r.status)}</span></div><div style="font-size:11px;color:var(--mu);margin:-4px 0 4px">${esc(r.date)} · ${esc(r.memo)}</div>`).join(''):'<div class="empty">이번 달 기록이 아직 없어요</div>')+
+      (months.length>1?`<div class="bar" style="margin-top:8px"><span>최근 ${months.length}개월</span><span>${months.map(x=>x.slice(5)+'월 '+fmtW(monthRev(x))).join(' · ')}</span></div>`:''); }
   const DN=Object.fromEntries(D.depts.map(x=>[x.id,x]));
   if(!$('#ordD').options.length) $('#ordD').innerHTML=D.depts.map(x=>`<option value="${x.id}">${x.icon} ${esc(x.name)} — 다음 출근 ${nextRun(x.when)} 뒤</option>`).join('');
   const OR=(D.orders||[]).slice().reverse();

@@ -8,7 +8,7 @@
 
 ## 출근 절차
 00. **상황판 행동 동기화**: add_repo로 `qudrhs0122-oss/aptgame-data`(비공개)를 붙여 `/home/claude/aptgame-data`에 clone(이미 있으면 `git -C /home/claude/aptgame-data pull`) → 게임 저장소에서 `node tools/hq_sync.js /home/claude/aptgame-data` 실행 → 바뀐 파일이 있으면 `[사장님 결재 반영]` 커밋·push. (사장님이 상황판에서 누른 승인·반려·할 일·지시가 이걸로 들어온다. aptgame-data에는 랭킹·계정 데이터도 있으니 hq/ 폴더 외에는 읽지도 고치지도 않는다.)
-0. **가장 먼저 `company/board/지시사항.md`에서 자기 부서(`(qa)`,`(dev)`,`(ops)`,`(briefing)`,`(marketing)`,`(revenue)`,`(planning)`,`(release)`) 줄 중 `[ ]`인 것을 확인하고 최우선으로 처리한다.** 끝나면 `[x]`로 바꾸고 줄 끝에 `→ 결과: 한 줄`을 붙인다. 바로 못 하면 `→ 진행: 이유·예정`을 붙인다. 다른 부서 일이면 해당 부서로 옮겨 적는다.
+0. **가장 먼저 `company/board/지시사항.md`에서 자기 부서(`(qa)`,`(dev)`,`(ops)`,`(briefing)`,`(marketing)`,`(revenue)`,`(planning)`,`(release)`,`(finance)`) 줄 중 `[ ]`인 것을 확인하고 최우선으로 처리한다.** 끝나면 `[x]`로 바꾸고 줄 끝에 `→ 결과: 한 줄`을 붙인다. 바로 못 하면 `→ 진행: 이유·예정`을 붙인다. 다른 부서 일이면 해당 부서로 옮겨 적는다.
 1. 저장소 위치: `/home/claude/budongsan-gonghwaguk` (없으면 add_repo로 `qudrhs0122-oss/budongsan-gonghwaguk`를 push 권한으로 붙이고 clone).
    조합장 원본은 `qudrhs0122-oss/johapjang-game` (필요한 부서만).
 2. `git pull --rebase` 로 최신화.
