@@ -37,7 +37,7 @@ def page(fn, title, desc, body):
 </body></html>'''
     open(f'{ROOT}/{fn}', 'w', encoding='utf-8').write(out)
 
-AD = '<div class="adbox"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2150655592231599" data-ad-slot="4104692035" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>'
+AD = '<div class="cpb" data-sub="page" style="margin:22px auto 8px;max-width:320px;text-align:center"></div><script src="/cp.js" defer></script><div class="adbox"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2150655592231599" data-ad-slot="4104692035" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>'
 CTA = '<p class="cta"><a href="/bluemarble" class="btn">🎲 지금 바로 한 판 하기</a></p>'
 
 # ---------------- 게임 방법 ----------------

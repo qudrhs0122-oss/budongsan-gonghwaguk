@@ -7,7 +7,7 @@ TODAY = '2026-11-15'
 e = html.escape
 
 NAV = [('/', '🏠 게임 고르기'), ('/learn/', '📚 부동산 공부'), ('/tools/', '🧮 계산기'), ('/johapjang/', '🏗️ 조합장 키우기'), ('/seoul/', '🏙️ 서울 아파트'), ('/ranking.html', '🏆 랭킹'), ('/news.html', '📰 업데이트'), ('/about.html', 'ℹ️ 소개')]
-AD = '<div class="adbox"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2150655592231599" data-ad-slot="4104692035" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>'
+AD = '<div class="cpb" data-sub="learn" style="margin:22px auto 8px;max-width:320px;text-align:center"></div><script src="/cp.js" defer></script><div class="adbox"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2150655592231599" data-ad-slot="4104692035" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>'
 
 def nav(cur):
     return ''.join(f'<a href="{h}" class="{"on" if h == cur else ""}">{t}</a>' for h, t in NAV)

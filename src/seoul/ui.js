@@ -661,8 +661,9 @@ function onNext() {
       <button data-nx="earn" class="n1"><img src="img/res/earn.webp" alt=""><b>더 벌까?</b><small>투잡 · 이직 · 창업</small></button>
       <button data-nx="grow" class="n2"><img src="img/res/grow.webp" alt=""><b>불릴까?</b><small>주식 · 코인 · 재테크</small></button>
       <button data-nx="home" class="n3"><img src="img/res/cheong.webp" alt=""><b>${own ? '갈아탈까?' : '청약을 넣을까?'}</b><small>${own ? '매도 · 매수 · 갈아타기' : '분양 · 재개발 · 재건축'}</small></button></div></div>
-    <button class="btn rgo" id="ok">${r.ev || R.crisis ? '다음 이야기' : '다음 반기로'} <span>»</span></button>`, 'rpage');
-  bindRewards();
+    <button class="btn rgo" id="ok">${r.ev || R.crisis ? '다음 이야기' : '다음 반기로'} <span>»</span></button>
+    <div class="cpb" data-sub="seoulres" style="margin:28px auto 6px;max-width:320px;text-align:center"></div>`, 'rpage');
+  bindRewards(); if (window.cpScan) cpScan();
   const proceed = () => { closeModal(); if (newCh && S.interAd) { S.interAd = false; showAd(() => cineChapter(go), true, 'chapter_break'); } else if (newCh) cineChapter(after); else after(); };
   $('#ok').onclick = proceed;
   document.querySelectorAll('[data-nx]').forEach(b => b.onclick = () => {

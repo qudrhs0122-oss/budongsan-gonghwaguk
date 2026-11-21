@@ -10,6 +10,7 @@ for (const f of fs.readdirSync(path.join(out, 'img'))) if (/^(shot\d|icon-|setup
 let h = fs.readFileSync(path.join(src, 'index.html'), 'utf8');
 const rep = (a, b) => { if (!h.includes(a)) console.warn('찾지 못함:', a); h = h.split(a).join(b); };
 rep('<script src="/auth.js?v=3" defer></script>', '');                       // 카카오 로그인 없음 → 게스트(기기 저장)로만 동작
+rep('<script src="/cp.js" defer></script>', '');                                  // 쿠팡 파트너스 배너는 웹 전용
 rep("fetch('/api/config', { cache: 'no-store' })", 'Promise.resolve(null)');   // 애드센스 대신 토스 광고 브리지
 rep("sendBeacon('/api/stat'", "sendBeacon('https://aptgame.kr/api/stat'");     // 통계는 aptgame.kr 서버로
 rep('href="/"', 'href="#"');
