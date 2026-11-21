@@ -17,7 +17,12 @@ const SECRET = process.env.SESSION_SECRET || process.env.THREADS_APP_SECRET || c
 const OWNER_FILE = path.join(__dirname, 'company', 'hq-owner.json');
 const BOX = 'company/board/결재함.md';
 
-const overlay = {}; // 번호 → { status, at } (재배포 전까지 상황판에 즉시 반영)
+const overlay = {}; // 번호 → { status, at } (상황판 즉시 표시용)
+const DATA_REPO = process.env.GH_REPO || '';
+const DATA_BRANCH = process.env.GH_BRANCH || 'main';
+const ACT_PATH = 'hq/actions.json';
+const { apply } = require('./company/hqapply');
+let actions = [], actSha = null;
 let canWrite = null; // 저장소 커밋 가능 여부 (시작 때 확인)
 const tries = new Map(); // IP별 코드 시도 횟수 (무차별 대입 방지)
 
@@ -50,6 +55,31 @@ async function edit(rel, fn, msg) {
   let cur = ''; try { cur = fs.readFileSync(local, 'utf8'); } catch (e) {}
   const next = fn(cur); if (next != null) try { fs.writeFileSync(local, next); } catch (e) {}
   return { ok: true, saved: false };
+}
+
+async function loadActions() {
+  if (!GH_TOKEN || !DATA_REPO) return;
+  const r = await req('GET', `/repos/${DATA_REPO}/contents/${ACT_PATH}?ref=${DATA_BRANCH}`);
+  if (r.status === 200 && r.j) { actSha = r.j.sha; try { actions = JSON.parse(Buffer.from(r.j.content, 'base64').toString('utf8')); } catch (e) { actions = []; } }
+  for (const a of actions) { try { apply(__dirname, a); if (a.type === 'decide') overlay[a.no] = { status: a.status, at: a.t }; } catch (e) {} } // 재배포 뒤에도 상황판에 반영
+}
+async function saveAction(a) {
+  actions.push(a); if (actions.length > 500) actions = actions.slice(-500);
+  if (!GH_TOKEN || !DATA_REPO) return { saved: false, err: 'GH_REPO 없음' };
+  for (let i = 0; i < 3; i++) {
+    const body = { message: `[HQ] ${a.type} ${a.no || a.dept || ''}`.trim(), content: Buffer.from(JSON.stringify(actions, null, 1)).toString('base64'), branch: DATA_BRANCH, ...(actSha ? { sha: actSha } : {}) };
+    const r = await req('PUT', `/repos/${DATA_REPO}/contents/${ACT_PATH}`, body);
+    if (r.status === 200 || r.status === 201) { actSha = r.j.content.sha; return { saved: true }; }
+    if (r.status === 409 || r.status === 422) { const g = await req('GET', `/repos/${DATA_REPO}/contents/${ACT_PATH}?ref=${DATA_BRANCH}`); if (g.j) { actSha = g.j.sha; try { const remote = JSON.parse(Buffer.from(g.j.content, 'base64').toString('utf8')); const ids = new Set(actions.map(x => x.id)); actions = [...remote.filter(x => !ids.has(x.id)), ...actions]; } catch (e) {} } continue; }
+    return { saved: false, err: `GitHub ${r.status} ${(r.j && r.j.message) || ''}` };
+  }
+  return { saved: false, err: '충돌 재시도 실패' };
+}
+async function act(a) { // 행동 기록(영구) + 서버 로컬 파일에 즉시 반영
+  a.id = a.t.toString(36) + Math.random().toString(36).slice(2, 6);
+  apply(__dirname, a);
+  const r = await saveAction(a);
+  return r.saved ? { ok: true, saved: true } : { ok: false, error: '기록 실패: ' + r.err };
 }
 
 async function check() {
@@ -87,47 +117,18 @@ function gate(rq, res, p) { // /hq/ 페이지와 /api/hq 데이터는 로그인�
 const LABEL = { approve: '승인', reject: '반려' };
 async function decide(no, decision, option) {
   const st = (LABEL[decision] || '승인') + (option ? `(${option})` : '');
-  const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
   overlay[no] = { status: st, at: Date.now() };
-  const r = await edit(BOX, text => {
-    const lines = text.split('\n');
-    const i = lines.findIndex(l => new RegExp('^\\|\\s*' + no.replace(/-/g, '\\-') + '\\s*\\|').test(l));
-    if (i < 0) return null;
-    const c = lines[i].split('|').map(x => x.trim());
-    const row = `| ${c[1]} | ${c[2]} | ${c[3]} | ${c[4]} | ${st} (사장님 ${today}) |`;
-    lines.splice(i, 1);
-    const done = lines.findIndex(l => /^## 처리 완료/.test(l));
-    if (done >= 0) { let k = done + 1; while (k < lines.length && !/^\|/.test(lines[k])) k++; while (k < lines.length && /^\|\s*(번호|---)/.test(lines[k])) k++; lines.splice(k, 0, row); } else lines.push(row);
-    return lines.join('\n');
-  }, `[사장님 결재] ${no} ${st}`);
-  for (const dir of ['company/board/proposals', 'company/board/marketing', 'company/board/bugs']) {
-    if (!fs.existsSync(path.join(__dirname, dir, no + '.md'))) continue;
-    await edit(`${dir}/${no}.md`, t => /^\s*상태\s*[:：].*$/m.test(t) ? t.replace(/^(\s*상태\s*[:：]).*$/m, `$1 ${st} (사장님 결재 ${today})`) : `상태: ${st} (사장님 결재 ${today})\n` + t, `[사장님 결재] ${no} ${st}`);
-    break;
-  }
-  return { ok: r.ok, saved: !!r.saved, status: st, error: r.error };
+  const r = await act({ t: Date.now(), type: 'decide', no, status: st });
+  return { ...r, status: st };
 }
-
-const TODO = 'company/board/사장님할일.md', ORD = 'company/board/지시사항.md';
 const DEPTS = ['qa', 'dev', 'ops', 'briefing', 'marketing', 'revenue', 'planning', 'release'];
-const ORD_HEAD = '# 📮 대표 지시사항\n\n사장님이 상황판에서 부서를 골라 지시를 남기면 여기에 쌓인다. 각 부서는 출근하자마자 자기 부서 줄을 먼저 처리하고, `[ ]`를 `[x]`로 바꾼 뒤 줄 끝에 `→ 결과: …`를 붙인다.\n\n';
-async function todo(action, text) {
-  return edit(TODO, t => {
-    const lines = t.split('\n'); const i = lines.findIndex(l => /^- \[[ x]\] /.test(l) && l.slice(6).trim() === text.trim());
-    if (i < 0) return null;
-    if (action === 'delete') lines.splice(i, 1); else lines[i] = '- [x] ' + lines[i].slice(6) + (action === 'done' ? '' : '');
-    return lines.join('\n');
-  }, `[사장님] 할 일 ${action === 'delete' ? '삭제' : '완료'}`);
-}
-async function order(dept, text) {
-  const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace('T', ' ');
+const todo = (action, text) => act({ t: Date.now(), type: 'todo', action, text });
+function order(dept, text) {
   const clean = String(text).replace(/[\r\n]+/g, ' ').replace(/\|/g, '/').trim().slice(0, 500);
   if (!clean) return { ok: false, error: '내용이 비었어요' };
-  return edit(ORD, t => (t || ORD_HEAD) + `- [ ] (${dept}) ${clean} — 지시 ${today}\n`, `[사장님 지시] ${dept}`);
+  return act({ t: Date.now(), type: 'order', dept, text: clean });
 }
-async function orderDel(text) {
-  return edit(ORD, t => { const lines = t.split('\n'); const i = lines.findIndex(l => l.slice(6).trim() === text.trim()); if (i < 0) return null; lines.splice(i, 1); return lines.join('\n'); }, '[사장님 지시] 취소');
-}
+const orderDel = text => act({ t: Date.now(), type: 'orderDel', text });
 
 function readBody(rq) { return new Promise(r => { let b = ''; rq.on('data', d => { b += d; if (b.length > 4000) rq.destroy(); }); rq.on('end', () => { try { r(JSON.parse(b || '{}')); } catch (e) { r({}); } }); }); }
 const json = (res, code, o) => { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(o)); };
@@ -171,6 +172,6 @@ async function handle(rq, res, url) {
   }
   return false;
 }
-function status(rq) { return { owner: isOwner(rq), canWrite, overlay }; }
-function start() { check().catch(() => { canWrite = false; }); }
+function status(rq) { return { owner: isOwner(rq), canWrite: !!(GH_TOKEN && DATA_REPO), overlay }; }
+function start() { check().catch(() => { canWrite = false; }); loadActions().catch(e => console.error('hq actions', e.message)); }
 module.exports = { handle, status, start, gate };
