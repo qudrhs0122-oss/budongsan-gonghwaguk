@@ -35,6 +35,22 @@ const enc = p => p.split('/').map(encodeURIComponent).join('/');
 async function getFile(p) { const r = await req('GET', `/repos/${MAIN_REPO}/contents/${enc(p)}?ref=${BRANCH}`); return r.status === 200 && r.j ? { sha: r.j.sha, text: Buffer.from(r.j.content, 'base64').toString('utf8') } : null; }
 async function putFile(p, text, sha, msg) { const r = await req('PUT', `/repos/${MAIN_REPO}/contents/${enc(p)}`, { message: msg, content: Buffer.from(text, 'utf8').toString('base64'), sha, branch: BRANCH }); return r.status === 200 || r.status === 201; }
 
+// 저장소 파일을 고치고 서버 로컬 사본도 같이 고쳐서 상황판에 즉시 반영
+async function edit(rel, fn, msg) {
+  const local = path.join(__dirname, rel);
+  if (canWrite) {
+    for (let i = 0; i < 3; i++) {
+      const f = await getFile(rel); const cur = f ? f.text : '';
+      const next = fn(cur); if (next == null || next === cur) return { ok: true, same: true };
+      if (await putFile(rel, next, f && f.sha, msg + ' [skip render]')) { try { fs.mkdirSync(path.dirname(local), { recursive: true }); fs.writeFileSync(local, next); } catch (e) {} return { ok: true, saved: true }; }
+    }
+    return { ok: false, error: '저장소 기록 실패' };
+  }
+  let cur = ''; try { cur = fs.readFileSync(local, 'utf8'); } catch (e) {}
+  const next = fn(cur); if (next != null) try { fs.writeFileSync(local, next); } catch (e) {}
+  return { ok: true, saved: false };
+}
+
 async function check() {
   if (!GH_TOKEN) { canWrite = false; return; }
   const r = await req('GET', `/repos/${MAIN_REPO}`);
@@ -53,30 +69,44 @@ async function decide(no, decision, option) {
   const st = (LABEL[decision] || '승인') + (option ? `(${option})` : '');
   const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
   overlay[no] = { status: st, at: Date.now() };
-  if (!canWrite) return { ok: true, saved: false, status: st };
-  // 1) 결재함: 대기 표에서 그 줄을 빼서 처리 완료 표로 옮김
-  const box = await getFile(BOX);
-  if (box) {
-    const lines = box.text.split('\n');
-    const i = lines.findIndex(l => new RegExp('^\\|\\s*' + no.replace(/[-]/g, '\\-') + '\\s*\\|').test(l));
-    if (i >= 0) {
-      const c = lines[i].split('|').map(s => s.trim());
-      const row = `| ${c[1]} | ${c[2]} | ${c[3]} | ${c[4]} | ${st} (사장님 ${today}) |`;
-      lines.splice(i, 1);
-      const done = lines.findIndex(l => /^## 처리 완료/.test(l));
-      if (done >= 0) { let k = done + 1; while (k < lines.length && /^\|/.test(lines[k]) === false) k++; while (k < lines.length && /^\|/.test(lines[k]) && /^\|\s*(번호|---)/.test(lines[k])) k++; lines.splice(k, 0, row); }
-      await putFile(BOX, lines.join('\n'), box.sha, `[사장님 결재] ${no} ${st} [skip render]`);
-    }
-  }
-  // 2) 안건 파일(있으면) 상태 줄 갱신
+  const r = await edit(BOX, text => {
+    const lines = text.split('\n');
+    const i = lines.findIndex(l => new RegExp('^\\|\\s*' + no.replace(/-/g, '\\-') + '\\s*\\|').test(l));
+    if (i < 0) return null;
+    const c = lines[i].split('|').map(x => x.trim());
+    const row = `| ${c[1]} | ${c[2]} | ${c[3]} | ${c[4]} | ${st} (사장님 ${today}) |`;
+    lines.splice(i, 1);
+    const done = lines.findIndex(l => /^## 처리 완료/.test(l));
+    if (done >= 0) { let k = done + 1; while (k < lines.length && !/^\|/.test(lines[k])) k++; while (k < lines.length && /^\|\s*(번호|---)/.test(lines[k])) k++; lines.splice(k, 0, row); } else lines.push(row);
+    return lines.join('\n');
+  }, `[사장님 결재] ${no} ${st}`);
   for (const dir of ['company/board/proposals', 'company/board/marketing', 'company/board/bugs']) {
-    const f = await getFile(`${dir}/${no}.md`);
-    if (!f) continue;
-    const t = /^\s*상태\s*[:：].*$/m.test(f.text) ? f.text.replace(/^(\s*상태\s*[:：]).*$/m, `$1 ${st} (사장님 결재 ${today})`) : `상태: ${st} (사장님 결재 ${today})\n` + f.text;
-    await putFile(`${dir}/${no}.md`, t, f.sha, `[사장님 결재] ${no} ${st} [skip render]`);
+    if (!fs.existsSync(path.join(__dirname, dir, no + '.md'))) continue;
+    await edit(`${dir}/${no}.md`, t => /^\s*상태\s*[:：].*$/m.test(t) ? t.replace(/^(\s*상태\s*[:：]).*$/m, `$1 ${st} (사장님 결재 ${today})`) : `상태: ${st} (사장님 결재 ${today})\n` + t, `[사장님 결재] ${no} ${st}`);
     break;
   }
-  return { ok: true, saved: true, status: st };
+  return { ok: r.ok, saved: !!r.saved, status: st };
+}
+
+const TODO = 'company/board/사장님할일.md', ORD = 'company/board/지시사항.md';
+const DEPTS = ['qa', 'dev', 'ops', 'briefing', 'marketing', 'revenue', 'planning', 'release'];
+const ORD_HEAD = '# 📮 대표 지시사항\n\n사장님이 상황판에서 부서를 골라 지시를 남기면 여기에 쌓인다. 각 부서는 출근하자마자 자기 부서 줄을 먼저 처리하고, `[ ]`를 `[x]`로 바꾼 뒤 줄 끝에 `→ 결과: …`를 붙인다.\n\n';
+async function todo(action, text) {
+  return edit(TODO, t => {
+    const lines = t.split('\n'); const i = lines.findIndex(l => /^- \[[ x]\] /.test(l) && l.slice(6).trim() === text.trim());
+    if (i < 0) return null;
+    if (action === 'delete') lines.splice(i, 1); else lines[i] = '- [x] ' + lines[i].slice(6) + (action === 'done' ? '' : '');
+    return lines.join('\n');
+  }, `[사장님] 할 일 ${action === 'delete' ? '삭제' : '완료'}`);
+}
+async function order(dept, text) {
+  const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace('T', ' ');
+  const clean = String(text).replace(/[\r\n]+/g, ' ').replace(/\|/g, '/').trim().slice(0, 500);
+  if (!clean) return { ok: false, error: '내용이 비었어요' };
+  return edit(ORD, t => (t || ORD_HEAD) + `- [ ] (${dept}) ${clean} — 지시 ${today}\n`, `[사장님 지시] ${dept}`);
+}
+async function orderDel(text) {
+  return edit(ORD, t => { const lines = t.split('\n'); const i = lines.findIndex(l => l.slice(6).trim() === text.trim()); if (i < 0) return null; lines.splice(i, 1); return lines.join('\n'); }, '[사장님 지시] 취소');
 }
 
 function readBody(rq) { return new Promise(r => { let b = ''; rq.on('data', d => { b += d; if (b.length > 4000) rq.destroy(); }); rq.on('end', () => { try { r(JSON.parse(b || '{}')); } catch (e) { r({}); } }); }); }
@@ -100,6 +130,14 @@ async function handle(rq, res, url) {
     const no = String(b.no || ''); if (!/^[A-Z]{1,3}-\d{1,4}$/.test(no)) return json(res, 400, { error: '번호 형식' }), true;
     const opt = b.option ? String(b.option).slice(0, 4) : '';
     return json(res, 200, await decide(no, b.decision === 'reject' ? 'reject' : 'approve', opt)), true;
+  }
+  if ((p === '/api/hq/todo' || p === '/api/hq/order' || p === '/api/hq/order-del') && rq.method === 'POST') {
+    if (!isOwner(rq)) return json(res, 401, { error: 'owner' }), true;
+    const b = await readBody(rq);
+    if (p === '/api/hq/todo') return json(res, 200, await todo(b.action === 'delete' ? 'delete' : 'done', String(b.text || ''))), true;
+    if (p === '/api/hq/order-del') return json(res, 200, await orderDel(String(b.text || ''))), true;
+    if (!DEPTS.includes(b.dept)) return json(res, 400, { error: '부서' }), true;
+    return json(res, 200, await order(b.dept, b.text || '')), true;
   }
   return false;
 }

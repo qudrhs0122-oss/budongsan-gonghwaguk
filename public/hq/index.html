@@ -98,6 +98,8 @@ body{background:radial-gradient(1200px 600px at 10% -10%,#13204066,transparent),
 .sev.치명{background:#5d1f2a;color:#ffb3bb}.sev.높음{background:#5a3a10;color:#ffd08a}.sev.보통{background:#1e3460;color:#aac4ff}.sev.낮음{background:#1f2b3f;color:#9fb0cf}
 .empty{color:var(--dim);font-size:12px;text-align:center;padding:16px 0}
 .li{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed #1a2540;font-size:12.5px;cursor:pointer}.li:last-child{border:0}
+.tdb{display:flex;gap:4px;flex-shrink:0}.tdb button{background:#0a1120;border:1px solid var(--ln);border-radius:7px;padding:3px 6px;cursor:pointer;font-size:12px}
+.ordf{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}.ordf select,.ordf textarea{background:#0a1120;border:1px solid var(--ln);color:var(--tx);border-radius:9px;padding:9px;font:14px 'Noto Sans KR'}.ordf textarea{min-height:70px;resize:vertical}
 .apr{align-items:flex-start}.dec{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}.dec button{font:700 12px 'Noto Sans KR';border-radius:8px;padding:6px 12px;cursor:pointer;border:1px solid}.dec .ok{background:#0f2e26;border-color:#1d5a48;color:var(--ok)}.dec .no{background:transparent;border-color:#5d1f2a;color:var(--off)}
 .li .no{font-family:var(--mono);font-size:11px;color:#c084fc;min-width:52px}
 .li .tag{margin-left:auto;font-size:10px;font-family:var(--mono);border:1px solid var(--ln);border-radius:5px;padding:0 6px;color:var(--mu);white-space:nowrap}
@@ -143,6 +145,9 @@ svg.chart{width:100%;height:140px;display:block}
   </div>
 
   <div id="vBoard" hidden>
+    <div class="pan" style="margin-bottom:12px"><h4>📮 대표 지시사항 <span>부서를 고르고 지시하면 그 부서가 다음 출근 때 가장 먼저 처리해요</span></h4>
+      <div class="ordf"><select id="ordD"></select><textarea id="ordT" placeholder="예) 스레드는 하루 3개로 늘리고 청약 화제 위주로 써"></textarea><button class="go" style="--dc:#ffd166" onclick="sendOrder(this)"><span>📮 지시 보내기</span><span>↵</span></button></div>
+      <div id="ordL"></div></div>
     <div class="row">
       <div class="pan"><h4>🐞 BUG BOARD <span>QA가 접수 → 개발팀이 수정</span></h4><div class="kb" id="kb"></div></div>
       <div class="pan"><h4>🖊️ 결재함 <span>버튼을 누르면 AI 직원들이 바로 실행해요</span></h4><div id="ap"></div></div>
@@ -197,8 +202,10 @@ function bigNum(x){
     case 'briefing':return [D.approvals.filter(a=>/대기/.test(a.status)).length,'결재 대기'];
     case 'marketing':{const P=(D.threads||{}).posted||{};return [Object.values(P).filter(p=>p.url).length,'게시한 스레드'];}
     case 'planning':return [D.proposals.filter(z=>/^P-/.test(z.id)).length,'기획안'];
+    case 'release':return [(D.orders||[]).filter(o=>o.dept==='release'&&o.done).length+D.approvals.filter(a=>/출시/.test(a.dept)).length,'입점 안건'];
     case 'revenue':return [D.proposals.filter(z=>/^R-/.test(z.id)).length,'수익화 안건'];
   }
+  return [x.reports.length,'보고'];
 }
 const AV=['🤖','🧑‍💻','🛰️','🧾','✍️','🔎','📦','🧭','📈'];
 function render(){
@@ -212,7 +219,7 @@ function render(){
     const r=x.reports[0];
     html+=`<div class="card" style="--dc:${x.color}">
       <div class="ch"><div><h3><span>${x.icon}</span>${esc(x.name)}</h3><div class="u">${x.unit}</div></div><div class="big"><b>${n}</b><small>${nl}</small></div></div>
-      <span class="st ${st}">${stLabel[st]}</span>
+      <span class="st ${st}">${stLabel[st]}</span>${(D.orders||[]).filter(o=>o.dept===x.id&&!o.done).length?`<span class="st STANDBY" style="margin-left:6px;color:#ffd166">📮 지시 ${(D.orders||[]).filter(o=>o.dept===x.id&&!o.done).length}</span>`:''}
       <div class="mini"><div><b>${x.reports.length}</b><small>최근 보고</small></div><div><b style="font-size:13px;line-height:1.9">${nextRun(x.when)}</b><small>다음 출근</small></div><div><b style="font-size:13px;line-height:1.9">${pad(x.when.h)}:${pad(x.when.m)}</b><small>${x.when.days?x.when.days.map(d=>DOW[d]).join('·'):'매일'}</small></div></div>
       <div class="bar"><span>가동률 (7일)</span><b>${up}%</b></div><div class="track"><i style="width:${up}%"></i></div>
       <div class="dk"><span>LIVE DESKS</span><b>${on?x.desks.length:0}명 가동</b></div>
@@ -227,8 +234,9 @@ function render(){
     <span class="st ${pend?'STANDBY':'ACTIVE'}">${pend?'APPROVAL NEEDED':'ALL CLEAR'}</span>
     <div class="mini"><div><b>${open}</b><small>열린 버그</small></div><div><b>${D.proposals.length}</b><small>기획안</small></div><div><b>${D.marketing.length}</b><small>홍보 초안</small></div></div>
     <div class="dk" style="--dc:#ffd166"><span>사장님 직접 해야 하는 일</span><b>${D.todo.filter(t=>!t.done).length}건</b></div>
-    ${D.todo.map(t=>`<div class="desk"><div class="av ${t.done?'on':''}">${t.done?'✅':'✍️'}</div><p><span style="color:${t.done?'var(--dim)':'#d7def0'};${t.done?'text-decoration:line-through':''}">${esc(t.text)}</span></p></div>`).join('')}
-    <div class="hint">그 외엔 <b>결재</b>만 하면 돼요. 아무 Claude 대화창에서 <b>"P-001 승인"</b>처럼 말하세요. 작은 안건은 자동 승인돼요.</div>
+    ${D.todo.filter(t=>!t.done).map((t,i)=>`<div class="desk"><div class="av">✍️</div><p><span style="color:#d7def0">${esc(t.text)}</span></p><span class="tdb"><button title="완료" onclick="todoAct('done',${D.todo.indexOf(t)},this)">✅</button><button title="삭제" onclick="todoAct('delete',${D.todo.indexOf(t)},this)">🗑</button></span></div>`).join('')}
+    ${D.todo.some(t=>t.done)?`<details style="margin:4px 0 6px"><summary style="font-size:11px;color:var(--mu);cursor:pointer">완료한 일 ${D.todo.filter(t=>t.done).length}건</summary>${D.todo.filter(t=>t.done).map(t=>`<div class="desk"><div class="av on">✅</div><p><span style="color:var(--dim);text-decoration:line-through">${esc(t.text)}</span></p><span class="tdb"><button title="삭제" onclick="todoAct('delete',${D.todo.indexOf(t)},this)">🗑</button></span></div>`).join('')}</details>`:''}
+    <div class="hint">그 외엔 결재함의 <b>승인 버튼</b>만 누르면 돼요. 부서에 시킬 일은 업무 보드의 <b>📮 대표 지시사항</b>에 적으세요.</div>
     <div style="height:10px"></div><button class="go" onclick="setView('board')"><span>결재함 열기</span><span>↗</span></button></div>`;
   $('#grid').innerHTML=html;
   $('#nA').textContent=pad(cnt.ACTIVE);$('#nS').textContent=pad(cnt.STANDBY);$('#nI').textContent=pad(cnt.IDLE);$('#nO').textContent=pad(cnt.OFFLINE);$('#nB').textContent=pad(open);$('#nP').textContent=pad(pend);
@@ -268,6 +276,10 @@ function render(){
     $('#chart').innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline fill="none" stroke="#2ee6a6" stroke-width="2.5" points="${pts(m=>m.seoul)}"/><polyline fill="none" stroke="#c084fc" stroke-width="2" points="${pts(m=>m.jh)}"/></svg><div class="bar"><span>${esc(M[0].date)}</span><span><b style="color:#2ee6a6">● 서울아파트</b> <b style="color:#c084fc">● 조합장</b></span><span>${esc(M.at(-1).date)}</span></div>`;}
   // 피드
   const dn=Object.fromEntries(D.depts.map(x=>[x.id,x]));
+  const DN=Object.fromEntries(D.depts.map(x=>[x.id,x]));
+  if(!$('#ordD').options.length) $('#ordD').innerHTML=D.depts.map(x=>`<option value="${x.id}">${x.icon} ${esc(x.name)} — 다음 출근 ${nextRun(x.when)} 뒤</option>`).join('');
+  const OR=(D.orders||[]).slice().reverse();
+  $('#ordL').innerHTML=OR.length?OR.map(o=>{const x=DN[o.dept]||{icon:'📄',name:o.dept,color:'#888'};return `<div class="li" style="cursor:default"><span style="color:${x.color};white-space:nowrap">${x.icon} ${esc(x.name)}</span><span style="flex:1;${o.done?'color:var(--dim)':''}">${esc(o.text)}</span><span class="tag ${o.done?'승인':'대기'}">${o.done?'완료':'대기'}</span>${o.done?'':`<span class="tdb"><button title="지시 취소" onclick="ordDel(${(D.orders||[]).indexOf(o)},this)">🗑</button></span>`}</div>`}).join(''):'<div class="empty">아직 지시가 없어요</div>';
   $('#feed').innerHTML=D.feed.length?D.feed.slice(0,15).map(f=>{const x=dn[f.dept]||{icon:'📄',name:f.dept,color:'#888'};return `<div class="li"><time>${f.date.slice(5)}</time><span style="color:${x.color}">${x.icon} ${esc(x.name)}</span><span style="color:#b7c3e0">${esc(f.gist)}</span></div>`}).join(''):'<div class="empty">아직 활동 없음</div>';
 }
 // 간단 마크다운
@@ -301,6 +313,14 @@ function openItem(t,id){const z=D[t].find(q=>q.id===id);$('#mT').textContent=`${
   $('#mC').innerHTML=act+mdr(z.post?z.text.replace(/```threads[\s\S]*?```/,''):z.text);$('#md').classList.add('on');}
 async function cp(t,id,b){const z=D[t].find(q=>q.id===id);try{await navigator.clipboard.writeText(z.post);b.textContent='✅ 복사됨';}catch(e){b.textContent='길게 눌러 복사하세요';}}
 function closeM(){$('#md').classList.remove('on')}
+async function ceoPost(url,body,btn,ok){ if(btn)btn.disabled=true;
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(btn)btn.disabled=false;
+  if(r.status===401) return askCode(()=>ceoPost(url,body,btn,ok));
+  const j=await r.json().catch(()=>({})); if(j.ok){toast(ok);load();} else toast('처리 실패: '+(j.error||r.status)); }
+function todoAct(a,i,b){ceoPost('/api/hq/todo',{action:a,text:D.todo[i].text},b,a==='delete'?'삭제했어요':'완료로 표시했어요');}
+function ordDel(i,b){ceoPost('/api/hq/order-del',{text:D.orders[i].raw},b,'지시를 취소했어요');}
+function sendOrder(b){const t=$('#ordT').value.trim();if(!t)return toast('지시 내용을 적어주세요');const d=$('#ordD').value;ceoPost('/api/hq/order',{dept:d,text:t},b,'지시를 보냈어요 — '+(D.depts.find(x=>x.id===d)||{}).name+'가 다음 출근 때 먼저 처리해요');$('#ordT').value='';}
 async function dec(no,decision,option,btn){
   const box=btn.closest('.dec'); if(box)box.style.opacity=.5;
   let r=await fetch('/api/hq/decide',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({no,decision,option})});
@@ -322,7 +342,7 @@ $('#md').addEventListener('click',e=>{if(e.target.id==='md')closeM()});
 function setView(v){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#vOrg').hidden=v!=='org';$('#vBoard').hidden=v!=='board';}
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 function tick(){const k=kst();$('#clk').textContent=`${pad(k.h)}시 ${pad(k.m)}분 ${pad(k.s)}초`;}
-async function load(){try{const r=await fetch('/api/hq',{cache:'no-store'});D=await r.json();render();$('#upd').textContent='갱신 '+new Date().toLocaleTimeString('ko-KR');}catch(e){$('#floorMsg').textContent='서버 연결 대기 중… (무료 서버가 깨어나는 데 1분쯤 걸릴 수 있어요)';}}
+async function load(){try{const r=await fetch('/api/hq',{cache:'no-store'});D=await r.json();render();$('#upd').textContent='갱신 '+new Date().toLocaleTimeString('ko-KR');}catch(e){console.error(e);$('#floorMsg').textContent='서버 연결 대기 중… (무료 서버가 깨어나는 데 1분쯤 걸릴 수 있어요)';}}
 tick();setInterval(tick,1000);load();setInterval(load,60000);setInterval(()=>D&&render(),30000);
 </script>
 </body>
