@@ -72,8 +72,8 @@ const EVENTS = [
         S.cash = r2(S.cash - b.p * .1);
         S.props.push({ uid: S.uid++, vb: true, vname: b.n + ' (무순위)', vgu: b.gu, kind: 'bun', total: b.p, base: b.p, G0: S.G, prem: rnd(1.3, 1.6), mv: yearOf() + 2, buyT: S.t, loan: 0, musun: true, resaleOk: rules().bunResale });
         return `🍀 무순위 당첨! 계약금 ${won(b.p * .1)}을 냈습니다. ${yearOf() + 2}년 입주 예정. 입주 때 중도금 상환·잔금으로 약 ${won(b.p * .9)}(대출 포함)이 필요해요.`; } }, { l: '안 넣는다', f: () => '넘겼습니다.' }] }; } },
-  { id: 'special', w: () => (S.married >= 0 || S.kids.length) && isHomeless() ? 2 : 0, run: () => ({ cat: '청약', t: '특별공급 자격 발생', d: '신혼부부·다자녀 특별공급 자격이 생겼습니다. 다음 청약에서 당첨 확률이 크게 오릅니다.',
-    ch: [{ l: '좋아!', f: () => { S.married = Math.max(S.married, S.t - 1); return '특별공급 대상자로 등록했습니다.'; } }] }) },
+  { id: 'special', w: () => !S.flags.special && (S.married >= 0 || S.kids.length) && isHomeless() ? 2 : 0, run: () => ({ cat: '청약', t: '특별공급 자격 발생', d: '신혼부부·다자녀 특별공급 자격이 생겼습니다. 다음 청약에서 당첨 확률이 크게 오릅니다.',
+    ch: [{ l: '좋아!', f: () => { S.flags.special = 1; return '특별공급 대상자로 등록했습니다.'; } }] }) },
   // ── 구축 ──
   { id: 'leak', w: () => ownsOld().length ? 4 : 0, run: () => { const p = pick(ownsOld()), c = r2(rnd(.03, .08)); return { cat: '구축', t: '누수 발견', d: `${aptName(p)} 욕실 천장에서 물이 샙니다. 아랫집에서 연락이 왔습니다. 수리비 ${won(c)}.`,
     ch: [{ l: '바로 수리한다', f: () => { payOrCredit(c); return `수리비 ${won(c)}을 냈습니다. 아랫집과 관계는 지켰습니다.`; } }, { l: '보험 처리 알아본다', f: () => { payOrCredit(c * .5); S.happy -= 4; return `절반은 보험으로 처리했지만, 몇 주간 공사로 스트레스를 받았습니다.`; } }] }; } },
@@ -130,17 +130,17 @@ const EVENTS = [
     ch: [{ l: '보태 드린다', ok: () => S.cash >= .5, f: () => { S.cash = r2(S.cash - .5); S.parentsHelp = true; S.happy += 6; return '부모님이 한시름 놓으셨습니다. 청약 부양가족 점수도 오릅니다.'; } }, { l: '지금은 어렵다고 말씀드린다', f: () => { S.happy -= 5; return '마음이 무겁습니다.'; } }] }) },
   { id: 'bonus', w: () => 2, run: () => ({ cat: '인생', t: '성과급', d: '회사 실적이 좋아 성과급이 나왔습니다.', ch: [{ l: '저축한다', f: () => { const b = r2(S.salary * .15); S.cash = r2(S.cash + b); return `${won(b)}을 모았습니다.`; } }, { l: '가족 여행을 간다', f: () => { const b = r2(S.salary * .15); S.cash = r2(S.cash + b * .4); S.happy += 8; return '오랜만에 푹 쉬었습니다.'; } }] }) },
   // ── 노동·건강 ──
-  { id: 'bigco', w: () => !S.biz && S.career >= 3 && ageOf() < 45 ? 3 : 0, run: () => ({ cat: '노동', t: '대기업 경력직 합격!', d: '본업에 집중하며 쌓은 경력 덕분에 대기업 경력직 공채에 붙었습니다. 연봉이 40% 오르지만 업무 강도도 셉니다.',
-    ch: [{ l: '옮긴다', s: '연봉 +40% · 체력 −10', f: () => { S.salary = r2(S.salary * 1.4); S.hp = clamp(S.hp - 10, 0, 100); S.career = 0; return `연봉이 ${won(S.salary)}이 됐습니다!`; } }, { l: '지금 회사에 남는다', f: () => { S.happy += 3; return '익숙한 동료들과 계속 일하기로 했습니다.'; } }] }) },
+  { id: 'bigco', w: () => !S.flags.bigco && !S.biz && S.career >= 3 && ageOf() < 45 ? 3 : 0, run: () => ({ cat: '노동', t: '대기업 경력직 합격!', d: '본업에 집중하며 쌓은 경력 덕분에 대기업 경력직 공채에 붙었습니다. 연봉이 40% 오르지만 업무 강도도 셉니다.',
+    ch: [{ l: '옮긴다', s: '연봉 +40% · 체력 −10', f: () => { S.flags.bigco = 1; S.salary = r2(S.salary * 1.4); S.hp = clamp(S.hp - 10, 0, 100); S.career = 0; return `연봉이 ${won(S.salary)}이 됐습니다!`; } }, { l: '지금 회사에 남는다', f: () => { S.flags.bigco = 1; S.happy += 3; return '익숙한 동료들과 계속 일하기로 했습니다.'; } }] }) },
   { id: 'promoMiss', w: () => !S.biz && S.w.two + S.w.three >= 3 && S.career === 0 ? 2.5 : 0, run: () => ({ cat: '노동', t: '승진 누락', d: '부업에 지친 티가 났던 걸까요. 이번 승진 명단에 이름이 없습니다. 동기가 팀장이 됐습니다.',
     ch: [{ l: '이직을 알아본다', f: () => { if (Math.random() < .5) { S.salary = r2(S.salary * 1.12); return `이직에 성공해 연봉 ${won(S.salary)}.`; } S.happy -= 4; return '마땅한 자리가 없었습니다.'; } }, { l: '본업에 다시 집중하겠다고 다짐한다', f: () => { S.plan.work = 'main'; S.happy -= 3; return '다음 반기는 본업에 집중하도록 바꿨습니다.'; } }] }) },
   { id: 'faint', w: () => S.hp < 35 ? 5 : 0, run: () => ({ cat: '건강', t: '야근하다 쓰러짐', d: '사무실에서 눈앞이 하얘졌습니다. 정신을 차려 보니 응급실입니다. 의사는 최소 한 달은 쉬라고 합니다.',
     ch: [{ l: '의사 말대로 쉰다', s: '병원비 · 월급 일부 감소 · 체력 회복', f: () => { const c = r2(.02 + S.salary * .08); S.cash = r2(S.cash - c); S.hp = clamp(S.hp + 35, 0, 100); S.plan.work = S.biz ? 'bizlite' : 'rest'; return `병원비와 휴직으로 ${won(c)}이 나갔지만 체력이 ${S.hp}까지 회복됐습니다.`; } },
       { l: '진통제 먹고 바로 복귀한다', s: '돈은 지키지만 위험', f: () => { S.hp = clamp(S.hp - 5, 0, 100); S.overwarn++; return `과로 경고 ${S.overwarn}/2. 몸이 계속 신호를 보냅니다.`; } }] }) },
-  { id: 'blog', w: () => !S.passive && S.t > 4 ? 1.5 : 0, run: () => ({ cat: '부업', t: '블로그 수익화 성공', d: '틈틈이 쓰던 부동산 공부 블로그에 광고 수익이 붙기 시작했습니다. 조금씩이지만 매달 돈이 들어옵니다.',
-    ch: [{ l: '꾸준히 써 본다', s: '자동 부수입 · 체력 −3', f: () => { S.passive = .012; S.hp = clamp(S.hp - 3, 0, 100); return '반기마다 약 120만 원의 부수입이 생겼습니다.'; } }, { l: '귀찮다, 접는다', f: () => '블로그를 닫았습니다.' }] }) },
-  { id: 'store', w: () => !S.biz && S.t > 3 && S.cash >= .1 ? 1.5 : 0, run: () => ({ cat: '부업', t: '스마트스토어 창업 제안', d: '친구가 같이 온라인 쇼핑몰을 해 보자고 합니다. 1,000만 원이 들고, 잘되면 쏠쏠한 부수입이 됩니다.',
-    ch: [{ l: '해 본다', s: '1,000만 원 · 성공 확률 40%', f: () => { S.cash = r2(S.cash - .1); S.hp = clamp(S.hp - 8, 0, 100); if (Math.random() < .4) { S.passive = r2((S.passive || 0) + .04); return '대박! 반기마다 약 400만 원이 들어옵니다.'; } return '재고만 쌓였습니다. 1,000만 원을 잃었습니다.'; } }, { l: '거절한다', f: () => '본업에 집중하기로 했습니다.' }] }) },
+  { id: 'blog', w: () => !S.flags.blog && !S.passive && S.t > 4 ? 1.5 : 0, run: () => ({ cat: '부업', t: '블로그 수익화 성공', d: '틈틈이 쓰던 부동산 공부 블로그에 광고 수익이 붙기 시작했습니다. 조금씩이지만 매달 돈이 들어옵니다.',
+    ch: [{ l: '꾸준히 써 본다', s: '자동 부수입 · 체력 −3', f: () => { S.flags.blog = 1; S.passive = .012; S.hp = clamp(S.hp - 3, 0, 100); return '반기마다 약 120만 원의 부수입이 생겼습니다.'; } }, { l: '귀찮다, 접는다', f: () => { S.flags.blog = 1; return '블로그를 닫았습니다.'; } }] }) },
+  { id: 'store', w: () => !S.flags.store && !S.biz && S.t > 3 && S.cash >= .1 ? 1.5 : 0, run: () => ({ cat: '부업', t: '스마트스토어 창업 제안', d: '친구가 같이 온라인 쇼핑몰을 해 보자고 합니다. 1,000만 원이 들고, 잘되면 쏠쏠한 부수입이 됩니다.',
+    ch: [{ l: '해 본다', s: '1,000만 원 · 성공 확률 40%', f: () => { S.flags.store = 1; S.cash = r2(S.cash - .1); S.hp = clamp(S.hp - 8, 0, 100); if (Math.random() < .4) { S.passive = r2((S.passive || 0) + .04); return '대박! 반기마다 약 400만 원이 들어옵니다.'; } return '재고만 쌓였습니다. 1,000만 원을 잃었습니다.'; } }, { l: '거절한다', f: () => { S.flags.store = 1; return '본업에 집중하기로 했습니다.'; } }] }) },
   { id: 'deliveryBoom', w: () => S.plan.work === 'two' || S.plan.work === 'three' ? 2 : 0, run: () => ({ cat: '부업', t: '배달 부업 대박', d: '비 오는 연휴, 배달 단가가 두 배로 뛰었습니다. 오늘 밤 나가면 크게 벌 수 있습니다.',
     ch: [{ l: '나간다', s: '+300만 원 · 체력 −10', f: () => { S.cash = r2(S.cash + .03); S.st.sideEarn += .03; S.hp = clamp(S.hp - 10, 0, 100); return '하룻밤에 300만 원을 벌었습니다. 다리가 후들거립니다.'; } }, { l: '쉰다', f: () => { S.hp = clamp(S.hp + 5, 0, 100); return '따뜻한 이불 속에서 푹 잤습니다.'; } }] }) },
   // ── 주식 ──
@@ -191,11 +191,12 @@ const BUNPREP = { id: 'bunPrep', w: () => 0, run: () => {
   if (!p) return { cat: '분양권', t: '입주 준비', d: '입주를 앞둔 분양권이 없습니다.', ch: [{ l: '확인', f: () => '확인했습니다.' }] };
   const R = rules(), q = bunNeed(p), short = r2(Math.max(0, q.cashNeed - S.cash)), shortT = r2(Math.max(0, q.cashNeedT - S.cash));
   const room = r2(Math.max(0, Math.min(1.5, income() * 1.2) - S.credit)), canSell = R.bunResale || p.resaleOk;
+  const take = r2(Math.min(room, short + .05)); // 카드에 적는 금액 = 실제로 빌리는 금액 (BUG-20261122-2)
   return { cat: '분양권', t: `${aptName(p)} 입주 1년 전 — 잔금 준비`, d: `${p.mv}년 입주 때 중도금 상환·잔금·취득세로 약 ${won(q.need)}이 필요합니다. 지금 규제 기준 잔금대출 한도는 ${won(q.lim.max)}(${q.lim.why})라서 내 현금 ${won(q.cashNeed)}이 있어야 해요. ${short > 0 ? `지금 현금 ${won(Math.max(0, S.cash))} → ${won(short)} 부족합니다. 이대로 입주 때까지 못 메우면 ${canSell ? '급매로 넘기게' : '계약이 해지되고 계약금을 잃게'} 됩니다.` : '지금 현금이면 잔금을 낼 수 있어요. 큰돈은 쓰지 말고 지켜 두세요.'}`,
     ch: [
       { l: '🔑 세입자를 받아 보증금으로 잔금을 낸다', s: R.gap ? `예상 전세보증금 ${won(q.dep)} · 내 현금 ${won(q.cashNeedT)} 필요${shortT > 0 ? ` (${won(shortT)} 부족)` : ''} · 나는 지금 집에 계속 거주` : '현 규제에서는 전세 끼고 잔금 치르기가 막혀 있어요', ok: () => R.gap && q.cashNeedT < q.cashNeed, f: () => { p.rentOut = true; return `입주 때 세입자를 받기로 했습니다. 보증금 약 ${won(q.dep)}으로 잔금을 치르고, 나는 지금 집에 그대로 삽니다.`; } },
       { l: '📄 지금 분양권을 판다', s: canSell ? `예상 시세 ${won(q.v)} · 계약금·프리미엄을 돌려받음` : '전매 제한으로 팔 수 없어요', ok: () => canSell, f: () => { const c0 = S.cash; sellProp(p); return `${aptName(p)} 분양권을 팔았습니다. ${won(r2(S.cash - c0))}이 들어왔습니다.`; } },
-      { l: '🤝 가족 도움·신용대출로 메운다', s: room > .04 ? `신용대출 최대 ${won(Math.min(room, Math.max(short, .1)))} · 행복 −8 · 이자 부담` : '신용대출 한도가 없어요', ok: () => short > 0 && room > .04, f: () => { const take = r2(Math.min(room, short + .05)); S.credit = r2(S.credit + take); S.cash = r2(S.cash + take); S.happy = clamp(S.happy - 8, 0, 100); return `부모님께 손을 벌리고 신용대출 ${won(take)}을 받았습니다. 마음이 무겁지만 잔금은 지킬 수 있을 것 같아요.${take < short ? ` 그래도 ${won(r2(short - take))}은 더 모아야 합니다.` : ''}`; } },
+      { l: '🤝 가족 도움·신용대출로 메운다', s: room > .04 ? `신용대출 ${won(take)} · 행복 −8 · 이자 부담` : '신용대출 한도가 없어요', ok: () => short > 0 && room > .04, f: () => { S.credit = r2(S.credit + take); S.cash = r2(S.cash + take); S.happy = clamp(S.happy - 8, 0, 100); return `부모님께 손을 벌리고 신용대출 ${won(take)}을 받았습니다. 마음이 무겁지만 잔금은 지킬 수 있을 것 같아요.${take < short ? ` 그래도 ${won(r2(short - take))}은 더 모아야 합니다.` : ''}`; } },
       { l: '그대로 간다', s: short > 0 ? '1년 동안 직접 모아 본다' : '잔금 준비 완료', f: () => short > 0 ? `1년 안에 ${won(short)}을 더 모아야 합니다. 큰 지출은 미뤄 두세요.` : '잔금 준비는 끝났습니다. 새 아파트 입주만 기다리면 돼요.' },
     ] };
 } };

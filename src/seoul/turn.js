@@ -102,7 +102,8 @@ function endingCands() {
     if (S.st.crisisStkLoss >= 1) C.push('e21');
     if (stockValue() >= 1 && S.G >= S.Gh[0] * 1.4) C.push('e24');
     if (S.flags.ipjLong && S.props.some(p => p.kind === 'ipj')) C.push('e27');
-    C.push('e29');
+    // 집을 산 적이 있으면 '20년 동안 집을 사지 못함'(e29)이 아니라 첫 집 장만(e1)으로 (D-001 ②, BUG-20261121-2)
+    C.push(S.everOwned ? 'e1' : 'e29');
   }
   return C;
 }
