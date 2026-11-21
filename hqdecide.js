@@ -63,6 +63,25 @@ function cookies(rq) { const o = {}; (rq.headers.cookie || '').split(';').forEac
 function isOwner(rq) { const v = cookies(rq).apt_ceo || ''; const [t, s] = v.split('.'); return !!(t && s && sign(t) === s); }
 function ownerHash() { try { return JSON.parse(fs.readFileSync(OWNER_FILE, 'utf8')).sha256 || ''; } catch (e) { return ''; } }
 
+/* ---------- 상황판 로그인 (ID·비밀번호) ----------
+   HQ_LOGIN 환경변수: "아이디:솔트(hex):scrypt해시(hex)" — 비밀번호 원문은 어디에도 저장하지 않는다. */
+function checkLogin(id, pw) {
+  const v = process.env.HQ_LOGIN || ''; const [uid, salt, hash] = v.split(':');
+  if (!uid || !salt || !hash || String(id).trim() !== uid) return false;
+  const h = crypto.scryptSync(String(pw), Buffer.from(salt, 'hex'), 32, { N: 16384, r: 8, p: 1 });
+  return crypto.timingSafeEqual(h, Buffer.from(hash, 'hex'));
+}
+function setOwner(res) { const t = Date.now().toString(36); res.setHeader('Set-Cookie', `apt_ceo=${t}.${sign(t)}; Max-Age=${30 * 86400}; Path=/; HttpOnly; Secure; SameSite=Lax`); }
+const LOGIN_HTML = `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>AGENT HQ · 로그인</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#070b14;color:#e6ecff;font:15px system-ui,'Noto Sans KR',sans-serif}form{width:min(340px,90vw);background:#0d1424;border:1px solid #1e2a44;border-radius:16px;padding:26px}h1{font:800 18px ui-monospace,monospace;letter-spacing:2px;margin:0 0 4px}p{color:#7d8bab;font-size:12px;margin:0 0 18px}input{width:100%;box-sizing:border-box;margin:6px 0;padding:12px;border-radius:10px;border:1px solid #1e2a44;background:#0a1120;color:#e6ecff;font-size:15px}button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:10px;background:#2ee6a6;color:#04140e;font-weight:800;font-size:15px;cursor:pointer}#e{color:#ff5d6c;font-size:12px;min-height:16px;margin-top:8px}</style></head>
+<body><form id="f"><h1>🏢 AGENT HQ</h1><p>부동산공화국 게임즈 · 대표 전용</p><input id="i" placeholder="아이디" autocomplete="username"><input id="w" type="password" placeholder="비밀번호" autocomplete="current-password"><button>로그인</button><div id="e"></div></form>
+<script>document.getElementById('f').onsubmit=async e=>{e.preventDefault();const r=await fetch('/api/hq/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:document.getElementById('i').value,pw:document.getElementById('w').value})});if(r.ok)location.href='/hq/';else{const j=await r.json().catch(()=>({}));document.getElementById('e').textContent=j.error||'로그인 실패';}};</script></body></html>`;
+function gate(rq, res, p) { // /hq/ 페이지와 /api/hq 데이터는 로그인한 사람만
+  if (isOwner(rq)) return false;
+  if (p === '/api/hq') { json(res, 401, { error: 'login' }); return true; }
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' }); res.end(LOGIN_HTML); return true;
+}
+
 /* ---------- 결재 기록 ---------- */
 const LABEL = { approve: '승인', reject: '반려' };
 async function decide(no, decision, option) {
@@ -114,6 +133,16 @@ const json = (res, code, o) => { res.writeHead(code, { 'Content-Type': 'applicat
 
 async function handle(rq, res, url) {
   const p = url.pathname;
+  if (p === '/api/hq/login' && rq.method === 'POST') {
+    const ip = (rq.headers['x-forwarded-for'] || '').split(',')[0] || rq.socket.remoteAddress;
+    const n = (tries.get(ip) || 0) + 1; tries.set(ip, n); setTimeout(() => tries.delete(ip), 15 * 60e3).unref();
+    if (n > 8) return json(res, 429, { error: '여러 번 틀려서 15분 뒤에 다시 시도해 주세요' }), true;
+    const b = await readBody(rq);
+    if (!process.env.HQ_LOGIN) return json(res, 503, { error: '로그인 설정 준비 중' }), true;
+    if (!checkLogin(b.id || '', b.pw || '')) return json(res, 403, { error: '아이디 또는 비밀번호가 맞지 않아요' }), true;
+    tries.delete(ip); setOwner(res); return json(res, 200, { ok: true }), true;
+  }
+  if (p === '/api/hq/logout') { res.setHeader('Set-Cookie', 'apt_ceo=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax'); res.writeHead(302, { Location: '/hq/' }); res.end(); return true; }
   if (p === '/api/hq/owner' && rq.method === 'POST') { // 사장님 코드 확인 → 쿠키
     const ip = (rq.headers['x-forwarded-for'] || '').split(',')[0] || rq.socket.remoteAddress;
     const n = (tries.get(ip) || 0) + 1; tries.set(ip, n); if (n > 8) return json(res, 429, { error: '잠시 후 다시 시도해 주세요' }), true;
@@ -143,4 +172,4 @@ async function handle(rq, res, url) {
 }
 function status(rq) { return { owner: isOwner(rq), canWrite, overlay }; }
 function start() { check().catch(() => { canWrite = false; }); }
-module.exports = { handle, status, start };
+module.exports = { handle, status, start, gate };

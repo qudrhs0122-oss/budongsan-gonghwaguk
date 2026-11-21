@@ -298,8 +298,10 @@ const server = http.createServer(async (req, res) => {
     return res.end(pub ? `google.com, ${pub}, DIRECT, f08c47fec0942fa0\n` : 'not configured');
   }
   if (p.startsWith('/api/hq/')) { if (await hqdecide.handle(req, res, url)) return; }
+  if ((p === '/api/hq' || p.startsWith('/hq/')) && hqdecide.gate(req, res, p)) return;
   if (p.startsWith('/threads/')) { if (await threads.handle(req, res, url)) return; }
   if (p === '/api/hq') { let d; try { d = require('./company/hq.js').build(); d.threads = threads.status(); d.hq = hqdecide.status(req); } catch (e) { return json(res, 500, { error: 'hq' }); } return json(res, 200, d); }
+  if (p === '/api/threads-stats') return json(res, 200, threads.status()); // 마케팅팀용 공개 통계(게시 글 반응만)
   if (p === '/hq') { res.writeHead(301, { Location: '/hq/' }); return res.end(); }
   if (p === '/api/ping') return json(res, 200, { ok: true, online: [...clients.values()].filter(c => c.online).length, rooms: rooms.size });
   if (p === '/api/ranking') {
