@@ -39,7 +39,11 @@ function nextTurn() {
   (S.hn ??= []).push(r2(R.nw1)); (S.hs ??= []).push(stockValue()); (S.hr ??= []).push(S.rate); (S.hc ??= []).push(r2(S.cash)); for (const k of ['hn', 'hs', 'hr', 'hc']) if (S[k].length > 40) S[k].shift();
   for (const m of [...R.work.lines, ...msgs]) log(m);
   if (S.ended) return { msgs, end: true, R };
-  if (S.st.interestBad >= 4 && debtTotal() > income() * 6) { S.ended = S.biz || S.flags.bizFail ? 'e17' : 'e25'; return { msgs, end: true, R }; }
+  // 이자 부담이 2년 이어져도 실제로 돈이 바닥났거나(현금 1,000만원 미만) 순자산이 마이너스일 때만 파산 엔딩. 가진 집·권리는 경매로 넘기고 이름을 안내 (BUG-20261123-1)
+  if (S.st.interestBad >= 4 && debtTotal() > income() * 6 && (S.cash < .1 || nw() < 0)) {
+    for (const p of S.props.slice()) { const got = sellProp(p, true), m = `🚨 이자를 감당하지 못해 ${aptName(p)}이(가) 경매로 넘어갔습니다. 손에 쥔 돈 ${won(Math.max(0, got))}.`; msgs.push(m); log(m); }
+    S.flags.forcedSale = true; S.ended = S.biz || S.flags.bizFail ? 'e17' : 'e25'; return { msgs, end: true, R };
+  }
   if (S.t >= MAXT) { S.ended = chooseEnding(); return { msgs, end: true, R }; }
   let e = null;
   if (S.gradT && S.t >= S.gradT) { S.gradT = 0; S.salary = r2(S.salary * 1.25); log(`🎓 대학원을 졸업했습니다! 연봉이 ${won(S.salary)}으로 올랐습니다.`); }
