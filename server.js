@@ -334,5 +334,25 @@ const server = http.createServer(async (req, res) => {
 
 process.on('uncaughtException', e => console.error('uncaught', e));
 hqdecide.start();
+// 통계·랭킹 영구 보관: 시작 때 aptgame-data에서 복원, 30분마다 저장. 운영팀용 요약은 게임 저장소 company/live/stats.json
+(async () => {
+  try {
+    const st = await hqdecide.loadData('live/stats.json');
+    if (st && typeof st === 'object') for (const [d, day] of Object.entries(st)) { stats[d] = stats[d] || {}; for (const [g, gg] of Object.entries(day || {})) { stats[d][g] = stats[d][g] || {}; for (const [k, v] of Object.entries(gg || {})) stats[d][g][k] = Math.max(stats[d][g][k] || 0, +v || 0); } }
+    const rk = await hqdecide.loadData('live/ranking.json');
+    if (rk && rk.w === weekKey() && (!ranking.p || !Object.keys(ranking.p).length)) ranking = rk;
+  } catch (e) { console.error('live restore', e.message); }
+})();
+async function liveSave() {
+  try {
+    await hqdecide.saveData('live/stats.json', stats, 'stats');
+    await hqdecide.saveData('live/ranking.json', ranking, 'ranking');
+    const days = Object.keys(stats).sort().slice(-14), now = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace('T', ' ');
+    const th = threads.status();
+    const snap = { 생성: now + ' KST', 설명: 'aptgame.kr 서버가 30분마다 자동으로 남기는 운영 요약 (가동 중이면 생성 시각이 계속 갱신됨)', 서버가동: true, 일별통계: Object.fromEntries(days.map(d => [d, stats[d]])), 이번주랭킹참가자: Object.keys((rankNow().p) || {}).length, 스레드: { 연결: th.connected, 게시: Object.entries(th.posted || {}).map(([id, v]) => ({ id, at: v.at, url: v.url, 반응: v.stat })) } };
+    await hqdecide.saveMain('company/live/stats.json', JSON.stringify(snap, null, 1), '[서버] 운영 요약');
+  } catch (e) { console.error('live save', e.message); }
+}
+setInterval(liveSave, 30 * 60e3); setTimeout(liveSave, 90e3);
 threads.start().catch(e => console.error('threads', e.message));
 accounts.load().then(() => server.listen(PORT, () => console.log(`부동산 공화국 서버 실행 중: http://localhost:${PORT}`)));

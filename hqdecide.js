@@ -132,7 +132,15 @@ async function decide(no, decision, option) {
   return { ...r, status: st };
 }
 const DEPTS = ['qa', 'dev', 'ops', 'briefing', 'marketing', 'revenue', 'planning', 'release', 'finance'];
-const todo = (action, text) => act({ t: Date.now(), type: 'todo', action, text });
+async function todo(action, text) {
+  const r = await act({ t: Date.now(), type: 'todo', action, text });
+  if (r.ok && action === 'done') { // 사장님이 끝낸 일은 담당 부서로 다시 넘김 (👉 (부서) 표시, 없으면 경영지원실)
+    const dept = (text.match(/👉\s*\((\w+)\)/) || [])[1] || 'briefing';
+    const label = text.replace(/\s*(🔗|📄|👉)\s*\S+/g, '').slice(0, 120);
+    await order(DEPTS.includes(dept) ? dept : 'briefing', `사장님이 「${label}」 완료함 → 확인하고 이어서 처리`);
+  }
+  return r;
+}
 function order(dept, text) {
   const clean = String(text).replace(/[\r\n]+/g, ' ').replace(/\|/g, '/').trim().slice(0, 500);
   if (!clean) return { ok: false, error: '내용이 비었어요' };
@@ -184,4 +192,24 @@ async function handle(rq, res, url) {
 }
 function status(rq) { return { owner: isOwner(rq), canWrite: !!(GH_TOKEN && DATA_REPO), mirrorOk, overlay }; }
 function start() { check().catch(() => { canWrite = false; }); loadActions().catch(e => console.error('hq actions', e.message)); }
-module.exports = { handle, status, start, gate };
+/* ---------- 서버 데이터 영구 보관 (Render 재배포 때 로컬 파일이 지워지므로) ---------- */
+async function loadData(rel) {
+  if (!GH_TOKEN || !DATA_REPO) return null;
+  const r = await req('GET', `/repos/${DATA_REPO}/contents/${rel}?ref=${DATA_BRANCH}`);
+  if (r.status !== 200 || !r.j) return null; try { return JSON.parse(Buffer.from(r.j.content, 'base64').toString('utf8')); } catch (e) { return null; }
+}
+const dataSha = {};
+async function saveData(rel, obj, msg) {
+  if (!GH_TOKEN || !DATA_REPO) return false;
+  for (let i = 0; i < 2; i++) {
+    if (!dataSha[rel]) { const g = await req('GET', `/repos/${DATA_REPO}/contents/${rel}?ref=${DATA_BRANCH}`); if (g.j && g.j.sha) dataSha[rel] = g.j.sha; }
+    const r = await req('PUT', `/repos/${DATA_REPO}/contents/${rel}`, { message: msg || 'data', content: Buffer.from(JSON.stringify(obj)).toString('base64'), branch: DATA_BRANCH, ...(dataSha[rel] ? { sha: dataSha[rel] } : {}) });
+    if (r.status === 200 || r.status === 201) { dataSha[rel] = r.j.content.sha; return true; }
+    dataSha[rel] = null;
+  }
+  return false;
+}
+// 게임 저장소(공개)에 운영용 요약 파일 쓰기 — GH_TOKEN에 게임 저장소 쓰기 권한이 있어야 성공
+async function saveMain(rel, text, msg) { const f = await getFile(rel); if (f && f.text === text) return true; const ok = await putFile(rel, text, f && f.sha, msg + ' [skip render]'); mirrorOk = ok; return ok; }
+
+module.exports = { handle, status, start, gate, loadData, saveData, saveMain };

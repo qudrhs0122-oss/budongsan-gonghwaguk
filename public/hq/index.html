@@ -240,7 +240,7 @@ function render(){
     <span class="st ${pend?'STANDBY':'ACTIVE'}">${pend?'APPROVAL NEEDED':'ALL CLEAR'}</span>
     <div class="mini"><div><b>${open}</b><small>열린 버그</small></div><div><b>${D.proposals.length}</b><small>기획안</small></div><div><b>${D.marketing.length}</b><small>홍보 초안</small></div></div>
     <div class="dk" style="--dc:#ffd166"><span>사장님 직접 해야 하는 일</span><b>${D.todo.filter(t=>!t.done).length}건</b></div>
-    ${D.todo.filter(t=>!t.done).map((t,i)=>{const n=D.todo.indexOf(t);return `<div class="desk" style="align-items:flex-start"><div class="av">✍️</div><p><span style="color:#d7def0">${esc(t.label||t.text)}</span><span class="tdl">${t.link?`<a href="${esc(t.link)}" target="_blank" rel="noopener">🔗 바로 열기</a>`:''}${t.doc?`<a href="#" onclick="howto(${n});return false">📄 방법 보기·복사</a>`:''}</span></p><span class="tdb"><button title="완료" onclick="todoAct('done',${n},this)">✅</button><button title="삭제" onclick="todoAct('delete',${n},this)">🗑</button></span></div>`}).join('')}
+    ${D.todo.filter(t=>!t.done).map((t,i)=>{const n=D.todo.indexOf(t);return `<div class="desk" style="align-items:flex-start"><div class="av">✍️</div><p><span style="color:#d7def0">${esc(t.label||t.text)}</span><span class="tdl">${t.link?`<a href="${esc(t.link)}" target="_blank" rel="noopener">🔗 바로 열기</a>`:''}${t.doc?`<a href="#" onclick="howto(${n});return false">📄 방법 보기·복사</a>`:''}${t.owner?`<span style="font-size:11px;color:var(--mu);align-self:center">✅ 누르면 → ${esc((D.depts.find(x=>x.id===t.owner)||{name:t.owner}).name)}가 이어받음</span>`:''}</span></p><span class="tdb"><button title="완료" onclick="todoAct('done',${n},this)">✅</button><button title="삭제" onclick="todoAct('delete',${n},this)">🗑</button></span></div>`}).join('')}
     ${D.todo.some(t=>t.done)?`<details style="margin:4px 0 6px"><summary style="font-size:11px;color:var(--mu);cursor:pointer">완료한 일 ${D.todo.filter(t=>t.done).length}건</summary>${D.todo.filter(t=>t.done).map(t=>`<div class="desk"><div class="av on">✅</div><p><span style="color:var(--dim);text-decoration:line-through">${esc(t.text)}</span></p><span class="tdb"><button title="삭제" onclick="todoAct('delete',${D.todo.indexOf(t)},this)">🗑</button></span></div>`).join('')}</details>`:''}
     <div class="hint">그 외엔 결재함의 <b>승인 버튼</b>만 누르면 돼요. 부서에 시킬 일은 업무 보드의 <b>📮 대표 지시사항</b>에 적으세요.</div>
     <div style="height:10px"></div><button class="go" onclick="setView('board')"><span>결재함 열기</span><span>↗</span></button></div>`;
@@ -332,7 +332,7 @@ async function ceoPost(url,body,btn,ok){ if(btn)btn.disabled=true;
   if(btn)btn.disabled=false;
   if(r.status===401) return askCode(()=>ceoPost(url,body,btn,ok));
   const j=await r.json().catch(()=>({})); if(j.ok){toast(ok);load();} else toast('처리 실패: '+(j.error||r.status)); }
-function todoAct(a,i,b){ceoPost('/api/hq/todo',{action:a,text:D.todo[i].text},b,a==='delete'?'삭제했어요':'완료로 표시했어요');}
+function todoAct(a,i,b){const t=D.todo[i],dn=(D.depts.find(x=>x.id===(t.owner||'briefing'))||{}).name||'경영지원실';ceoPost('/api/hq/todo',{action:a,text:t.text},b,a==='delete'?'삭제했어요':`완료! ${dn}에 넘겼어요 — 다음 출근 때 이어서 처리해요`);}
 function ordDel(i,b){ceoPost('/api/hq/order-del',{text:D.orders[i].raw},b,'지시를 취소했어요');}
 function sendOrder(b){const t=$('#ordT').value.trim();if(!t)return toast('지시 내용을 적어주세요');const d=$('#ordD').value;ceoPost('/api/hq/order',{dept:d,text:t},b,'지시를 보냈어요 — '+(D.depts.find(x=>x.id===d)||{}).name+'가 다음 출근 때 먼저 처리해요');$('#ordT').value='';}
 async function dec(no,decision,option,btn){

@@ -51,7 +51,7 @@ function build() {
   const todo = read(path.join(C, 'board', '사장님할일.md')).split('\n').filter(l => /^- \[[ x]\]/.test(l)).map(l => {
     const text = l.slice(6).trim(); const link = (text.match(/🔗\s*(https?:\/\/\S+)/) || [])[1] || ''; const docP = (text.match(/📄\s*(company\/board\/[\w\/.\-가-힣]+\.md)/) || [])[1] || '';
     const doc = docP ? read(path.join(C, '..', docP)).slice(0, 8000) : '';
-    return { done: l[3] === 'x', text, label: text.replace(/\s*🔗\s*\S+/, '').replace(/\s*📄\s*\S+/, '').trim(), link, doc };
+    return { done: l[3] === 'x', text, label: text.replace(/\s*(🔗|📄|👉)\s*\S+/g, '').trim(), link, doc, owner: (text.match(/👉\s*\((\w+)\)/) || [])[1] || '' };
   });
   return { now: Date.now(), ledger, costs, todo, orders, depts, bugs: items('board/bugs'), proposals: items('board/proposals'), marketing: items('board/marketing'), approvals: pend, metrics, feed, weekly: days.length };
 }
