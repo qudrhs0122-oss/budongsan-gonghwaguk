@@ -48,7 +48,11 @@ function build() {
   const csv = f => read(path.join(C, 'finance', f)).trim().split('\n').slice(1).filter(Boolean).map(l => l.split(','));
   const ledger = csv('ledger.csv').map(c => ({ date: c[0], src: c[1], period: c[2], krw: +c[3] || 0, status: c[4], memo: c.slice(5).join(',') }));
   const costs = csv('costs.csv').map(c => ({ date: c[0], item: c[1], krw: +c[2] || 0, status: c[3], memo: c.slice(4).join(',') }));
-  const todo = read(path.join(C, 'board', '사장님할일.md')).split('\n').filter(l => /^- \[[ x]\]/.test(l)).map(l => ({ done: l[3] === 'x', text: l.slice(6).trim() }));
+  const todo = read(path.join(C, 'board', '사장님할일.md')).split('\n').filter(l => /^- \[[ x]\]/.test(l)).map(l => {
+    const text = l.slice(6).trim(); const link = (text.match(/🔗\s*(https?:\/\/\S+)/) || [])[1] || ''; const docP = (text.match(/📄\s*(company\/board\/[\w\/.\-가-힣]+\.md)/) || [])[1] || '';
+    const doc = docP ? read(path.join(C, '..', docP)).slice(0, 8000) : '';
+    return { done: l[3] === 'x', text, label: text.replace(/\s*🔗\s*\S+/, '').replace(/\s*📄\s*\S+/, '').trim(), link, doc };
+  });
   return { now: Date.now(), ledger, costs, todo, orders, depts, bugs: items('board/bugs'), proposals: items('board/proposals'), marketing: items('board/marketing'), approvals: pend, metrics, feed, weekly: days.length };
 }
 

@@ -98,6 +98,8 @@ body{background:radial-gradient(1200px 600px at 10% -10%,#13204066,transparent),
 .sev.치명{background:#5d1f2a;color:#ffb3bb}.sev.높음{background:#5a3a10;color:#ffd08a}.sev.보통{background:#1e3460;color:#aac4ff}.sev.낮음{background:#1f2b3f;color:#9fb0cf}
 .empty{color:var(--dim);font-size:12px;text-align:center;padding:16px 0}
 .li{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed #1a2540;font-size:12.5px;cursor:pointer}.li:last-child{border:0}
+.tdl{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}.tdl a{font-size:12px;color:#ffd166;text-decoration:none;border:1px solid #6b4a12;border-radius:7px;padding:2px 8px}
+.cpbtn{display:block;margin:0 0 8px auto;font:700 12px 'Noto Sans KR';background:#1a2440;color:#ffd166;border:1px solid #6b4a12;border-radius:7px;padding:4px 12px;cursor:pointer}
 .tdb{display:flex;gap:4px;flex-shrink:0}.tdb button{background:#0a1120;border:1px solid var(--ln);border-radius:7px;padding:3px 6px;cursor:pointer;font-size:12px}
 .ordf{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}.ordf select,.ordf textarea{background:#0a1120;border:1px solid var(--ln);color:var(--tx);border-radius:9px;padding:9px;font:14px 'Noto Sans KR'}.ordf textarea{min-height:70px;resize:vertical}
 .apr{align-items:flex-start}.dec{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}.dec button{font:700 12px 'Noto Sans KR';border-radius:8px;padding:6px 12px;cursor:pointer;border:1px solid}.dec .ok{background:#0f2e26;border-color:#1d5a48;color:var(--ok)}.dec .no{background:transparent;border-color:#5d1f2a;color:var(--off)}
@@ -116,7 +118,7 @@ svg.chart{width:100%;height:140px;display:block}
 .mh b{font-size:15px}.mh button{white-space:nowrap;background:none;border:1px solid var(--ln);color:var(--tx);border-radius:8px;padding:4px 10px;cursor:pointer}
 .mt{display:flex;gap:6px;padding:8px 16px 0;flex-wrap:wrap}.mt button{font:600 11px var(--mono);background:#0a1120;border:1px solid var(--ln);color:var(--mu);border-radius:6px;padding:3px 8px;cursor:pointer}.mt button.on{color:var(--tx);border-color:var(--sb)}
 .mc{padding:14px 18px 20px;overflow:auto;font-size:13.5px;line-height:1.7}
-.mc h1,.mc h2,.mc h3{font-size:15px;margin:12px 0 6px}.mc h1{font-size:17px}.mc ul{padding-left:18px}.mc code{font-family:var(--mono);background:#0a1120;padding:1px 5px;border-radius:4px;font-size:12px}.mc pre{background:#0a1120;padding:10px;border-radius:8px;overflow:auto;font:12px var(--mono)}.mc table{border-collapse:collapse;font-size:12px}.mc td,.mc th{border:1px solid var(--ln);padding:3px 7px}
+.mc h1,.mc h2,.mc h3{font-size:15px;margin:12px 0 6px}.mc h1{font-size:17px}.mc ul{padding-left:18px}.mc code{font-family:var(--mono);background:#0a1120;padding:1px 5px;border-radius:4px;font-size:12px}.mc pre{background:#0a1120;padding:10px;border-radius:8px;overflow:auto;font:13px/1.6 'Noto Sans KR';white-space:pre-wrap;word-break:break-all}.mc table{border-collapse:collapse;font-size:12px}.mc td,.mc th{border:1px solid var(--ln);padding:3px 7px}
 .foot{color:var(--dim);font-size:11px;text-align:center;margin:22px 0 8px;font-family:var(--mono)}
 </style>
 </head>
@@ -238,7 +240,7 @@ function render(){
     <span class="st ${pend?'STANDBY':'ACTIVE'}">${pend?'APPROVAL NEEDED':'ALL CLEAR'}</span>
     <div class="mini"><div><b>${open}</b><small>열린 버그</small></div><div><b>${D.proposals.length}</b><small>기획안</small></div><div><b>${D.marketing.length}</b><small>홍보 초안</small></div></div>
     <div class="dk" style="--dc:#ffd166"><span>사장님 직접 해야 하는 일</span><b>${D.todo.filter(t=>!t.done).length}건</b></div>
-    ${D.todo.filter(t=>!t.done).map((t,i)=>`<div class="desk"><div class="av">✍️</div><p><span style="color:#d7def0">${esc(t.text)}</span></p><span class="tdb"><button title="완료" onclick="todoAct('done',${D.todo.indexOf(t)},this)">✅</button><button title="삭제" onclick="todoAct('delete',${D.todo.indexOf(t)},this)">🗑</button></span></div>`).join('')}
+    ${D.todo.filter(t=>!t.done).map((t,i)=>{const n=D.todo.indexOf(t);return `<div class="desk" style="align-items:flex-start"><div class="av">✍️</div><p><span style="color:#d7def0">${esc(t.label||t.text)}</span><span class="tdl">${t.link?`<a href="${esc(t.link)}" target="_blank" rel="noopener">🔗 바로 열기</a>`:''}${t.doc?`<a href="#" onclick="howto(${n});return false">📄 방법 보기·복사</a>`:''}</span></p><span class="tdb"><button title="완료" onclick="todoAct('done',${n},this)">✅</button><button title="삭제" onclick="todoAct('delete',${n},this)">🗑</button></span></div>`}).join('')}
     ${D.todo.some(t=>t.done)?`<details style="margin:4px 0 6px"><summary style="font-size:11px;color:var(--mu);cursor:pointer">완료한 일 ${D.todo.filter(t=>t.done).length}건</summary>${D.todo.filter(t=>t.done).map(t=>`<div class="desk"><div class="av on">✅</div><p><span style="color:var(--dim);text-decoration:line-through">${esc(t.text)}</span></p><span class="tdb"><button title="삭제" onclick="todoAct('delete',${D.todo.indexOf(t)},this)">🗑</button></span></div>`).join('')}</details>`:''}
     <div class="hint">그 외엔 결재함의 <b>승인 버튼</b>만 누르면 돼요. 부서에 시킬 일은 업무 보드의 <b>📮 대표 지시사항</b>에 적으세요.</div>
     <div style="height:10px"></div><button class="go" onclick="setView('board')"><span>결재함 열기</span><span>↗</span></button></div>`;
@@ -296,7 +298,7 @@ function render(){
 function mdr(t){
   const L=esc(t).split('\n');let o='',ul=false,pre=false;
   for(let l of L){
-    if(l.startsWith('```')){o+=pre?'</pre>':'<pre>';pre=!pre;continue}
+    if(l.startsWith('```')){o+=pre?'</span></pre>':'<pre><button class="cpbtn" onclick="cpPre(this)">📋 복사</button><span>';pre=!pre;continue}
     if(pre){o+=l+'\n';continue}
     const li=l.match(/^\s*[-*]\s+(.*)/);
     if(li&&!ul){o+='<ul>';ul=true}if(!li&&ul){o+='</ul>';ul=false}
@@ -323,6 +325,8 @@ function openItem(t,id){const z=D[t].find(q=>q.id===id);$('#mT').textContent=`${
   $('#mC').innerHTML=act+mdr(z.post?z.text.replace(/```threads[\s\S]*?```/,''):z.text);$('#md').classList.add('on');}
 async function cp(t,id,b){const z=D[t].find(q=>q.id===id);try{await navigator.clipboard.writeText(z.post);b.textContent='✅ 복사됨';}catch(e){b.textContent='길게 눌러 복사하세요';}}
 function closeM(){$('#md').classList.remove('on')}
+function howto(i){const t=D.todo[i];$('#mT').textContent='✍️ '+(t.label||t.text).slice(0,40);$('#mTabs').innerHTML='';$('#mC').innerHTML=(t.link?`<a class="go" style="width:auto;display:inline-flex;text-decoration:none;margin-bottom:12px;--dc:#ffd166" href="${esc(t.link)}" target="_blank" rel="noopener">🔗 바로 열기 ↗</a>`:'')+mdr(t.doc);$('#md').classList.add('on');}
+async function cpPre(b){const t=b.nextElementSibling.innerText.trim();try{await navigator.clipboard.writeText(t);b.textContent='✅ 복사됨';}catch(e){b.textContent='길게 눌러 복사';}}
 async function ceoPost(url,body,btn,ok){ if(btn)btn.disabled=true;
   const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(btn)btn.disabled=false;
