@@ -40,20 +40,27 @@ global.ENDS_=ENDS;global.LOST=[];global.WARN=[];global.run=function(strat,mode,d
       if(/분양권|입주권/.test(E.cat||'') && !S.props.some(p=>p.kind==='bun'||p.kind==='ipj')) errs.push('스토리: 분양권·입주권이 없는데 관련 이벤트 "'+E.t+'"');
       const ch=E.ch.filter(c=>!c.ok||c.ok()); if(!ch.length){errs.push('선택지 없음: '+r.ev.id);break;}
       for(const c of ch){ if(S.married>=0 && /결혼한다/.test(c.l)) errs.push('스토리: 기혼인데 "결혼한다" 선택지 ('+E.t+')'); if(/이미 .*했다면|\(.*라면\)/.test(c.l)) errs.push('스토리: 조건부 선택지 문구 노출 "'+c.l+'"'); }
-      // [스토리 정합성] 이미 선택을 마친 '한 번뿐인' 사건이 다시 나옴 (BUG-20261122-1, 경고 → 수정완료 후 오류로 승격)
-      if(r.ev.id==='special' && S.flags.qaSpecial) WARN.push('스토리: 특별공급 자격 발생이 또 나옴(이미 등록함)');
-      if(r.ev.id==='blog' && S.flags.qaBlog) WARN.push('스토리: 블로그를 접었는데 또 블로그 수익화 성공');
-      if(r.ev.id==='store' && S.flags.qaStore) WARN.push('스토리: 스마트스토어를 이미 해 봤는데 같은 창업 제안');
-      if(r.ev.id==='bigco' && S.flags.qaBigco) WARN.push('스토리: 대기업 경력직 합격이 또 나옴');
+      // [스토리 정합성] 이미 선택을 마친 '한 번뿐인' 사건이 다시 나옴 (BUG-20261122-1 수정완료 → 11/23 오류로 승격)
+      if(r.ev.id==='special' && S.flags.qaSpecial) errs.push('스토리: 특별공급 자격 발생이 또 나옴(이미 등록함)');
+      if(r.ev.id==='blog' && S.flags.qaBlog) errs.push('스토리: 블로그를 접었는데 또 블로그 수익화 성공');
+      if(r.ev.id==='store' && S.flags.qaStore) errs.push('스토리: 스마트스토어를 이미 해 봤는데 같은 창업 제안');
+      if(r.ev.id==='bigco' && S.flags.qaBigco) errs.push('스토리: 대기업 경력직 합격이 또 나옴');
+      // [사실성] 2015 모드의 실제 역사 구간(HIST)에서 임의 '기준금리 인하' 이벤트로 실제와 다른 금리가 표시됨 (BUG-20261123-3, 경고 → 수정완료 후 오류로 승격)
+      if(r.ev.id==='rateDown' && S.mode==='hist' && S.t<HIST.length) WARN.push('사실성: 2015 모드 실제 금리 구간(2015~2025년)에 가상 "기준금리 인하" 이벤트');
       if(r.ev.id==='special') S.flags.qaSpecial=1; if(r.ev.id==='blog') S.flags.qaBlog=1; if(r.ev.id==='bigco') S.flags.qaBigco=1;
-      const c=ch[Math.floor(Math.random()*ch.length)]; if(r.ev.id==='store' && /해 본다/.test(c.l)) S.flags.qaStore=1; try{c.f();}catch(e){errs.push('이벤트 '+r.ev.id+': '+e.message)} crisis(); }
+      const c=ch[Math.floor(Math.random()*ch.length)]; if(r.ev.id==='store' && /해 본다/.test(c.l)) S.flags.qaStore=1; const cr0=S.credit; try{c.f();}catch(e){errs.push('이벤트 '+r.ev.id+': '+e.message)}
+      // [화면 정합성] 잔금 준비 카드 ③ 설명에 적힌 신용대출 금액 = 실제로 늘어난 신용대출 (BUG-20261122-2 수정완료 → 11/23 오류 검사 추가)
+      if(r.ev.id==='bunPrep' && /신용대출로 메운다/.test(c.l) && c.s && !c.s.includes('신용대출 '+won(r2(S.credit-cr0)))) errs.push('화면: 잔금 준비 카드 신용대출 표시('+c.s+')와 실제('+won(r2(S.credit-cr0))+')가 다름');
+      crisis(); }
     if(wasMarried && S.married<0) errs.push('스토리: 결혼 상태가 사라짐 t='+S.t);
     if(S.kids.length<kids0) errs.push('스토리: 자녀 수가 줄어듦 t='+S.t);
     if(S.married>=0 && S.married>S.t) errs.push('스토리: 결혼 시점이 미래 t='+S.t);
   }
   if(!S.ended) errs.push('엔딩 미도달(무한루프 의심)');
-  // [스토리 정합성] 집을 산 적이 있는데 '20년 동안 서울 집을 사지 못한' 엔딩 (BUG-20261121-2)
-  if(S.ended==='e29' && S.everOwned) WARN.push("스토리: 집을 산 적 있는데 e29 서울 집값에 패배(20년 동안 집을 사지 못함) 엔딩");
+  // [스토리 정합성] 집을 산 적이 있는데 '20년 동안 서울 집을 사지 못한' 엔딩 (BUG-20261121-2 수정완료 → 11/23 오류로 승격)
+  if(S.ended==='e29' && S.everOwned) errs.push("스토리: 집을 산 적 있는데 e29 서울 집값에 패배(20년 동안 집을 사지 못함) 엔딩");
+  // [스토리 정합성] '집도 경매'(e17)·'집을 넘기던 날'(e25) 엔딩인데 끝날 때 집을 그대로 갖고 있음 (BUG-20261123-1, 경고 → 수정완료 후 오류로 승격)
+  if((S.ended==='e17'||S.ended==='e25') && S.props.some(p=>p.kind==='buy')) WARN.push('스토리: 집을 그대로 가진 채 '+S.ended+(S.ended==='e17'?' 사업 실패, 집도 경매':' 영끌의 최후(집을 넘김)')+' 엔딩'+(S.t<MAXT?' (중도 종료)':''));
   return {e:S.ended, nw:nw(), own:S.props.some(p=>p.kind==='buy'), errs};
 }`);
 const N = +(process.argv[3] || 40);
