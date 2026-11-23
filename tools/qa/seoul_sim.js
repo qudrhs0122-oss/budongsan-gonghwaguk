@@ -45,9 +45,11 @@ global.ENDS_=ENDS;global.LOST=[];global.WARN=[];global.run=function(strat,mode,d
       if(r.ev.id==='blog' && S.flags.qaBlog) errs.push('스토리: 블로그를 접었는데 또 블로그 수익화 성공');
       if(r.ev.id==='store' && S.flags.qaStore) errs.push('스토리: 스마트스토어를 이미 해 봤는데 같은 창업 제안');
       if(r.ev.id==='bigco' && S.flags.qaBigco) errs.push('스토리: 대기업 경력직 합격이 또 나옴');
-      // [사실성] 2015 모드의 실제 역사 구간(HIST)에서 임의 '기준금리 인하' 이벤트로 실제와 다른 금리가 표시됨 (BUG-20261123-3, 경고 → 수정완료 후 오류로 승격)
-      if(r.ev.id==='rateDown' && S.mode==='hist' && S.t<HIST.length) WARN.push('사실성: 2015 모드 실제 금리 구간(2015~2025년)에 가상 "기준금리 인하" 이벤트');
+      // [사실성] 2015 모드의 실제 역사 구간(HIST)에서 임의 '기준금리 인하' 이벤트로 실제와 다른 금리가 표시됨 (BUG-20261123-3 수정완료 → 11/24 오류로 승격)
+      if(r.ev.id==='rateDown' && S.mode==='hist' && S.t<HIST.length) errs.push('사실성: 2015 모드 실제 금리 구간(2015~2025년)에 가상 "기준금리 인하" 이벤트');
       if(r.ev.id==='special') S.flags.qaSpecial=1; if(r.ev.id==='blog') S.flags.qaBlog=1; if(r.ev.id==='bigco') S.flags.qaBigco=1;
+      // [스토리 정합성] 이미 집이 있는데 '집부터 마련하고 결혼하자/낳자' 선택지 (BUG-20261124-1, 경고 → 수정완료 후 오류로 승격)
+      { const hc=ch.find(c=>/집부터 마련하고/.test(c.l)); if(hc && S.props.some(p=>p.kind==='buy')) WARN.push('스토리: 집이 있는데 "'+hc.l+'" 선택지 ('+E.t+')'); }
       const c=ch[Math.floor(Math.random()*ch.length)]; if(r.ev.id==='store' && /해 본다/.test(c.l)) S.flags.qaStore=1; const cr0=S.credit; try{c.f();}catch(e){errs.push('이벤트 '+r.ev.id+': '+e.message)}
       // [화면 정합성] 잔금 준비 카드 ③ 설명에 적힌 신용대출 금액 = 실제로 늘어난 신용대출 (BUG-20261122-2 수정완료 → 11/23 오류 검사 추가)
       if(r.ev.id==='bunPrep' && /신용대출로 메운다/.test(c.l) && c.s && !c.s.includes('신용대출 '+won(r2(S.credit-cr0)))) errs.push('화면: 잔금 준비 카드 신용대출 표시('+c.s+')와 실제('+won(r2(S.credit-cr0))+')가 다름');
@@ -59,8 +61,11 @@ global.ENDS_=ENDS;global.LOST=[];global.WARN=[];global.run=function(strat,mode,d
   if(!S.ended) errs.push('엔딩 미도달(무한루프 의심)');
   // [스토리 정합성] 집을 산 적이 있는데 '20년 동안 서울 집을 사지 못한' 엔딩 (BUG-20261121-2 수정완료 → 11/23 오류로 승격)
   if(S.ended==='e29' && S.everOwned) errs.push("스토리: 집을 산 적 있는데 e29 서울 집값에 패배(20년 동안 집을 사지 못함) 엔딩");
-  // [스토리 정합성] '집도 경매'(e17)·'집을 넘기던 날'(e25) 엔딩인데 끝날 때 집을 그대로 갖고 있음 (BUG-20261123-1, 경고 → 수정완료 후 오류로 승격)
-  if((S.ended==='e17'||S.ended==='e25') && S.props.some(p=>p.kind==='buy')) WARN.push('스토리: 집을 그대로 가진 채 '+S.ended+(S.ended==='e17'?' 사업 실패, 집도 경매':' 영끌의 최후(집을 넘김)')+' 엔딩'+(S.t<MAXT?' (중도 종료)':''));
+  // [스토리 정합성] '집도 경매'(e17)·'집을 넘기던 날'(e25) 엔딩인데 끝날 때 집을 그대로 갖고 있음 (BUG-20261123-1 수정완료 → 11/24 오류로 승격)
+  if((S.ended==='e17'||S.ended==='e25') && S.props.some(p=>p.kind==='buy')) errs.push('스토리: 집을 그대로 가진 채 '+S.ended+(S.ended==='e17'?' 사업 실패, 집도 경매':' 영끌의 최후(집을 넘김)')+' 엔딩'+(S.t<MAXT?' (중도 종료)':''));
+  // [스토리 정합성] 엔딩 공유 문구의 기간이 실제 플레이 기간과 맞아야 함 — 중도 종료인데 '20년 버텼는데' (BUG-20261124-3, 경고 → 수정완료 후 오류로 승격)
+  if(S.ended && typeof shareEnding==='function'){ let sh=''; navigator.share=o=>{sh=o.text;return Promise.resolve();}; try{shareEnding(S.ended);}catch(e){errs.push('공유 문구 오류: '+e.message)} delete navigator.share;
+    if(S.t<MAXT-1 && /20년/.test(sh)) WARN.push('공유: '+S.ended+' 중도 종료인데 공유 문구에 "20년"'); }
   return {e:S.ended, nw:nw(), own:S.props.some(p=>p.kind==='buy'), errs};
 }`);
 const N = +(process.argv[3] || 40);
