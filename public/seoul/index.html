@@ -1507,14 +1507,14 @@ const CROSS = {
       { l: '🔀 연봉 높여 이직한다', s: '연봉 +18% · 행복 −3', f: () => { S.salary = r2(S.salary * 1.18); S.career = 0; S.happy = clamp(S.happy - 3, 0, 100); return `이직 성공! 연봉 ${won(S.salary)}.`; } },
       { l: '🎓 야간 대학원에 다닌다', s: '1,500만 원 · 체력 −10 · 나중에 연봉 +25%', f: () => { S.cash = r2(S.cash - .15); S.hp = clamp(S.hp - 10, 0, 100); S.gradT = S.t + 4; return '2년 동안 퇴근 후 학교에 갑니다. 졸업하면 연봉이 크게 오를 거예요.'; } },
       { l: '🚀 퇴사하고 내 사업을 한다', s: '다음 반기부터 사장님', f: () => { S.plan.work = 'biz'; return '사표를 품에 넣었습니다. 다음 반기, 창업합니다!'; } }] }),
-  15: () => S.married >= 0 ? ({ cat: '🔀 인생의 갈림길', t: '우리 가족의 다음 장', d: '서른 중반. 저녁을 먹다 배우자가 조심스럽게 묻습니다. "우리, 이제 아이 생각도 해볼까?"',
+  15: () => { const hh = S.props.some(p => p.kind === 'buy' || p.kind === 'bun' || p.kind === 'ipj'), rt = S.crossRetry === S.t; return S.married >= 0 ? ({ cat: '🔀 인생의 갈림길', t: '우리 가족의 다음 장', d: '서른 중반. 저녁을 먹다 배우자가 조심스럽게 묻습니다. "우리, 이제 아이 생각도 해볼까?"',
     ch: [{ l: '👪 아이를 갖는다', s: '양육비 · 가점 ↑ · 행복 ↑', ok: () => S.kids.length < 3, f: () => { S.kids.push(S.t); S.happy = clamp(S.happy + 10, 0, 100); return '가족이 늘었습니다! 청약 가점도 올라갑니다.'; } },
-      { l: '🏠 집부터 마련하고 낳자', s: '행복 −3 · 내 집 마련에 집중', f: () => { S.happy = clamp(S.happy - 3, 0, 100); return '둘이 힘을 합쳐 먼저 우리 집을 마련하기로 했습니다.'; } },
-      { l: '✈️ 둘만의 시간을 더 즐긴다', s: '500만 원 · 행복 +6', f: () => { S.cash = r2(S.cash - .05); S.happy = clamp(S.happy + 6, 0, 100); return '여행을 다녀오며 둘만의 시간을 보냈습니다.'; } }] }) : ({ cat: '🔀 인생의 갈림길', t: '사랑이냐, 집이냐', d: '서른 중반. 오래 만난 사람이 진지한 이야기를 꺼냅니다. "우리, 결혼할까?"',
+      { l: hh ? '💰 조금 더 모으고 낳자' : '🏠 집부터 마련하고 낳자', s: hh ? '행복 −3 · 돈 모으기에 집중' : '행복 −3 · 내 집 마련에 집중', f: () => { S.happy = clamp(S.happy - 3, 0, 100); return hh ? '둘이 힘을 합쳐 조금 더 여유를 만든 뒤에 생각하기로 했습니다.' : '둘이 힘을 합쳐 먼저 우리 집을 마련하기로 했습니다.'; } },
+      { l: '✈️ 둘만의 시간을 더 즐긴다', s: '500만 원 · 행복 +6', f: () => { S.cash = r2(S.cash - .05); S.happy = clamp(S.happy + 6, 0, 100); return '여행을 다녀오며 둘만의 시간을 보냈습니다.'; } }] }) : ({ cat: '🔀 인생의 갈림길', t: '사랑이냐, 집이냐', d: rt ? `${ageOf()}세. ${hh ? '집도 마련했네. ' : ''}기다려 준 사람이 다시 묻습니다. "이제 우리, 결혼할까?"` : '서른 중반. 오래 만난 사람이 진지한 이야기를 꺼냅니다. "우리, 결혼할까?"',
     ch: [{ l: '💍 결혼한다', s: '맞벌이 소득 · 결혼 비용 · 행복 ↑', ok: () => S.married < 0, f: () => { const c = .3; S.cash = r2(S.cash - c); S.married = S.t; S.spouse = r2(rnd(.38, .6)); S.happy = clamp(S.happy + 15, 0, 100); return `결혼했습니다! 결혼 비용 ${won(c)}, 배우자 연봉 ${won(S.spouse)}이 더해집니다.`; } },
-      { l: '⏳ 집부터 마련하고 결혼하자고 한다', s: '행복 −8 · 1년 뒤 다시', ok: () => S.married < 0, f: () => { S.happy = clamp(S.happy - 8, 0, 100); S.crossRetry = S.t + 2; return '상대가 서운해했지만 기다려 주기로 했습니다.'; } },
+      { l: hh ? '⏳ 조금 더 모으고 결혼하자고 한다' : '⏳ 집부터 마련하고 결혼하자고 한다', s: '행복 −8 · 1년 뒤 다시', ok: () => S.married < 0, f: () => { S.happy = clamp(S.happy - 8, 0, 100); S.crossRetry = S.t + 2; return '상대가 서운해했지만 기다려 주기로 했습니다.'; } },
       { l: '🏃 일과 돈에 집중하며 혼자 산다', s: '행복 −4 · 체력 +5', f: () => { S.happy = clamp(S.happy - 4, 0, 100); S.hp = clamp(S.hp + 5, 0, 100); S.flags.single = true; return '혼자만의 속도로 살기로 했습니다.'; } },
-      ] }),
+      ] }); },
   23: () => ({ cat: '🔀 인생의 갈림길', t: '자산을 어떻게 굴릴까?', d: '마흔이 됐습니다. 지금까지 모은 것을 어떻게 키우느냐에 노후가 달려 있습니다.',
     ch: [{ l: '🚚 상급지로 갈아탄다', s: '좋은 동네 매물 찾기 · 갈아타기 엔딩 ↑', f: () => { S.goal = 'move'; S.imjang = 3; return '주말마다 상급지 임장을 다니기로 했습니다. 임장 기회 3회.'; } },
       { l: '📈 주식 비중을 늘린다', s: '현금 30%를 우량주로', ok: () => S.cash > .2, f: () => { buyStock('usx', r2(S.cash * .3)); return '우량주를 사 모으기 시작했습니다. 길게 가져갈 생각입니다.'; } },
@@ -1956,8 +1956,10 @@ function newsCard() {
 function tabHome() {
   const own = S.props.some(p => p.kind === 'buy'), gap = firstHomeGap(), live = liveHome();
   let goal;
-  const pill = own ? '1주택자' : '무주택자';
+  const right = own ? null : S.props.find(p => p.kind === 'ipj' || p.kind === 'bun'); // BUG-20261124-2: 분양권·입주권 보유자는 무주택자 아님
+  const pill = own ? '1주택자' : right ? (right.kind === 'ipj' ? '입주권 보유' : '분양권 보유') : '무주택자';
   if (own) goal = `<div class="card goal3"><div class="g3h"><span class="g3t">🏡 내 집에서 다음 목표로!</span><em class="pill gp">${pill}</em></div><b class="g3b">${esc(aptName(live || S.props.find(p => p.kind === 'buy')))}</b><div class="g3f"><span>부동산 순자산 ${won(reNW())}</span><span>대출 ${won(debtTotal())}</span></div></div>`;
+  else if (right) goal = `<div class="card goal3"><div class="g3h"><span class="g3t">🏗️ 새 아파트 입주까지!</span><em class="pill gp">${pill}</em></div><b class="g3b">${esc(aptName(right))}</b><div class="g3f"><span>${right.kind === 'ipj' ? '재건축 중 · 입주권' : '분양권'}${right.mv ? ` · ${right.mv}년 입주 예정` : ''}</span></div></div>`;
   else if (gap.short <= 0) goal = `<div class="card goal3 ok"><div class="g3h"><span class="g3t">🏠 첫 집 마련 도전!</span><em class="pill gp">${pill}</em></div><b class="g3b">지금 바로 첫 집을 살 수 있어요!</b><div class="gbar"><i style="width:100%"></i></div><div class="g3f"><span>아래 추천 단지를 눌러 보세요</span></div></div>`;
   else { const have = S.cash + (S.res.type !== 'own' ? S.res.dep - S.res.loan : 0); const need = have + gap.short; goal = `<div class="card goal3"><div class="g3h"><span class="g3t">🏠 첫 집 마련 도전!</span><em class="pill gp">${pill}</em></div><b class="g3b">첫 집 진입까지 <mark>${won(gap.short)}</mark> 부족!</b><div class="gbar"><i style="width:${clamp(have / need * 100, 2, 100)}%"></i></div><div class="g3f"><span>💰 내 현금 <b class="bl">${won(have)}</b></span><span>🎯 필요 자금 <b class="rd">${won(need)}</b></span></div></div>`; }
   const [sh, sq] = storyHead();
@@ -2416,9 +2418,10 @@ function showAd(cb, inter, tag) {
 function shareEnding(k) { // 엔딩 공유: 링크 미리보기에 그 엔딩 그림·제목이 뜸
   const e = ENDS[k], good = e.p !== 4 && !['e16', 'e17', 'e21', 'e22', 'e24'].includes(k), w = wonS(nw());
   const url = `https://aptgame.kr/seoul/e/${k}?n=${encodeURIComponent((S.name || '').slice(0, 10))}&w=${encodeURIComponent(w)}`;
+  const yrs = Math.max(1, Math.ceil(S.t / 2)); // BUG-20261124-3: 실제 버틴 기간(결산표와 같은 계산)
   const df = DIFFS[S.diff]; // P-001: 시작 조건을 공유 문구에 (옛 저장 데이터는 기존 문구)
-  const text = df ? (good ? `🏆 현금 ${df.d.replace('현금 ', '')}(${df.n})으로 시작해서 '${e.t}' 엔딩! 순자산 ${w}. 같은 조건이면 너는 몇 번 엔딩?` : `😭 ${df.n} 난이도로 20년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어?`)
-    : (good ? `🏆 나 서울 아파트 게임에서 '${e.t}' 엔딩 봤다! 순자산 ${w}. 엔딩 40개 중에 너는 몇 번이야?` : `😭 20년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어? 해보고 알려줘`);
+  const text = df ? (good ? `🏆 현금 ${df.d.replace('현금 ', '')}(${df.n})으로 시작해서 '${e.t}' 엔딩! 순자산 ${w}. 같은 조건이면 너는 몇 번 엔딩?` : `😭 ${df.n} 난이도로 ${yrs}년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어?`)
+    : (good ? `🏆 나 서울 아파트 게임에서 '${e.t}' 엔딩 봤다! 순자산 ${w}. 엔딩 40개 중에 너는 몇 번이야?` : `😭 ${yrs}년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어? 해보고 알려줘`);
   stat('share', k);
   if (navigator.share) navigator.share({ title: '나의 첫 번째 서울 아파트 구하기', text, url }).then(() => stat('share_done', k)).catch(() => { });
   else { const all = text + '\n' + url; (navigator.clipboard ? navigator.clipboard.writeText(all) : Promise.reject()).then(() => toast('📋 공유 문구와 링크를 복사했어요. 카톡에 붙여넣기 하세요!')).catch(() => prompt('아래 내용을 복사해서 공유하세요', all)); }

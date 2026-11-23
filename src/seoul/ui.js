@@ -283,8 +283,10 @@ function newsCard() {
 function tabHome() {
   const own = S.props.some(p => p.kind === 'buy'), gap = firstHomeGap(), live = liveHome();
   let goal;
-  const pill = own ? '1주택자' : '무주택자';
+  const right = own ? null : S.props.find(p => p.kind === 'ipj' || p.kind === 'bun'); // BUG-20261124-2: 분양권·입주권 보유자는 무주택자 아님
+  const pill = own ? '1주택자' : right ? (right.kind === 'ipj' ? '입주권 보유' : '분양권 보유') : '무주택자';
   if (own) goal = `<div class="card goal3"><div class="g3h"><span class="g3t">🏡 내 집에서 다음 목표로!</span><em class="pill gp">${pill}</em></div><b class="g3b">${esc(aptName(live || S.props.find(p => p.kind === 'buy')))}</b><div class="g3f"><span>부동산 순자산 ${won(reNW())}</span><span>대출 ${won(debtTotal())}</span></div></div>`;
+  else if (right) goal = `<div class="card goal3"><div class="g3h"><span class="g3t">🏗️ 새 아파트 입주까지!</span><em class="pill gp">${pill}</em></div><b class="g3b">${esc(aptName(right))}</b><div class="g3f"><span>${right.kind === 'ipj' ? '재건축 중 · 입주권' : '분양권'}${right.mv ? ` · ${right.mv}년 입주 예정` : ''}</span></div></div>`;
   else if (gap.short <= 0) goal = `<div class="card goal3 ok"><div class="g3h"><span class="g3t">🏠 첫 집 마련 도전!</span><em class="pill gp">${pill}</em></div><b class="g3b">지금 바로 첫 집을 살 수 있어요!</b><div class="gbar"><i style="width:100%"></i></div><div class="g3f"><span>아래 추천 단지를 눌러 보세요</span></div></div>`;
   else { const have = S.cash + (S.res.type !== 'own' ? S.res.dep - S.res.loan : 0); const need = have + gap.short; goal = `<div class="card goal3"><div class="g3h"><span class="g3t">🏠 첫 집 마련 도전!</span><em class="pill gp">${pill}</em></div><b class="g3b">첫 집 진입까지 <mark>${won(gap.short)}</mark> 부족!</b><div class="gbar"><i style="width:${clamp(have / need * 100, 2, 100)}%"></i></div><div class="g3f"><span>💰 내 현금 <b class="bl">${won(have)}</b></span><span>🎯 필요 자금 <b class="rd">${won(need)}</b></span></div></div>`; }
   const [sh, sq] = storyHead();
@@ -743,9 +745,10 @@ function showAd(cb, inter, tag) {
 function shareEnding(k) { // 엔딩 공유: 링크 미리보기에 그 엔딩 그림·제목이 뜸
   const e = ENDS[k], good = e.p !== 4 && !['e16', 'e17', 'e21', 'e22', 'e24'].includes(k), w = wonS(nw());
   const url = `https://aptgame.kr/seoul/e/${k}?n=${encodeURIComponent((S.name || '').slice(0, 10))}&w=${encodeURIComponent(w)}`;
+  const yrs = Math.max(1, Math.ceil(S.t / 2)); // BUG-20261124-3: 실제 버틴 기간(결산표와 같은 계산)
   const df = DIFFS[S.diff]; // P-001: 시작 조건을 공유 문구에 (옛 저장 데이터는 기존 문구)
-  const text = df ? (good ? `🏆 현금 ${df.d.replace('현금 ', '')}(${df.n})으로 시작해서 '${e.t}' 엔딩! 순자산 ${w}. 같은 조건이면 너는 몇 번 엔딩?` : `😭 ${df.n} 난이도로 20년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어?`)
-    : (good ? `🏆 나 서울 아파트 게임에서 '${e.t}' 엔딩 봤다! 순자산 ${w}. 엔딩 40개 중에 너는 몇 번이야?` : `😭 20년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어? 해보고 알려줘`);
+  const text = df ? (good ? `🏆 현금 ${df.d.replace('현금 ', '')}(${df.n})으로 시작해서 '${e.t}' 엔딩! 순자산 ${w}. 같은 조건이면 너는 몇 번 엔딩?` : `😭 ${df.n} 난이도로 ${yrs}년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어?`)
+    : (good ? `🏆 나 서울 아파트 게임에서 '${e.t}' 엔딩 봤다! 순자산 ${w}. 엔딩 40개 중에 너는 몇 번이야?` : `😭 ${yrs}년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어? 해보고 알려줘`);
   stat('share', k);
   if (navigator.share) navigator.share({ title: '나의 첫 번째 서울 아파트 구하기', text, url }).then(() => stat('share_done', k)).catch(() => { });
   else { const all = text + '\n' + url; (navigator.clipboard ? navigator.clipboard.writeText(all) : Promise.reject()).then(() => toast('📋 공유 문구와 링크를 복사했어요. 카톡에 붙여넣기 하세요!')).catch(() => prompt('아래 내용을 복사해서 공유하세요', all)); }
