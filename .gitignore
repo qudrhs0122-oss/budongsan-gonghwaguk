@@ -9,3 +9,6 @@ toss-seoul/stage/
 toss-seoul/*.ait
 .upl/
 threads.json
+*.keystore
+*.jks
+release/twa/app-release*

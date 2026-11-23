@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "kr.aptgame.seoul",
+    "sha256_cert_fingerprints": ["<<서명키 SHA-256 지문 — 사장님 키 생성 후 채움>>"]
+  }
+}]
