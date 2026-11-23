@@ -2416,7 +2416,9 @@ function showAd(cb, inter, tag) {
 function shareEnding(k) { // 엔딩 공유: 링크 미리보기에 그 엔딩 그림·제목이 뜸
   const e = ENDS[k], good = e.p !== 4 && !['e16', 'e17', 'e21', 'e22', 'e24'].includes(k), w = wonS(nw());
   const url = `https://aptgame.kr/seoul/e/${k}?n=${encodeURIComponent((S.name || '').slice(0, 10))}&w=${encodeURIComponent(w)}`;
-  const text = good ? `🏆 나 서울 아파트 게임에서 '${e.t}' 엔딩 봤다! 순자산 ${w}. 엔딩 40개 중에 너는 몇 번이야?` : `😭 20년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어? 해보고 알려줘`;
+  const df = DIFFS[S.diff]; // P-001: 시작 조건을 공유 문구에 (옛 저장 데이터는 기존 문구)
+  const text = df ? (good ? `🏆 현금 ${df.d.replace('현금 ', '')}(${df.n})으로 시작해서 '${e.t}' 엔딩! 순자산 ${w}. 같은 조건이면 너는 몇 번 엔딩?` : `😭 ${df.n} 난이도로 20년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어?`)
+    : (good ? `🏆 나 서울 아파트 게임에서 '${e.t}' 엔딩 봤다! 순자산 ${w}. 엔딩 40개 중에 너는 몇 번이야?` : `😭 20년 버텼는데 결말이 '${e.t}'… 너는 나보다 잘할 수 있어? 해보고 알려줘`);
   stat('share', k);
   if (navigator.share) navigator.share({ title: '나의 첫 번째 서울 아파트 구하기', text, url }).then(() => stat('share_done', k)).catch(() => { });
   else { const all = text + '\n' + url; (navigator.clipboard ? navigator.clipboard.writeText(all) : Promise.reject()).then(() => toast('📋 공유 문구와 링크를 복사했어요. 카톡에 붙여넣기 하세요!')).catch(() => prompt('아래 내용을 복사해서 공유하세요', all)); }
