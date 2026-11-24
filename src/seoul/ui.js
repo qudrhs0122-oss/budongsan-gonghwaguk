@@ -559,8 +559,9 @@ function renderDexPage(back) { $('#app').innerHTML = `<div class="setup fade"><b
 let DEXF = 'all';
 const PART_STY = { 1: ['🏠', '#fdecef', '#f3c3cc', '#e5677d'], 2: ['💼', '#eaf7ec', '#bfe3c6', '#3f9c58'], 3: ['📈', '#e8f1ff', '#bcd2f5', '#3f6ae8'], 4: ['⚠️', '#f0ecff', '#d5cbf5', '#7a5ce0'], 5: ['🌱', '#fff3e3', '#f3d6a8', '#d08a1c'] };
 const RIC = { n: '', r: '⭐', e: '💎', l: '👑', h: '🔒' };
+function IAP_G(k) { return !!(window.IAP && IAP.on() && IAP.guide() && IAP.guideText(k)); }
 function renderDexInner(el) {
-  const d = dexGet(), got = k => !!d[k];
+  const d = dexGet(), got = k => !!d[k], iap = window.IAP && IAP.on(), pk = k => !!(iap && IAP.peeked(k));
   const all = Object.keys(ENDS), have = all.filter(got).length;
   const cnt = r => all.filter(k => ENDS[k].r === r && got(k)).length, tot = r => all.filter(k => ENDS[k].r === r).length;
   let h = `<div class="dx"><div class="dxh"><b>🏆 엔딩 도감</b><span class="dxc">${have === 40 ? '✅ ' : ''}${have} / 40 ${have === 40 ? '완료' : ''}</span></div>
@@ -570,14 +571,17 @@ function renderDexInner(el) {
     const ks = all.filter(k => ENDS[k].p === pt && (DEXF === 'all' || ENDS[k].r === DEXF)); if (!ks.length) continue;
     const [ic, bg, bd, ac] = PART_STY[pt], g = all.filter(k => ENDS[k].p === pt), gg = g.filter(got).length;
     h += `<section class="dxs" style="--bg:${bg};--bd:${bd};--ac:${ac}"><div class="dxsh"><b>${ic} ${PARTS[pt].slice(2).trim()}</b><em>${gg} / ${g.length}</em></div><div class="dxg">`;
-    for (const k of ks) { const e = ENDS[k], o = got(k); h += `<button class="dxe ${o ? 'got' : ''}" data-e="${k}" style="--rc:${RARE[e.r][1]}"><span class="dxn">${k.slice(1).padStart(2, '0')}</span><span class="dxim ${o ? '' : 'lock'}"><img src="img/end/${k}.webp" alt="" loading="lazy">${o ? '' : '<i>❔</i>'}</span><b>${o ? e.t : RARE[e.r][0] + ' 엔딩'}</b></button>`; }
+    for (const k of ks) { const e = ENDS[k], o = got(k); h += `<button class="dxe ${o ? 'got' : ''}" data-e="${k}" style="--rc:${RARE[e.r][1]}"><span class="dxn">${k.slice(1).padStart(2, '0')}</span><span class="dxim ${o || pk(k) ? '' : 'lock'}"><img src="img/end/${k}.webp" alt="" loading="lazy">${o ? '' : pk(k) ? '<i style="font-size:14px">👁</i>' : '<i>❔</i>'}</span><b>${o ? e.t : RARE[e.r][0] + ' 엔딩'}</b></button>`; }
     h += '</div></section>';
   }
   h += `</div><div class="card"><h4>🏢 아파트 도감</h4><div class="adex">${APTS.map(a => `<div class="${S && S.seen && S.seen[a.id] ? 'got' : ''}"><b>${a.n}</b><small>${GUN[a.gu].n}구 · ${a.y ? a.y + '년' : a.mv ? a.mv + '년 입주' : ''}</small></div>`).join('')}</div><p class="small">임장하거나 매수한 단지가 표시됩니다.</p></div>`;
   el.innerHTML = h;
   el.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { DEXF = b.dataset.f; renderDexInner(el); });
   el.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { const k = b.dataset.e, e = ENDS[k], rr = RARE[e.r];
-    modal(d[k] ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 엔딩 ${k.slice(1)}</div><div class="eimg sm"><img src="img/end/${k}.webp" alt=""></div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${k === 'e40' ? E40_HINT : e.d}<br>달성: ${esc(d[k].name)} · ${d[k].mode === 'hist' ? '2015' : '2026'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `<div class="evcat" style="color:${rr[1]}">${rr[0]}</div><h3>❔ 엔딩 ${k.slice(1)}</h3><p class="small">힌트: ${k === 'e40' ? (store.get('_h40', 0) ? E40_HINT : '숨겨진 엔딩이에요. 조건은 비밀!') : e.d}</p>${k === 'e40' && !store.get('_h40', 0) ? '<button class="btn pri" id="h40">🎬 광고 보고 히든 엔딩 조건 보기</button>' : ''}<button class="btn" data-close>닫기</button>`);
+    modal(d[k] ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 엔딩 ${k.slice(1)}</div><div class="eimg sm"><img src="img/end/${k}.webp" alt=""></div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p><p class="small">조건: ${k === 'e40' ? E40_HINT : e.d}<br>달성: ${esc(d[k].name)} · ${d[k].mode === 'hist' ? '2015' : '2026'} 모드 · 순자산 ${won(d[k].nw)}</p><button class="btn" data-close>닫기</button>` : `${pk(k) ? `<div class="evcat" style="color:${rr[1]}">${rr[0]} · 👁 미리보기 · 아직 달성 전</div><div class="eimg sm"><img src="img/end/${k}.webp" alt=""></div><h3>${e.ic} ${e.t}</h3><p>${e.s}</p>` : `<div class="evcat" style="color:${rr[1]}">${rr[0]}</div><h3>❔ 엔딩 ${k.slice(1)}</h3>`}<p class="small">${IAP_G(k) ? '' : `힌트: ${k === 'e40' ? (store.get('_h40', 0) ? E40_HINT : '숨겨진 엔딩이에요. 조건은 비밀!') : e.d}`}</p>${IAP_G(k) ? `<div class="small" style="text-align:left;background:#fff8e6;border:1px solid #f3d6a8;border-radius:12px;padding:10px 12px;margin:8px 0">👑 <b>공략</b><br>${IAP.guideText(k)}</div>` : ''}${iap && !pk(k) ? (IAP.peekT() > 0 ? `<button class="btn pri" id="pkUse">🔓 미리보기권으로 몰래 열어보기 <small>(보유 ${IAP.peekT()}장)</small></button>` : IAP.has('peek') ? `<button class="btn pri" id="pkBuy">🔓 이 엔딩 몰래 열어보기 · 미리보기권 3장 ${IAP.price('peek')}</button>` : '') : ''}${iap && (e.r === 'l' || e.r === 'h') && !IAP.guide() && IAP.has('guide') ? `<button class="btn pri" id="gdBuy" style="background:linear-gradient(135deg,#f5c542,#e09b12);color:#3a2500">👑 전설·히든 5종 전부 열기 + 공략 ${IAP.price('guide')}</button>` : ''}${k === 'e40' && !store.get('_h40', 0) && !IAP_G(k) ? '<button class="btn pri" id="h40">🎬 광고 보고 히든 엔딩 조건 보기</button>' : ''}<button class="btn" data-close>닫기</button>`);
+    if ($('#pkUse')) $('#pkUse').onclick = () => { if (IAP.usePeek(k)) { closeModal(); renderDexInner(el); toast('🔓 엔딩을 몰래 열었어요!'); el.querySelector(`[data-e="${k}"]`).click(); } };
+    if ($('#pkBuy')) $('#pkBuy').onclick = () => IAP.buy('peek', () => { closeModal(); toast('🔓 미리보기권 3장이 들어왔어요!'); b.click(); });
+    if ($('#gdBuy')) $('#gdBuy').onclick = () => IAP.buy('guide', () => { closeModal(); renderDexInner(el); toast('👑 전설·히든 엔딩이 모두 열렸어요!'); el.querySelector(`[data-e="${k}"]`).click(); });
     if ($('#h40')) $('#h40').onclick = () => showAd(() => { store.set('_h40', 1); closeModal(); toast('🏆 히든 엔딩 조건이 열렸어요'); b.click(); }, false, 'reward_h40'); });
 }
 
@@ -767,11 +771,12 @@ function renderEnding() {
   $('#app').innerHTML = `<div class="ending fade p${e.p}"><div class="ekick"><span class="rbadge" style="background:${RARE[e.r][1]}">${RARE[e.r][0]}</span> ${PARTS[e.p].slice(2)} · 엔딩 ${k.slice(1)}/40</div><div class="eimg"><img src="img/end/${k}.webp" alt="${esc(e.t)}"></div><h2>${e.ic} ${e.t}</h2><p class="story">${e.s}</p>
     <div class="card"><h4>📋 ${esc(S.name)}의 부동산 인생 결산</h4><table class="qt"><tr><td>기간</td><td>${S.startYear}년 → ${yearOf(Math.min(S.t, MAXT - 1))}년 (${Math.max(1, Math.ceil(S.t / 2))}년)</td></tr><tr><td>나이</td><td>${ageOf(Math.min(S.t, MAXT - 1))}세</td></tr><tr><td>최종 순자산</td><td><b>${won(nw())}</b></td></tr><tr><td>보유 주택</td><td>${homes.map(p => esc(aptName(p))).join(', ') || '없음'}</td></tr><tr><td>총부채</td><td>${won(debtTotal())}</td></tr><tr><td>체력 / 행복</td><td>${S.hp} / ${S.happy}</td></tr><tr><td>투잡 / 쓰리잡 / 승진</td><td>${S.w.two}번 / ${S.w.three}번 / ${S.promos}번</td></tr><tr><td>주식 (평가금)</td><td>${won(stockValue())}</td></tr><tr><td>갈아타기 / 청약 당첨</td><td>${S.st.flips}회 / ${S.st.chWin}회</td></tr></table></div>
     <p class="small">엔딩 도감 ${Object.keys(d).length}/40 수집</p>
-    <button class="btn shr big" id="share">💬 내 엔딩 친구에게 자랑하기</button><button class="btn pri big" id="again">🔁 인생 다시 살기</button><button class="btn" id="dex">📖 엔딩 도감</button><a class="other" href="/">← aptgame.kr 다른 게임</a><div class="cpb" data-sub="seoulend" style="margin:32px auto 6px;max-width:320px;text-align:center"></div></div>`;
+    <button class="btn shr big" id="share">💬 내 엔딩 친구에게 자랑하기</button><button class="btn pri big" id="again">🔁 인생 다시 살기</button><button class="btn" id="dex">📖 엔딩 도감</button>${window.IAP && IAP.on() && IAP.has('peek') ? `<button class="btn" id="dexPeek" style="border:2px dashed #9b4de0;color:#6b2fb3">🔓 아직 못 본 엔딩 ${40 - Object.keys(dexGet()).filter(x => ENDS[x]).length}개, 몰래 열어보기 ›</button>` : ''}<a class="other" href="/">← aptgame.kr 다른 게임</a><div class="cpb" data-sub="seoulend" style="margin:32px auto 6px;max-width:320px;text-align:center"></div></div>`;
   if (window.cpScan) cpScan();
   if (window.APT && !S.rankSent) { S.rankSent = 1; save(); APT.endCard('seoul', Math.round(nw() * 10) / 10, `엔딩 ${k.slice(1)} ${e.t}`, '#again'); }
   $('#again').onclick = () => { store.set('_save', null); renderSetup(); };
   $('#dex').onclick = () => renderDexPage(renderEnding);
+  if ($('#dexPeek')) $('#dexPeek').onclick = () => renderDexPage(renderEnding);
   $('#share').onclick = () => shareEnding(k);
   if (e.p !== 4 && k !== 'e16' && k !== 'e17' && k !== 'e21' && k !== 'e22' && k !== 'e24') celebrate();
 }
