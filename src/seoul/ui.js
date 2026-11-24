@@ -57,7 +57,7 @@ function renderTitle() {
       ${ACC ? `<div class="tacc">👤 <b>${esc(ACC.nick)}</b>님의 엔딩 도감 · <a href="${logoutHref()}">로그아웃</a></div>` : ACC_DONE && ACC_READY ? `<div class="tacc">게스트로 플레이 중 · <a href="${loginHref()}">카카오계정으로 접속하고 엔딩 저장 ›</a></div>` : ''}
       ${cont ? `<button class="tbtn gold" id="bCont"><span>▶ 이어하기</span><small>${esc(sv.name)} · ${sv.startYear + Math.floor(sv.t / 2)}년 ${sv.t % 2 ? '하반기' : '상반기'} (CH ${Math.min(10, Math.floor(sv.t / 4) + 1)}/10)</small></button>` : ''}
       <button class="tbtn ${cont ? 'sub2' : 'gold'}" id="bNew"><span>🏠 ${cont ? '새 인생 시작' : '지금, 나만의 서울 아파트 인생을 시작하세요!'} ▶</span></button>
-      <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).filter(k => ENDS[k]).length}/40) ›</span></button>`}
+      <button class="tbtn glass" id="bDex"><span>📖 엔딩 도감 (${Object.keys(dex).filter(k => ENDS[k]).length}/40) ›</span></button>${window.IAP && IAP.on() ? '<button class="tbtn glass" id="bShop"><span>🛒 상점 ›</span></button>' : ''}`}
     </div>
     <img class="tb" src="img/title_bot.webp" alt="갭투자, 분양권, 입주권, 구축 투자 — 실제 아파트 기반 시뮬레이션, 현실적인 이벤트와 위기, 총 40가지 엔딩">
     <div class="tfoot"><p>게임 속 시세·수익률은 실제 공개 자료를 참고한 <b>게임용 시뮬레이션 수치</b>이며 미래 시세 예측이나 투자 권유가 아닙니다. 단지 이름은 실제 장소, 그 외 인물·사건은 가상입니다.</p><a href="/">← aptgame.kr 다른 부동산 게임</a></div>
@@ -67,6 +67,7 @@ function renderTitle() {
   if ($('#bCont')) $('#bCont').onclick = () => { S = sv; migrate(); renderGame(); };
   $('#bNew').onclick = () => { renderSetup(); };
   $('#bDex').onclick = () => renderDexPage(renderTitle);
+  if ($('#bShop')) $('#bShop').onclick = () => IAP.shop();
 }
 function skyline() {
   let s = '<svg class="city" viewBox="0 0 400 120" preserveAspectRatio="none">';
@@ -714,13 +715,18 @@ function adBonus(tag, fn) { showAd(() => { fn(); save(); }, false, 'reward_' + t
 function rewardRow() { // 반기 결과 화면의 보상형 광고 버튼
   const out = [], ch = chapterOf(), inc = S.lastFlow ? S.lastFlow.inc : 0;
   S.adCnt = S.adCnt || {};
-  if (S.hp <= 35 && (S.adCnt.hp || 0) < 2) out.push(`<button class="rwd hp" data-rw="hp">⚡ 쓰러지기 직전! <b>광고 보고 체력 +30</b><small>한 판에 ${2 - (S.adCnt.hp || 0)}번 남음</small></button>`);
-  if (inc > 0 && S.adCnt.bonusCh !== ch) out.push(`<button class="rwd bn" data-rw="bonus">🎁 <b>광고 보고 성과급 받기 +${wonS(r2(Math.max(.02, inc * .1)))}</b><small>챕터마다 1번</small></button>`);
+  const iap = window.IAP && IAP.on(), AD = iap && IAP.noads() ? '' : '광고 보고 ';
+  if (iap && S.hp <= 70 && IAP.hpT() > 0) out.push(`<button class="rwd hp" data-rw="hpt">🎫 <b>체력 회복권 쓰기 +30</b><small>남은 회복권 ${IAP.hpT()}장</small></button>`);
+  else if (iap && S.hp <= 35 && (S.adCnt.hp || 0) >= 2) out.push(`<button class="rwd hp" data-rw="buyhp">🎫 <b>체력 회복권 5장 구매</b><small>1장당 체력 +30 · 횟수 제한 없음</small></button>`);
+  if (S.hp <= 35 && (S.adCnt.hp || 0) < 2) out.push(`<button class="rwd hp" data-rw="hp">⚡ 쓰러지기 직전! <b>${AD}체력 +30</b><small>한 판에 ${2 - (S.adCnt.hp || 0)}번 남음</small></button>`);
+  if (inc > 0 && S.adCnt.bonusCh !== ch) out.push(`<button class="rwd bn" data-rw="bonus">🎁 <b>${AD}성과급 받기 +${wonS(r2(Math.max(.02, inc * .1)))}</b><small>챕터마다 1번</small></button>`);
   return out.length ? `<div class="rwds">${out.join('')}</div>` : '';
 }
 function bindRewards() {
   document.querySelectorAll('[data-rw]').forEach(b => b.onclick = () => {
     const k = b.dataset.rw;
+    if (k === 'hpt') { if (!IAP.useHp()) return; S.hp = Math.min(100, S.hp + 30); S.overwarn = 0; save(); toast(`🎫 체력 +30! 남은 회복권 ${IAP.hpT()}장`); b.remove(); return; }
+    if (k === 'buyhp') { IAP.buy('hp', () => { b.dataset.rw = 'hpt'; b.innerHTML = `🎫 <b>체력 회복권 쓰기 +30</b><small>남은 회복권 ${IAP.hpT()}장</small>`; toast('🎫 체력 회복권 5장이 들어왔어요!'); }); return; }
     adBonus(k, () => {
       if (k === 'hp') { S.adCnt.hp = (S.adCnt.hp || 0) + 1; S.hp = Math.min(100, S.hp + 30); S.overwarn = 0; toast('⚡ 푹 쉬었어요! 체력 +30'); }
       if (k === 'bonus') { const v = r2(Math.max(.02, (S.lastFlow ? S.lastFlow.inc : 0) * .1)); S.adCnt.bonusCh = chapterOf(); S.cash = r2(S.cash + v); toast(`🎁 성과급 ${won(v)} 입금!`); }

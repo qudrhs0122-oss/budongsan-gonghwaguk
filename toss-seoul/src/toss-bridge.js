@@ -37,3 +37,4 @@ function enable() {
   try { if (typeof ADS !== 'undefined') { ADS.client = 'toss'; ADS.h5 = true; ADS.blocked = false; ADS.bannerSlot = ''; } } catch (e) {}
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enable); else enable();
+import './toss-iap.js';
