@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>올림픽파크포레온에서 탈출하기 — 좀비·유령 단지 탈출 게임 | aptgame.kr</title>
+<meta name="description" content="정전된 한밤의 초대형 단지. 좀비 주민과 공사중단 원혼을 피해 퓨즈 3개를 모아 둔촌동역 게이트로 탈출하세요. 손전등 하나로 버티는 모바일 공포 탈출 게임.">
+<meta property="og:title" content="올림픽파크포레온에서 탈출하기 🧟👻">
+<meta property="og:description" content="1만 2천 세대 단지가 정전됐다. 손전등 하나로 둔촌동역까지 탈출할 수 있을까?">
+<meta property="og:image" content="https://aptgame.kr/assets/og_seoul.jpg?v=1">
+<meta name="theme-color" content="#07080c">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#07080c;color:#e8eaf0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
+#hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 10px 0;display:flex;gap:8px;align-items:flex-start;pointer-events:none;z-index:5}
+.pill{background:rgba(10,12,18,.72);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px 9px;font-size:13px;font-weight:700;backdrop-filter:blur(4px)}
+.bars{display:flex;flex-direction:column;gap:4px;min-width:96px}
+.bar{height:6px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}.bar i{display:block;height:100%;border-radius:4px}
+#hud .sp{flex:1}
+#btnMap{pointer-events:auto;cursor:pointer}
+#msg{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 64px);transform:translateX(-50%);max-width:92%;background:rgba(10,12,18,.85);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:9px 14px;font-size:14px;line-height:1.45;text-align:center;opacity:0;transition:opacity .3s;z-index:6;pointer-events:none}
+#msg.on{opacity:1}
+#run{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom) + 26px);width:84px;height:84px;border-radius:50%;background:rgba(240,68,82,.25);border:2px solid rgba(240,68,82,.7);color:#fff;font-weight:800;font-size:15px;z-index:6;display:none}
+#run.on{background:rgba(240,68,82,.6)}
+.touch.playing #run{display:block}
+#joy{position:fixed;width:120px;height:120px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.05);display:none;z-index:6;pointer-events:none}
+#joy i{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:rgba(255,255,255,.35)}
+.scr{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 30%,rgba(60,20,30,.55),rgba(5,6,10,.96) 70%);overflow:auto}
+.scr.on{display:flex}
+.box{max-width:420px;width:100%;text-align:center}
+.box h1{font-size:30px;line-height:1.2;letter-spacing:-1px;margin:6px 0 8px;text-shadow:0 0 18px rgba(240,68,82,.6)}
+.box h2{font-size:24px;margin:6px 0 10px}
+.box p{font-size:14.5px;line-height:1.6;color:#c4c8d2;margin:8px 0}
+.box .kick{font-size:12px;letter-spacing:3px;color:#f04452;font-weight:800}
+.btn{display:block;width:100%;margin:10px 0;padding:15px;border:0;border-radius:14px;font-size:17px;font-weight:800;background:#f04452;color:#fff;cursor:pointer}
+.btn.g{background:rgba(255,255,255,.1);color:#e8eaf0;border:1px solid rgba(255,255,255,.18)}
+.btn.y{background:#ffc400;color:#1b1300}
+.rules{text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 14px;font-size:13.5px;line-height:1.7;color:#cfd3dc;margin:12px 0}
+.small{font-size:11.5px!important;color:#8a90a0!important}
+.stat{display:flex;justify-content:center;gap:10px;margin:12px 0}.stat div{background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;min-width:86px}.stat b{display:block;font-size:20px}.stat small{font-size:11px;color:#9aa0ae}
+a{color:#9ec5ff}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud" style="display:none">
+  <div class="pill" id="hp">❤️❤️❤️</div>
+  <div class="pill bars"><div style="display:flex;justify-content:space-between;font-size:11px"><span>🔦</span><span>🏃</span></div><div class="bar"><i id="bat" style="background:#ffd84d;width:100%"></i></div><div class="bar"><i id="sta" style="background:#4dd2ff;width:100%"></i></div></div>
+  <div class="pill" id="fz">⚡ 0/3</div>
+  <div class="sp"></div>
+  <div class="pill" id="tm">00:00</div>
+  <div class="pill" id="btnMap">🗺️</div>
+</div>
+<div id="msg"></div>
+<div id="joy"><i></i></div>
+<button id="run">달리기</button>
+
+<div class="scr on" id="sTitle"><div class="box">
+  <div class="kick">AM 00:00 · 정전</div>
+  <h1>🧟 올림픽파크포레온에서<br>탈출하기 👻</h1>
+  <p>입주 첫날 밤, 단지 전체가 정전됐다.<br>관리사무소 방송이 끊기기 직전 마지막 한마디.<br><b>"둔촌동역 게이트는 퓨즈 3개를 끼워야 열립니다…"</b></p>
+  <div class="rules">
+    ⚡ 100·300·400단지 어딘가의 <b>퓨즈 3개</b>를 모아요 (화살표가 방향을 알려줘요)<br>
+    🚪 <b>둔촌동역 게이트</b>(왼쪽 아래)로 나가면 탈출!<br>
+    🧟 <b>좀비 주민</b>: 보이면 쫓아와요. 빨간 눈을 조심, 달려서 따돌리세요<br>
+    👻 <b>공사중단 원혼</b>: 벽을 뚫고 와요. <b>손전등을 비추면 멈춰요</b><br>
+    🔋 배터리·🥤 박카스를 주우면 손전등·체력이 회복돼요
+  </div>
+  <button class="btn" id="bStart">손전등 켜고 출발 ▶</button>
+  <p class="small" id="best"></p>
+  <p class="small">이동: 화면 왼쪽을 끌기 / 방향키·WASD · 달리기: 버튼 / Shift</p>
+  <p class="small">실존 단지 이름만 빌린 <b>가상의 공포 게임</b>이에요. 배치는 게임용으로 단순화했고 실제 단지·주민과는 관계없어요.</p>
+  <p class="small"><a href="/">← aptgame.kr 다른 부동산 게임</a></p>
+</div></div>
+
+<div class="scr" id="sEnd"><div class="box" id="endBox"></div></div>
+<div class="scr" id="sMap" style="padding:10px"><div class="box" style="max-width:560px"><canvas id="mapc" style="position:static;width:100%;height:auto;border-radius:12px"></canvas><button class="btn g" id="bMapClose" style="margin-top:12px">닫기</button></div></div>
+
+<script>
+'use strict';
+// ===== 기본 설정 =====
+const T = 24, W = 84, H = 66;               // 타일 크기(px), 맵 크기(타일)
+const G = 0, GR = 1, B = 2, F = 3, TR = 4, GATE = 5, DECOY = 6;
+const SOLID = new Set([B, F, TR, GATE, DECOY]);
+const $ = s => document.querySelector(s);
+const cv = $('#c'), ctx = cv.getContext('2d');
+const dark = document.createElement('canvas'), dctx = dark.getContext('2d');
+let DPR = 1, VW = 0, VH = 0;
+function resize() { DPR = Math.min(2, window.devicePixelRatio || 1); VW = innerWidth; VH = innerHeight; for (const c of [cv, dark]) { c.width = VW * DPR; c.height = VH * DPR; } }
+addEventListener('resize', resize); resize();
+const rnd = (a, b) => a + Math.random() * (b - a), ri = (a, b) => Math.floor(rnd(a, b + 1)), clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const store = { get(k, d) { try { const v = localStorage.getItem('foreon_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('foreon_' + k, JSON.stringify(v)); } catch (e) {} } };
+function stat(ev, k) { try { navigator.sendBeacon && navigator.sendBeacon('/api/stat', new Blob([JSON.stringify({ g: 'foreon', ev, k: k || '' })], { type: 'application/json' })); } catch (e) {} }
+
+// ===== 맵 만들기 (실제 배치를 게임용으로 단순화) =====
+let M, labels, zones, gateTiles;
+function buildMap() {
+  M = new Uint8Array(W * H).fill(GR); labels = []; gateTiles = [];
+  const set = (x, y, v) => { if (x >= 0 && y >= 0 && x < W && y < H) M[y * W + x] = v; };
+  const rect = (x0, y0, x1, y1, v) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, v); };
+  // 도로
+  rect(1, 15, W - 2, 17, G);           // 단지 가운데를 가르는 큰길
+  rect(1, 49, W - 2, 50, G);           // 아래쪽 길
+  rect(25, 18, 26, H - 2, G); rect(52, 18, 53, H - 2, G);
+  rect(40, 1, 41, 14, G);              // 400단지 가운데 길
+  // 단지 영역 정의
+  zones = {
+    z4: { n: '400단지', x0: 3, y0: 2, x1: W - 4, y1: 13, p: 400 },
+    z1: { n: '100단지', x0: 2, y0: 19, x1: 23, y1: 47, p: 100 },
+    z2: { n: '200단지', x0: 28, y0: 19, x1: 50, y1: 40, p: 200 },
+    z3: { n: '300단지', x0: 55, y0: 19, x1: W - 3, y1: 47, p: 300 },
+  };
+  for (const k in zones) { const z = zones[k]; let num = z.p + 1;
+    for (let y = z.y0; y + 2 <= z.y1; y += 6) for (let x = z.x0; x + 4 <= z.x1; x += 7) {
+      if (k === 'z4' && x <= 41 && x + 5 >= 40) continue;
+      if (Math.random() < .12) continue;   // 공터·놀이터
+      const vert = Math.random() < .3;
+      const w = vert ? 2 : ri(4, 5), h = vert ? ri(3, 4) : 2;
+      rect(x, y, x + w - 1, y + h - 1, B);
+      if (Math.random() < .35 && !vert) rect(x + w - 1, y + h, x + w - 1, y + h, B); // ㄱ자 동
+      labels.push({ x: x + w / 2, y: y + h / 2, t: num + '동' }); num++;
+    }
+  }
+  // 200단지 아래: 중앙공원 + 연못
+  for (let y = 42; y <= 47; y++) for (let x = 28; x <= 50; x++) if (Math.random() < .14) set(x, y, TR);
+  for (let y = 52; y <= H - 3; y++) for (let x = 27; x <= 50; x++) if (Math.random() < .17) set(x, y, TR);
+  labels.push({ x: 39, y: 56, t: '중앙공원', big: 1 });
+  // 학교
+  rect(57, 53, 70, 58, B); labels.push({ x: 63.5, y: 55.5, t: '학교', big: 1 });
+  // 커뮤니티 건물
+  rect(6, 52, 14, 56, B); labels.push({ x: 10, y: 54, t: '커뮤니티', big: 1 });
+  rect(73, 53, 80, 58, B); labels.push({ x: 76.5, y: 55.5, t: '관리사무소', big: 1 });
+  // 길 위 장애물 정리: 시작 지점 주변 비우기
+  rect(36, 30, 42, 34, GR);
+  // 외곽 펜스
+  rect(0, 0, W - 1, 0, F); rect(0, H - 1, W - 1, H - 1, F); rect(0, 0, 0, H - 1, F); rect(W - 1, 0, W - 1, H - 1, F);
+  // 둔촌동역 게이트 (왼쪽 아래)
+  rect(2, H - 5, 9, H - 2, G); rect(2, 51, 4, H - 2, G);
+  for (let x = 3; x <= 7; x++) { set(x, H - 1, GATE); gateTiles.push([x, H - 1]); }
+  labels.push({ x: 5.5, y: H - 2.6, t: '🚇 둔촌동역 게이트', big: 1, gate: 1 });
+  // 미끼 게이트 (오른쪽 위)
+  for (let y = 4; y <= 7; y++) set(W - 1, y, DECOY);
+  labels.push({ x: W - 5, y: 5.8, t: '⛔ 공사중 출입금지', big: 1 });
+  // 나무 몇 그루 + 길 구분
+  for (let i = 0; i < 160; i++) { const x = ri(2, W - 3), y = ri(2, H - 3); if (M[y * W + x] === GR && !nearStart(x, y) && !(x < 10 && y > H - 6)) set(x, y, TR); }
+}
+const START = { x: 39.5, y: 32.5 };
+function nearStart(x, y) { return Math.abs(x - START.x) < 5 && Math.abs(y - START.y) < 4; }
+const tile = (x, y) => (x < 0 || y < 0 || x >= W || y >= H) ? F : M[(y | 0) * W + (x | 0)];
+const solid = (x, y) => SOLID.has(tile(Math.floor(x), Math.floor(y)));
+function freeTile(zone, minD) {
+  for (let i = 0; i < 400; i++) {
+    const z = zone || { x0: 2, y0: 2, x1: W - 3, y1: H - 3 };
+    const x = ri(z.x0, z.x1), y = ri(z.y0, z.y1);
+    if (SOLID.has(tile(x, y))) continue;
+    const px = P ? P.x : START.x, py = P ? P.y : START.y;
+    if (Math.hypot(x + .5 - px, y + .5 - py) < (minD || 0)) continue;
+    if (!reach[y * W + x]) continue;
+    return { x: x + .5, y: y + .5 };
+  }
+  return { x: START.x + 3, y: START.y };
+}
+// 시작점에서 걸어갈 수 있는 칸 (갇힌 칸에 아이템이 생기지 않게)
+let reach;
+function calcReach() {
+  reach = new Uint8Array(W * H); const q = [[START.x | 0, START.y | 0]]; reach[(START.y | 0) * W + (START.x | 0)] = 1;
+  while (q.length) { const [x, y] = q.shift(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue; const i = ny * W + nx; if (reach[i] || SOLID.has(M[i])) continue; reach[i] = 1; q.push([nx, ny]); } }
+}
+
+// ===== 상태 =====
+let P, Z, GH, ITEMS, state = 'title', t0 = 0, now = 0, fuses = 0, gateOpen = false, flow = null, flowT = 0, msgT = 0, revived = false, lastHit = 0, spawnT = 0, shake = 0;
+const keys = {}; let joy = null, runHeld = false;
+function newGame() {
+  buildMap(); calcReach();
+  P = { x: START.x, y: START.y, a: -Math.PI / 2, hp: 3, bat: 100, sta: 100, inv: 0 };
+  Z = []; GH = []; ITEMS = []; fuses = 0; gateOpen = false; revived = false; spawnT = 0;
+  for (const k of ['z1', 'z3', 'z4']) { const p = freeTile(zones[k], 14); ITEMS.push({ ...p, k: 'fuse', z: zones[k].n }); }
+  for (let i = 0; i < 9; i++) ITEMS.push({ ...freeTile(null, 8), k: 'bat' });
+  for (let i = 0; i < 6; i++) ITEMS.push({ ...freeTile(null, 8), k: 'drink' });
+  for (let i = 0; i < 16; i++) addZombie(12);
+  for (let i = 0; i < 3; i++) addGhost();
+  t0 = performance.now(); state = 'play'; stat('start');
+  say('⚡ 퓨즈 3개를 찾아 <b>둔촌동역 게이트</b>로! 화살표를 따라가세요', 4200);
+}
+function addZombie(minD) { const p = freeTile(null, minD); Z.push({ x: p.x, y: p.y, a: rnd(0, 6.28), st: 'wander', t: 0, sp: rnd(1.5, 2.0), lose: 0 }); }
+function addGhost() { const a = rnd(0, 6.28); GH.push({ x: clamp(P.x + Math.cos(a) * 22, 2, W - 2), y: clamp(P.y + Math.sin(a) * 22, 2, H - 2), frozen: 0, ph: rnd(0, 6) }); }
+
+// ===== 입력 =====
+addEventListener('keydown', e => { keys[e.key.toLowerCase()] = 1; if (e.key.startsWith('Arrow') || e.key === ' ') e.preventDefault(); if (e.key.toLowerCase() === 'm' && state === 'play') openMap(); });
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = 0; });
+const isTouch = 'ontouchstart' in window; if (isTouch) document.body.classList.add('touch');
+const joyEl = $('#joy'), joyKnob = joyEl.querySelector('i');
+cv.addEventListener('pointerdown', e => {
+  if (state !== 'play') return;
+  if (e.pointerType === 'mouse' && !isTouch) return;
+  joy = { id: e.pointerId, ox: e.clientX, oy: e.clientY, dx: 0, dy: 0 };
+  joyEl.style.display = 'block'; joyEl.style.left = (e.clientX - 60) + 'px'; joyEl.style.top = (e.clientY - 60) + 'px'; joyKnob.style.transform = '';
+});
+cv.addEventListener('pointermove', e => { if (!joy || e.pointerId !== joy.id) return; let dx = e.clientX - joy.ox, dy = e.clientY - joy.oy; const d = Math.hypot(dx, dy), m = 50; if (d > m) { dx *= m / d; dy *= m / d; } joy.dx = dx / m; joy.dy = dy / m; joyKnob.style.transform = `translate(${dx}px,${dy}px)`; });
+const joyEnd = e => { if (joy && e.pointerId === joy.id) { joy = null; joyEl.style.display = 'none'; } };
+cv.addEventListener('pointerup', joyEnd); cv.addEventListener('pointercancel', joyEnd);
+const runB = $('#run');
+runB.addEventListener('pointerdown', e => { e.preventDefault(); runHeld = true; runB.classList.add('on'); });
+for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) runB.addEventListener(ev, () => { runHeld = false; runB.classList.remove('on'); });
+
+// ===== 소리 (간단한 합성음) =====
+let AC = null;
+function beep(f, d, type, vol) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(); o.type = type || 'sine'; o.frequency.value = f; g.gain.value = vol || .08; g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + d); o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + d); } catch (e) {} }
+let beatT = 0;
+
+// ===== 길찾기 (플레이어까지 거리 지도) =====
+function calcFlow() {
+  flow = new Int16Array(W * H).fill(-1); const sx = P.x | 0, sy = P.y | 0, q = [sx + sy * W]; flow[q[0]] = 0; let h = 0;
+  while (h < q.length) { const i = q[h++], x = i % W, y = (i / W) | 0, d = flow[i]; if (d > 40) continue;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue; const j = ny * W + nx; if (flow[j] >= 0 || SOLID.has(M[j])) continue; flow[j] = d + 1; q.push(j); } }
+}
+function los(ax, ay, bx, by) { const d = Math.hypot(bx - ax, by - ay), n = Math.ceil(d * 3); for (let i = 1; i < n; i++) { const t = i / n; if (solid(ax + (bx - ax) * t, ay + (by - ay) * t)) return false; } return true; }
+function move(o, dx, dy, r) { // 벽에 미끄러지며 이동
+  const nx = o.x + dx; if (!solid(nx + Math.sign(dx) * r, o.y - r * .8) && !solid(nx + Math.sign(dx) * r, o.y + r * .8)) o.x = nx;
+  const ny = o.y + dy; if (!solid(o.x - r * .8, ny + Math.sign(dy) * r) && !solid(o.x + r * .8, ny + Math.sign(dy) * r)) o.y = ny;
+}
+
+// ===== 업데이트 =====
+function inLight(x, y) {
+  if (P.bat <= 0) return false; const dx = x - P.x, dy = y - P.y, d = Math.hypot(dx, dy);
+  if (d > coneLen()) return false; let da = Math.atan2(dy, dx) - P.a; da = Math.atan2(Math.sin(da), Math.cos(da));
+  return Math.abs(da) < .5 && los(P.x, P.y, x, y);
+}
+const coneLen = () => P.bat <= 0 ? 0 : 3.5 + 4.5 * Math.min(1, P.bat / 40);
+function update(dt) {
+  now = (performance.now() - t0) / 1000;
+  // 플레이어
+  let mx = (keys['arrowright'] || keys['d'] ? 1 : 0) - (keys['arrowleft'] || keys['a'] ? 1 : 0);
+  let my = (keys['arrowdown'] || keys['s'] ? 1 : 0) - (keys['arrowup'] || keys['w'] ? 1 : 0);
+  if (joy && Math.hypot(joy.dx, joy.dy) > .15) { mx = joy.dx; my = joy.dy; }
+  const ml = Math.hypot(mx, my);
+  const running = (runHeld || keys['shift']) && P.sta > 1 && ml > 0;
+  if (ml > 0) { mx /= Math.max(1, ml); my /= Math.max(1, ml);
+    const sp = (running ? 5.4 : 3.3) * Math.min(1, ml);
+    move(P, mx * sp * dt, my * sp * dt, .32);
+    const ta = Math.atan2(my, mx); let da = Math.atan2(Math.sin(ta - P.a), Math.cos(ta - P.a)); P.a += da * Math.min(1, dt * 12);
+  }
+  P.sta = clamp(P.sta + (running ? -26 : 14) * dt, 0, 100);
+  P.bat = clamp(P.bat - dt * 1.15, 0, 100);
+  P.inv = Math.max(0, P.inv - dt);
+  // 아이템
+  for (const it of ITEMS) { if (it.got || Math.hypot(it.x - P.x, it.y - P.y) > .7) continue; it.got = 1;
+    if (it.k === 'fuse') { fuses++; beep(880, .25, 'square', .06); beep(1320, .3, 'sine', .05); say(fuses < 3 ? `⚡ ${it.z} 퓨즈 획득! (${fuses}/3)` : '⚡ 퓨즈 3개 완성! <b>둔촌동역 게이트</b>가 열렸어요! 왼쪽 아래로!', 3500); stat('fuse', 'f' + fuses);
+      if (fuses >= 3) { gateOpen = true; for (const [x, y] of gateTiles) M[y * W + x] = G; for (let i = 0; i < 6; i++) addZombie(10); say('🚨 게이트 경보음에 좀비들이 몰려와요! 둔촌동역까지 달려요!', 3800); } }
+    if (it.k === 'bat') { P.bat = Math.min(100, P.bat + 45); beep(660, .15); say('🔋 배터리 교체! 손전등이 밝아졌어요', 1600); }
+    if (it.k === 'drink') { if (P.hp < 3) { P.hp++; say('🥤 박카스 원샷! 체력 +1', 1600); } else { P.sta = 100; say('🥤 박카스! 숨이 돌아왔어요', 1400); } beep(520, .15); }
+  }
+  // 탈출
+  if (gateOpen && P.y > H - 1.6 && P.x > 2.5 && P.x < 8.5) return win();
+  // 거리 지도
+  flowT -= dt; if (flowT <= 0) { calcFlow(); flowT = .35; }
+  // 좀비
+  let nearest = 99;
+  for (const z of Z) {
+    const dx = P.x - z.x, dy = P.y - z.y, d = Math.hypot(dx, dy); nearest = Math.min(nearest, d);
+    const sees = d < 8 && (inLight(z.x, z.y) || d < 3.2 || (d < 8 && los(z.x, z.y, P.x, P.y) && Math.random() < dt * 2));
+    if (sees) { if (z.st !== 'chase') { z.st = 'chase'; if (d < 9) beep(110, .35, 'sawtooth', .05); } z.lose = 4; }
+    else if (z.st === 'chase') { z.lose -= dt; if (z.lose <= 0 || d > 16) z.st = 'wander'; }
+    let vx = 0, vy = 0, sp = z.sp;
+    if (z.st === 'chase') {
+      const i = (z.y | 0) * W + (z.x | 0), cur = flow ? flow[i] : -1;
+      if (cur > 1) { let best = cur, bx = 0, by = 0; for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const j = i + ox + oy * W, v = flow[j]; if (v >= 0 && v < best) { best = v; bx = ox; by = oy; } }
+        const tx = (z.x | 0) + bx + .5, ty = (z.y | 0) + by + .5; vx = tx - z.x; vy = ty - z.y; }
+      else { vx = dx; vy = dy; }
+      sp *= gateOpen ? 1.55 : 1.35;
+    } else { z.t -= dt; if (z.t <= 0) { z.a = rnd(0, 6.28); z.t = rnd(1, 3); } vx = Math.cos(z.a); vy = Math.sin(z.a); sp *= .45; }
+    const vl = Math.hypot(vx, vy) || 1; const ox = z.x, oy = z.y; move(z, vx / vl * sp * dt, vy / vl * sp * dt, .3); if (z.st === 'wander' && Math.abs(z.x - ox) + Math.abs(z.y - oy) < .001) z.t = 0;
+    if (d < .62) hit('🧟 좀비에게 물렸어요!', z);
+  }
+  // 유령: 손전등을 비추면 멈춤, 벽 통과
+  for (const g of GH) {
+    const dx = P.x - g.x, dy = P.y - g.y, d = Math.hypot(dx, dy);
+    if (inLightNoWall(g.x, g.y)) { g.frozen = .25; } else g.frozen = Math.max(0, g.frozen - dt);
+    if (!g.frozen) { const sp = (d > 14 ? 2.6 : 1.25) + now / 300; g.x += dx / d * sp * dt; g.y += dy / d * sp * dt; }
+    nearest = Math.min(nearest, d + 1);
+    if (d < .6) { hit('👻 원혼이 몸을 통과했어요! 오싹…', null); const a = rnd(0, 6.28); g.x = clamp(P.x + Math.cos(a) * 18, 2, W - 2); g.y = clamp(P.y + Math.sin(a) * 18, 2, H - 2); }
+  }
+  // 시간이 갈수록 어려워짐
+  spawnT += dt; if (spawnT > 45) { spawnT = 0; addZombie(14); addZombie(14); if (GH.length < 6) addGhost(); }
+  // 심장 소리
+  beatT -= dt; if (nearest < 7 && beatT <= 0) { beep(60, .12, 'sine', .18); setTimeout(() => beep(55, .1, 'sine', .12), 140); beatT = .35 + nearest * .12; if (navigator.vibrate && nearest < 3) navigator.vibrate(30); }
+  shake = Math.max(0, shake - dt * 3);
+}
+function inLightNoWall(x, y) { if (P.bat <= 0) return false; const dx = x - P.x, dy = y - P.y, d = Math.hypot(dx, dy); if (d > coneLen() + 1) return false; let da = Math.atan2(dy, dx) - P.a; da = Math.atan2(Math.sin(da), Math.cos(da)); return Math.abs(da) < .55; }
+function hit(text, z) {
+  if (P.inv > 0) return; P.hp--; P.inv = 1.6; shake = 1; beep(90, .4, 'sawtooth', .12); if (navigator.vibrate) navigator.vibrate([80, 40, 120]);
+  if (z) { const d = Math.hypot(z.x - P.x, z.y - P.y) || 1; move(z, (z.x - P.x) / d * 1.2, (z.y - P.y) / d * 1.2, .3); z.st = 'wander'; z.t = 1.2; }
+  if (P.hp <= 0) return lose(text); say(text + ` 남은 ❤️ ${P.hp}`, 1800);
+}
+
+// ===== 그리기 =====
+const COL = { [G]: '#24262d', [GR]: '#17241b', [B]: '#3a3f4c', [F]: '#555b68', [TR]: '#17241b', [GATE]: '#7a1f27', [DECOY]: '#7a5a1f' };
+function draw() {
+  const s = DPR, sh = shake ? (Math.random() - .5) * 8 * shake : 0;
+  const cx = P.x * T - VW / 2 + sh, cy = P.y * T - VH / 2 + sh;
+  ctx.setTransform(s, 0, 0, s, 0, 0); ctx.fillStyle = '#07080c'; ctx.fillRect(0, 0, VW, VH);
+  ctx.save(); ctx.translate(-cx, -cy);
+  const x0 = Math.max(0, Math.floor(cx / T) - 1), y0 = Math.max(0, Math.floor(cy / T) - 1), x1 = Math.min(W - 1, Math.ceil((cx + VW) / T) + 1), y1 = Math.min(H - 1, Math.ceil((cy + VH) / T) + 1);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const v = M[y * W + x]; ctx.fillStyle = COL[v]; ctx.fillRect(x * T, y * T, T + .5, T + .5);
+    if (v === G && (x + y) % 2 === 0 && (y === 16 || x === 25 || x === 52)) { ctx.fillStyle = '#3d3b2a'; ctx.fillRect(x * T + 4, y * T + T / 2 - 1, T - 8, 2); }
+    if (v === B) { ctx.fillStyle = '#464c5b'; ctx.fillRect(x * T + 2, y * T + 2, T - 4, T - 4); if ((x * 7 + y * 3) % 5 === 0) { ctx.fillStyle = '#2a2e38'; ctx.fillRect(x * T + 7, y * T + 7, 4, 5); } }
+    if (v === TR) { ctx.fillStyle = '#0f3a1d'; ctx.beginPath(); ctx.arc(x * T + T / 2, y * T + T / 2, T * .48, 0, 7); ctx.fill(); ctx.fillStyle = '#16502a'; ctx.beginPath(); ctx.arc(x * T + T / 2 - 3, y * T + T / 2 - 3, T * .26, 0, 7); ctx.fill(); }
+    if (v === F) { ctx.fillStyle = '#6b7282'; for (let i = 2; i < T; i += 6) ctx.fillRect(x * T + i, y * T + 2, 2, T - 4); }
+  }
+  if (gateOpen) for (const [x, y] of gateTiles) { ctx.fillStyle = `rgba(60,255,140,${.35 + .25 * Math.sin(now * 6)})`; ctx.fillRect(x * T, y * T - T, T, T * 2); }
+  // 동 번호
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const l of labels) { const lx = l.x * T, ly = l.y * T; if (lx < cx - 80 || lx > cx + VW + 80 || ly < cy - 40 || ly > cy + VH + 40) continue; ctx.font = `${l.big ? 800 : 700} ${l.big ? 13 : 11}px sans-serif`; ctx.fillStyle = l.gate ? (gateOpen ? '#5dffa0' : '#ff6b74') : '#c9ced8'; ctx.fillText(l.t, lx, ly); }
+  // 아이템
+  for (const it of ITEMS) { if (it.got) continue; const ix = it.x * T, iy = it.y * T; if (ix < cx - 30 || ix > cx + VW + 30 || iy < cy - 30 || iy > cy + VH + 30) continue;
+    ctx.font = '18px sans-serif'; ctx.fillText(it.k === 'fuse' ? '⚡' : it.k === 'bat' ? '🔋' : '🥤', ix, iy + Math.sin(now * 4 + ix) * 2); }
+  // 좀비
+  for (const z of Z) { const zx = z.x * T, zy = z.y * T; if (zx < cx - 30 || zx > cx + VW + 30 || zy < cy - 30 || zy > cy + VH + 30) continue;
+    ctx.fillStyle = '#4f7a46'; ctx.beginPath(); ctx.arc(zx, zy, T * .36, 0, 7); ctx.fill(); ctx.fillStyle = '#2f4a2a'; ctx.beginPath(); ctx.arc(zx, zy, T * .36, 0, 7); ctx.lineWidth = 2; ctx.strokeStyle = '#2f4a2a'; ctx.stroke();
+    ctx.font = '16px sans-serif'; ctx.fillText('🧟', zx, zy); }
+  // 플레이어
+  const px = P.x * T, py = P.y * T;
+  if (!(P.inv > 0 && Math.floor(now * 12) % 2)) { ctx.fillStyle = '#ffd5a8'; ctx.beginPath(); ctx.arc(px, py, T * .34, 0, 7); ctx.fill(); ctx.fillStyle = '#2b6cff'; ctx.beginPath(); ctx.arc(px, py, T * .34, P.a + 1.2, P.a + 5.1); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + Math.cos(P.a) * 6, py + Math.sin(P.a) * 6, 3, 0, 7); ctx.fill(); }
+  ctx.restore();
+  // 어둠 + 손전등
+  dctx.setTransform(s, 0, 0, s, 0, 0); dctx.globalCompositeOperation = 'source-over'; dctx.clearRect(0, 0, VW, VH);
+  dctx.fillStyle = 'rgba(2,3,8,0.93)'; dctx.fillRect(0, 0, VW, VH);
+  dctx.globalCompositeOperation = 'destination-out';
+  const sx = px - cx, sy = py - cy, amb = T * (P.bat > 0 ? 2.4 : 1.6);
+  let g = dctx.createRadialGradient(sx, sy, 0, sx, sy, amb); g.addColorStop(0, 'rgba(0,0,0,.95)'); g.addColorStop(1, 'rgba(0,0,0,0)'); dctx.fillStyle = g; dctx.beginPath(); dctx.arc(sx, sy, amb, 0, 7); dctx.fill();
+  const L = coneLen() * T; if (L > 0) { const fl = P.bat < 15 && Math.random() < .15 ? .3 : 1; g = dctx.createRadialGradient(sx, sy, 0, sx, sy, L); g.addColorStop(0, `rgba(0,0,0,${fl})`); g.addColorStop(.75, `rgba(0,0,0,${.85 * fl})`); g.addColorStop(1, 'rgba(0,0,0,0)'); dctx.fillStyle = g; dctx.beginPath(); dctx.moveTo(sx, sy); dctx.arc(sx, sy, L, P.a - .5, P.a + .5); dctx.closePath(); dctx.fill(); }
+  if (gateOpen) for (const [x] of gateTiles) { const gx = (x + .5) * T - cx, gy = (H - 1.5) * T - cy; g = dctx.createRadialGradient(gx, gy, 0, gx, gy, T * 3); g.addColorStop(0, 'rgba(0,0,0,.8)'); g.addColorStop(1, 'rgba(0,0,0,0)'); dctx.fillStyle = g; dctx.beginPath(); dctx.arc(gx, gy, T * 3, 0, 7); dctx.fill(); }
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(dark, 0, 0); ctx.setTransform(s, 0, 0, s, 0, 0);
+  // 어둠 속 빨간 눈
+  for (const z of Z) { const zx = z.x * T - cx, zy = z.y * T - cy; if (zx < -20 || zx > VW + 20 || zy < -20 || zy > VH + 20) continue; const a = z.st === 'chase' ? .95 : .45; ctx.fillStyle = `rgba(255,40,40,${a})`; ctx.beginPath(); ctx.arc(zx - 3, zy - 3, 1.8, 0, 7); ctx.arc(zx + 3, zy - 3, 1.8, 0, 7); ctx.fill(); }
+  // 유령 (어둠 속에서도 희미하게 보임)
+  for (const gh of GH) { const gx = gh.x * T - cx, gy = gh.y * T - cy + Math.sin(now * 2 + gh.ph) * 4; if (gx < -40 || gx > VW + 40 || gy < -40 || gy > VH + 40) continue;
+    ctx.globalAlpha = gh.frozen ? .9 : .38 + .15 * Math.sin(now * 3 + gh.ph); ctx.font = '26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('👻', gx, gy);
+    if (gh.frozen) { ctx.font = '700 10px sans-serif'; ctx.fillStyle = '#bfe3ff'; ctx.fillText('멈춤', gx, gy - 20); } ctx.globalAlpha = 1; }
+  // 목표 화살표
+  const tgt = target(); if (tgt) { const dx = tgt.x - P.x, dy = tgt.y - P.y, d = Math.hypot(dx, dy); if (d > 2.5) { const a = Math.atan2(dy, dx), r = Math.min(VW, VH) * .5 - 34, ax = VW / 2 + Math.cos(a) * Math.min(r, d * T), ay = VH / 2 + Math.sin(a) * Math.min(r, d * T);
+      ctx.save(); ctx.translate(ax, ay); ctx.rotate(a); ctx.fillStyle = gateOpen ? '#5dffa0' : '#ffd84d'; ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-8, -9); ctx.lineTo(-3, 0); ctx.lineTo(-8, 9); ctx.closePath(); ctx.fill(); ctx.restore();
+      ctx.font = '700 11px sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(Math.round(d * 3) + 'm', ax, ay + 18); } }
+  if (P.inv > 1.2) { ctx.fillStyle = `rgba(200,0,20,${(P.inv - 1.2) * .8})`; ctx.fillRect(0, 0, VW, VH); }
+}
+function target() { if (gateOpen) return { x: 5.5, y: H - 1.5 }; let b = null, bd = 1e9; for (const it of ITEMS) { if (it.k !== 'fuse' || it.got) continue; const d = Math.hypot(it.x - P.x, it.y - P.y); if (d < bd) { bd = d; b = it; } } return b; }
+
+// ===== HUD·메시지 =====
+function say(h, ms) { const m = $('#msg'); m.innerHTML = h; m.classList.add('on'); clearTimeout(msgT); msgT = setTimeout(() => m.classList.remove('on'), ms || 2000); }
+const fmt = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+function hud() { $('#hp').textContent = '❤️'.repeat(Math.max(0, P.hp)) + '🖤'.repeat(Math.max(0, 3 - P.hp)); $('#bat').style.width = P.bat + '%'; $('#bat').style.background = P.bat < 20 ? '#ff5a5a' : '#ffd84d'; $('#sta').style.width = P.sta + '%'; $('#fz').textContent = gateOpen ? '🚇 탈출!' : `⚡ ${fuses}/3`; $('#tm').textContent = fmt(now); }
+
+// ===== 배치도 =====
+function openMap() {
+  if (state !== 'play') return; state = 'map'; pauseAt = performance.now(); const mc = $('#mapc'), k = 6; mc.width = W * k; mc.height = H * k; const m = mc.getContext('2d');
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const v = M[y * W + x]; m.fillStyle = v === B ? '#59617a' : v === TR ? '#1f4a2b' : v === G ? '#2c2f38' : v === F ? '#666' : v === GATE ? '#c33' : v === DECOY ? '#a80' : '#18261c'; m.fillRect(x * k, y * k, k, k); }
+  m.textAlign = 'center'; m.textBaseline = 'middle'; m.fillStyle = '#fff'; m.font = '800 16px sans-serif';
+  for (const z of Object.values(zones)) m.fillText(z.n, (z.x0 + z.x1) / 2 * k, (z.y0 + z.y1) / 2 * k);
+  m.font = '700 11px sans-serif'; for (const l of labels) if (l.big) { m.fillStyle = l.gate ? '#ff8a8a' : '#ffe08a'; m.fillText(l.t, l.x * k, l.y * k); }
+  for (const it of ITEMS) if (it.k === 'fuse' && !it.got) { m.fillStyle = 'rgba(255,216,77,.25)'; m.beginPath(); m.arc(it.x * k + ri(-20, 20), it.y * k + ri(-20, 20), 40, 0, 7); m.fill(); }
+  m.fillStyle = '#2b6cff'; m.beginPath(); m.arc(P.x * k, P.y * k, 6, 0, 7); m.fill(); m.strokeStyle = '#fff'; m.lineWidth = 2; m.stroke();
+  m.fillStyle = '#fff'; m.font = '700 12px sans-serif'; m.fillText('나', P.x * k, P.y * k - 13);
+  $('#sMap').classList.add('on');
+}
+$('#btnMap').onclick = openMap;
+$('#bMapClose').onclick = () => { $('#sMap').classList.remove('on'); state = 'play'; last = performance.now(); t0Pause(); };
+let pauseAt = 0; function t0Pause() { if (pauseAt) { t0 += performance.now() - pauseAt; pauseAt = 0; } }
+
+// ===== 끝 =====
+function win() {
+  state = 'end'; const sec = now, best = store.get('best', 0); const nb = !best || sec < best; if (nb) store.set('best', sec);
+  const grade = sec < 150 ? ['S', '전설의 탈출러'] : sec < 240 ? ['A', '둔촌 스피드러너'] : sec < 360 ? ['B', '침착한 생존자'] : ['C', '겨우 살아남은 입주민'];
+  stat('win', 'g' + grade[0].toLowerCase()); beep(523, .2); setTimeout(() => beep(659, .2), 160); setTimeout(() => beep(784, .4), 320);
+  end(`<div class="kick">ESCAPED</div><h2>🚇 둔촌동역 탈출 성공!</h2><p>새벽 첫차가 들어오는 소리. 뒤를 돌아보니 단지의 불이 하나둘 다시 켜지고 있었다.</p>
+    <div class="stat"><div><b>${fmt(sec)}</b><small>탈출 시간</small></div><div><b>${grade[0]}</b><small>${grade[1]}</small></div><div><b>${P.hp}❤️</b><small>남은 체력</small></div></div>
+    ${nb ? '<p>🏅 <b>내 최고 기록 갱신!</b></p>' : `<p class="small">내 최고 기록 ${fmt(best)}</p>`}
+    <button class="btn y" id="bShare">💬 친구에게 기록 자랑하기</button><button class="btn" id="bAgain">🔁 다시 탈출하기</button><button class="btn g" id="bHome">처음으로</button>`, `🧟 올림픽파크포레온 탈출 성공! ${fmt(sec)} (${grade[0]}등급 ${grade[1]})`);
+}
+function lose(text) {
+  state = 'end'; stat('lose', 'f' + fuses);
+  end(`<div class="kick">GAME OVER</div><h2>🧟 좀비가 되어 입주했습니다</h2><p>${text}<br>퓨즈 ${fuses}/3개 · 버틴 시간 ${fmt(now)}</p>
+    ${revived ? '' : '<button class="btn y" id="bRevive">🎬 광고 보고 그 자리에서 부활 (❤️×2)</button>'}
+    <button class="btn" id="bAgain">🔁 처음부터 다시</button><button class="btn g" id="bShare">💬 친구에게 도전장 보내기</button><button class="btn g" id="bHome">처음으로</button>`, `🧟 올림픽파크포레온에서 퓨즈 ${fuses}/3개까지 모으고 좀비가 됐어요… 너는 탈출할 수 있어?`);
+}
+function end(html, shareText) {
+  document.body.classList.remove('playing'); $('#hud').style.display = 'none'; $('#endBox').innerHTML = html; $('#sEnd').classList.add('on');
+  $('#bAgain').onclick = () => { $('#sEnd').classList.remove('on'); start(); };
+  $('#bHome').onclick = () => { $('#sEnd').classList.remove('on'); $('#sTitle').classList.add('on'); state = 'title'; showBest(); };
+  $('#bShare').onclick = () => share(shareText);
+  if ($('#bRevive')) $('#bRevive').onclick = () => rewardAd(() => { revived = true; P.hp = 2; P.inv = 3; P.bat = Math.max(P.bat, 60); for (const z of Z) if (Math.hypot(z.x - P.x, z.y - P.y) < 6) { const a = rnd(0, 6.28); const p = freeTile(null, 12); z.x = p.x; z.y = p.y; z.st = 'wander'; }
+    $('#sEnd').classList.remove('on'); document.body.classList.add('playing'); $('#hud').style.display = 'flex'; state = 'play'; t0 = performance.now() - now * 1000; last = performance.now(); stat('revive'); say('🎬 부활! 근처 좀비가 흩어졌어요', 2000); });
+}
+function share(text) {
+  const url = 'https://aptgame.kr/foreon/', all = text + '\n' + url;
+  if (navigator.share) navigator.share({ title: '올림픽파크포레온에서 탈출하기', text, url }).catch(() => {});
+  else { try { navigator.clipboard.writeText(all); say('📋 링크를 복사했어요. 카톡에 붙여넣어 보세요!', 2200); } catch (e) {} }
+  stat('share');
+}
+// 보상형 광고 (광고가 연결되기 전엔 무료)
+function rewardAd(cb) {
+  if (window.adBreak && window.ADS_ON) { let g = false; adBreak({ type: 'reward', name: 'revive', beforeReward: s => s(), adViewed: () => { g = true; }, adDismissed: () => say('광고를 끝까지 봐야 부활할 수 있어요', 2000), adBreakDone: () => { if (g) cb(); } }); return; }
+  cb();
+}
+function showBest() { const b = store.get('best', 0); $('#best').textContent = b ? `🏅 내 최고 탈출 기록 ${fmt(b)}` : ''; }
+showBest();
+
+// ===== 루프 =====
+let last = performance.now();
+function loop(ts) {
+  const dt = Math.min(.05, (ts - last) / 1000); last = ts;
+  if (state === 'play') { update(dt); if (state === 'play') { draw(); hud(); } }
+  requestAnimationFrame(loop);
+}
+function start() { newGame(); document.body.classList.add('playing'); $('#hud').style.display = 'flex'; last = performance.now(); }
+$('#bStart').onclick = () => { $('#sTitle').classList.remove('on'); beep(1, .01); start(); };
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
