@@ -321,6 +321,7 @@ const server = http.createServer(async (req, res) => {
     p = '/game.html';
   }
   if (p === '/johapjang') { res.writeHead(301, { Location: '/johapjang/' }); return res.end(); }
+  if (p === '/toss') { res.writeHead(301, { Location: '/toss/' }); return res.end(); }
   if (p === '/seoul') { res.writeHead(301, { Location: '/seoul/' }); return res.end(); }
   if (p.startsWith('/johapjang/') && !p.includes('..')) {
     const rest = p.slice('/johapjang/'.length).replace(/^index\.html$/, '');
