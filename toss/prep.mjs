@@ -18,6 +18,10 @@ h = h.replace(/href="\/(bluemarble)?"/g, 'href="#"').replace(/href="https:\/\/ap
 // 토스에서는 '광고 자리(테스트)' 가짜 광고 화면을 띄우지 않음: 광고가 준비 안 됐으면 보상을 바로 지급
 h = h.replace('function fakeAd(cb,inter){', 'function fakeAd(cb,inter){ if(window.__TOSS){cb();return;}');
 if (!h.includes('window.__TOSS){cb()')) throw new Error('fakeAd 패치 실패');
+// 토스에서는 '광고 보고 이 결정 되돌리기' 버튼을 빼요 (사장님 지시)
+h = h.split("${canUndo?'<button class=\"btn ghost center\" id=\"undo\">📺 광고 보고 이 결정 되돌리기 (챕터당 1회)</button>':''}").join('');
+if (h.includes('이 결정 되돌리기')) throw new Error('되돌리기 버튼 제거 실패');
+h = h.split('if(canUndo)$("#undo").onclick=').join('if(canUndo&&$("#undo"))$("#undo").onclick=');
 // aptgame.kr 계정 스크립트 제거 (토스 웹뷰에선 불필요)
 h = h.replace(/<script src="\/auth\.js"[^>]*><\/script>/, '');
 h = h.replace('</body>', '<script>window.__TOSS=true</script><script src="toss-bridge.js"></script>\n</body>');

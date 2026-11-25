@@ -1984,4 +1984,27 @@ const sc=S.support*0.35+(100-S.legal_risk)*0.2+S.transparency*0.15+(100-S.stress
 const g=(document.querySelector(".grade")||{}).textContent||"",t=(document.querySelectorAll("#app .card h2")[1]||{}).textContent||"";
 S.rankSent=1;save();APT.endCard("johapjang",Math.round(sc*10)/10,(g?g+"등급 ":"")+t,document.querySelector("#copy")||"#app");}catch(er){}};})();
 </script>
+<script>
+/* 챕터 넘어갈 때 짧은 로딩 화면 (새 챕터 표지 위에 1.4초 덮었다가 사라짐) */
+(function(){
+  const TIPS=["재건축은 '조합 설립 → 사업시행인가 → 관리처분 → 이주·철거 → 착공 → 입주' 순서로 진행돼요.","비례율이 높을수록 조합원 분담금이 줄어들어요.","총회 안건은 미리 설명회를 열면 통과 확률이 올라가요.","공사비 증액 요구는 검증 기관을 통해 따져볼 수 있어요.","투명하게 회의록을 공개하면 비대위의 공격이 약해져요.","이주가 늦어지면 이자가 쌓여 분담금이 늘어나요.","스트레스가 너무 높으면 번아웃 엔딩을 맞을 수 있어요."];
+  let shownChi=-1;
+  const css=document.createElement("style");
+  css.textContent=".chload{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;background:radial-gradient(120% 80% at 50% 35%,#4a3a52,#1f1824);color:#fff;text-align:center;transition:opacity .35s}"+
+   ".chload.out{opacity:0;pointer-events:none}.chload .no{font-size:13px;letter-spacing:3px;color:#ffd76a;font-weight:800}.chload h2{margin:0;font-size:24px}"+
+   ".chload .bar{width:70%;max-width:260px;height:8px;border-radius:6px;background:rgba(255,255,255,.15);overflow:hidden}.chload .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd76a,#f6b73c);border-radius:6px;animation:chl 1.3s ease-out forwards}"+
+   "@keyframes chl{to{width:100%}}.chload .tip{font-size:13px;line-height:1.6;color:#e8dcef;max-width:320px}.chload .bld{font-size:34px;animation:chb 1s ease-in-out infinite alternate}@keyframes chb{from{transform:translateY(0)}to{transform:translateY(-6px)}}";
+  document.head.appendChild(css);
+  const _rc=renderChapter;
+  renderChapter=function(){
+    _rc.apply(this,arguments);
+    if(!S||S.chi===shownChi) return; const first=shownChi===-1&&S.chi===0; shownChi=S.chi; if(first) return;
+    const n=chNo(), c=CHAPTERS[n]||{};
+    const d=document.createElement("div"); d.className="chload";
+    d.innerHTML=`<div class="bld">🏗️</div><div class="no">CHAPTER ${String(n).padStart(2,"0")} / 12</div><h2>${c.name||"다음 챕터"}</h2><div class="bar"><i></i></div><div class="tip">💡 ${TIPS[Math.floor(Math.random()*TIPS.length)]}</div>`;
+    document.body.appendChild(d);
+    setTimeout(()=>{d.classList.add("out"); setTimeout(()=>d.remove(),400);},1400);
+  };
+})();
+</script>
 </body></html>
