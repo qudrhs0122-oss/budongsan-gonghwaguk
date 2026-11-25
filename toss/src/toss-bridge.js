@@ -36,4 +36,10 @@ function enable() {
   window.adBreak = adBreak; window.adConfig = () => {};
   try { if (typeof ADS !== 'undefined') { ADS.client = 'toss'; ADS.h5 = true; ADS.blocked = false; ADS.bannerSlot = ''; } } catch (e) {}
 }
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enable); else enable();
+// 번들에 광고 ID가 없으면 aptgame.kr 서버에서 받아옴 → 콘솔에서 ID가 나오면 번들 재업로드 없이 광고를 켤 수 있음
+function start() {
+  if (ids.reward || ids.inter) return enable();
+  try { fetch('https://aptgame.kr/api/toss-ads?app=johapjang', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(c => { if (c && (c.rewarded || c.interstitial)) { ids.reward = c.rewarded || ''; ids.inter = c.interstitial || ''; enable(); } }).catch(() => {}); } catch (e) {}
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+import './toss-iap.js';

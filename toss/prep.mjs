@@ -15,7 +15,12 @@ h = h.replace('sendBeacon("/api/stat"', 'sendBeacon("https://aptgame.kr/api/stat
 h = h.replace(/<script>if\("serviceWorker"[\s\S]*?<\/script>\s*/, '').replace(/<link rel="manifest"[^>]*>\s*/, '');
 // 사이트 링크(부동산 공화국 등) 제거 → 미니앱 밖으로 나가지 않도록
 h = h.replace(/href="\/(bluemarble)?"/g, 'href="#"').replace(/href="https:\/\/aptgame\.kr\/?(bluemarble)?"/g, 'href="#"');
-h = h.replace('</body>', '<script src="toss-bridge.js"></script>\n</body>');
+// 토스에서는 '광고 자리(테스트)' 가짜 광고 화면을 띄우지 않음: 광고가 준비 안 됐으면 보상을 바로 지급
+h = h.replace('function fakeAd(cb,inter){', 'function fakeAd(cb,inter){ if(window.__TOSS){cb();return;}');
+if (!h.includes('window.__TOSS){cb()')) throw new Error('fakeAd 패치 실패');
+// aptgame.kr 계정 스크립트 제거 (토스 웹뷰에선 불필요)
+h = h.replace(/<script src="\/auth\.js"[^>]*><\/script>/, '');
+h = h.replace('</body>', '<script>window.__TOSS=true</script><script src="toss-bridge.js"></script>\n</body>');
 fs.writeFileSync(path.join(out, 'index.html'), h);
 if (/bluemarble|부동산 공화국/.test(h)) console.warn('주의: 부동산 공화국 관련 문자열이 남아 있습니다');
 console.log('prep done: 조합장 키우기 단독', (h.length / 1024).toFixed(0) + 'KB');

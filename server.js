@@ -283,6 +283,12 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { ok: true });
   }
   // 광고 설정 (Render 환경변수로 관리 — 코드 수정 없이 켜고 끌 수 있음)
+  // 토스 미니앱 광고 그룹 ID (번들 재업로드 없이 켜기 위함). toss-ads.json 에 앱별로 기록
+  if (p === '/api/toss-ads') {
+    let all = {}; try { all = JSON.parse(fs.readFileSync(path.join(__dirname, 'toss-ads.json'), 'utf8')); } catch (e) {}
+    const a = all[url.searchParams.get('app') || ''] || {};
+    return json(res, 200, { interstitial: /^ait\.[\w.]+$/.test(a.interstitial || '') ? a.interstitial : '', rewarded: /^ait\.[\w.]+$/.test(a.rewarded || '') ? a.rewarded : '' });
+  }
   if (p === '/api/config') {
     const client = (process.env.ADSENSE_CLIENT || DEFAULT_PUB).trim();
     return json(res, 200, { ads: { client: /^ca-pub-\d{10,20}$/.test(client) ? client : '', test: process.env.ADSENSE_TEST === 'on', h5: process.env.ADSENSE_H5 === 'on', bannerSlot: (process.env.ADSENSE_BANNER_SLOT || DEFAULT_BANNER_SLOT).replace(/\D/g, '') } });
