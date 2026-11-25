@@ -925,7 +925,7 @@ function renderChapter(){
   const who=[...new Set(EVENTS.filter(e=>e.chapter===n&&e.who!=="chat").map(e=>e.who))].slice(0,6);
   $("#app").innerHTML=`<div class="chapter fade"><div class="no">CHAPTER ${String(n).padStart(2,"0")} / 12</div><h1>${c.name}</h1>
    <div class="stars">${"★".repeat(c.stars)}${"☆".repeat(5-c.stars)}</div><p>${T(c.intro)}</p>
-   <div class="small" style="margin-top:14px">이번 장 등장인물</div><div class="castrow">${who.map(w=>{const p=castOf(w);return `<div>${portrait(p,p.mood,"mini",true)}<span>${p.n}</span></div>`;}).join("")}</div>
+   <div class="small" style="margin-top:14px">이번 장 등장인물</div><div class="castrow">${who.filter(w=>castOf(w)&&castOf(w).n).map(w=>{const p=castOf(w);return `<div>${portrait(p,p.mood,"mini",true)}<span>${p.n}</span></div>`;}).join("")}</div>
    ${c.fund?`<div class="odds" style="text-align:center">💰 ${c.src}: 운영자금 +${c.fund}억 · 스트레스 -15</div>`:""}</div>
    <button class="btn center" id="go">${n===1?"시작":"다음 장으로"}</button>`;
   $("#go").onclick=()=>{const f=()=>{if(!S.fundGot[n]){S.fundGot[n]=1;S.funds+=c.fund;S.stress-=15;normalize();addLog(`CH.${n} ${c.name} 시작`);} nextStory(); save(); render();};
@@ -1506,7 +1506,7 @@ renderChapter=function(){
   $("#app").innerHTML=`<div class="chapter fade"><div class="no">CHAPTER ${String(n).padStart(2,"0")} / 12</div><h1>${c.name}</h1>
    <div class="stars">${"★".repeat(c.stars)}${"☆".repeat(5-c.stars)}</div><p>${T(c.intro)}</p>
    <div class="odds" style="text-align:center">🎯 권장 육성: <b>${REC[n]}</b> · 행정 능력이 높으면 실무 안건을 사무장이 처리해 더 빨리 지나갑니다</div>
-   <div class="small" style="margin-top:14px">이번 장 등장인물</div><div class="castrow">${who.map(w=>{const p=castOf(w);return `<div>${portrait(p,p.mood,"mini",true)}<span>${p.n}</span></div>`;}).join("")}</div>
+   <div class="small" style="margin-top:14px">이번 장 등장인물</div><div class="castrow">${who.filter(w=>castOf(w)&&castOf(w).n).map(w=>{const p=castOf(w);return `<div>${portrait(p,p.mood,"mini",true)}<span>${p.n}</span></div>`;}).join("")}</div>
    ${c.fund?`<div class="odds" style="text-align:center">💰 ${c.src}: 운영자금 +${c.fund}억 · 스트레스 -15</div>`:""}</div>
    <button class="btn center" id="go">${n===1?"시작":"다음 장으로"}</button>`;
   $("#go").onclick=()=>{const f=()=>{if(!S.fundGot[n]){S.fundGot[n]=1;S.funds+=c.fund;S.stress-=15;normalize();addLog(`CH.${n} ${c.name} 시작`);}
@@ -1985,26 +1985,92 @@ const g=(document.querySelector(".grade")||{}).textContent||"",t=(document.query
 S.rankSent=1;save();APT.endCard("johapjang",Math.round(sc*10)/10,(g?g+"등급 ":"")+t,document.querySelector("#copy")||"#app");}catch(er){}};})();
 </script>
 <script>
-/* 챕터 넘어갈 때 짧은 로딩 화면 (새 챕터 표지 위에 1.4초 덮었다가 사라짐) */
+/* ===== 서울아파트식 화면·연출 (규칙은 그대로) =====
+   1) 챕터 전환: 영화식 레터박스 연출  2) 분기 전환: 짧은 띠 연출
+   3) 하단 고정 바: 수첩·기록·도감 탭 + 큰 진행 버튼  4) 일정 카드 3열 한 화면 배치 */
 (function(){
-  const TIPS=["재건축은 '조합 설립 → 사업시행인가 → 관리처분 → 이주·철거 → 착공 → 입주' 순서로 진행돼요.","비례율이 높을수록 조합원 분담금이 줄어들어요.","총회 안건은 미리 설명회를 열면 통과 확률이 올라가요.","공사비 증액 요구는 검증 기관을 통해 따져볼 수 있어요.","투명하게 회의록을 공개하면 비대위의 공격이 약해져요.","이주가 늦어지면 이자가 쌓여 분담금이 늘어나요.","스트레스가 너무 높으면 번아웃 엔딩을 맞을 수 있어요."];
-  let shownChi=-1;
   const css=document.createElement("style");
-  css.textContent=".chload{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;background:radial-gradient(120% 80% at 50% 35%,#4a3a52,#1f1824);color:#fff;text-align:center;transition:opacity .35s}"+
-   ".chload.out{opacity:0;pointer-events:none}.chload .no{font-size:13px;letter-spacing:3px;color:#ffd76a;font-weight:800}.chload h2{margin:0;font-size:24px}"+
-   ".chload .bar{width:70%;max-width:260px;height:8px;border-radius:6px;background:rgba(255,255,255,.15);overflow:hidden}.chload .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd76a,#f6b73c);border-radius:6px;animation:chl 1.3s ease-out forwards}"+
-   "@keyframes chl{to{width:100%}}.chload .tip{font-size:13px;line-height:1.6;color:#e8dcef;max-width:320px}.chload .bld{font-size:34px;animation:chb 1s ease-in-out infinite alternate}@keyframes chb{from{transform:translateY(0)}to{transform:translateY(-6px)}}";
+  css.textContent=`
+.cine{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;background:rgba(20,12,24,0);animation:cbg .5s forwards;overflow:hidden;cursor:pointer}
+@keyframes cbg{to{background:rgba(20,12,24,.66)}}
+.cine .lb{position:absolute;left:0;right:0;height:14vh;background:#000;transition:transform .45s}.cine .lb.t{top:0;animation:lbt .45s cubic-bezier(.2,.9,.3,1) both}.cine .lb.b{bottom:0;animation:lbb .45s cubic-bezier(.2,.9,.3,1) both}
+@keyframes lbt{from{transform:translateY(-100%)}}@keyframes lbb{from{transform:translateY(100%)}}
+.cband{position:relative;width:100%;padding:22px 20px;text-align:center;color:#fff;background:linear-gradient(90deg,transparent,rgba(90,52,40,.94) 18%,rgba(90,52,40,.94) 82%,transparent);animation:cin .6s .2s cubic-bezier(.2,.9,.3,1) both}
+@keyframes cin{from{transform:translateX(-110%)}}
+.cband .cnk{font-size:13px;font-weight:900;letter-spacing:6px;color:#ffd66b;animation:fd .5s .55s both}
+.cband .cnt{font-size:28px;font-weight:900;margin:6px 0 4px;letter-spacing:.5px;text-shadow:0 3px 12px rgba(0,0,0,.4);animation:fd .5s .7s both}
+.cband .cns{font-size:13px;opacity:.88;animation:fd .5s .85s both}
+@keyframes fd{from{opacity:0;transform:translateY(6px)}}
+.cine.out{animation:cbgo .5s forwards}.cine.out .cband{animation:cout .45s cubic-bezier(.7,0,.8,.4) forwards}.cine.out .lb.t{transform:translateY(-100%)}.cine.out .lb.b{transform:translateY(100%)}
+@keyframes cout{to{transform:translateX(110%)}}@keyframes cbgo{from{background:rgba(20,12,24,.66)}to{background:rgba(20,12,24,0)}}
+.cine.mini{background:transparent!important;animation:none;pointer-events:none}.cine.mini .lb{display:none}.cine.mini .cband{padding:14px 20px}.cine.mini .cnt{font-size:22px}
+/* 일정 카드 3열 */
+.acts{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+.act{flex-direction:column!important;align-items:center!important;text-align:center;padding:12px 4px 8px!important;gap:4px!important;min-width:0}
+.act .aic{width:44px!important;height:44px!important}
+.act .atx{align-items:center;width:100%}.act .atx b{font-size:13.5px!important;white-space:nowrap}
+.act .atx span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px!important;border-radius:7px;padding:1px 5px;margin-top:2px}
+.act .atx .g{background:#eaf7ec}.act .atx .b{background:#fdeeee}
+.act .chk{right:5px!important;top:5px!important}
+.act .rec{left:50%!important;transform:translateX(-50%);white-space:nowrap}
+/* 광고 도구는 가로 칩 한 줄 */
+.adtools{display:flex!important;overflow-x:auto;gap:6px;padding-bottom:2px;scrollbar-width:none}.adtools::-webkit-scrollbar{display:none}
+.adtools .btn{flex:0 0 auto;width:auto!important;padding:8px 11px!important;font-size:12px!important;border-radius:12px!important;white-space:nowrap}
+.adtools .btn br{display:none}.adtools .btn span{margin-left:4px;opacity:.85}
+/* 하단 고정 바 */
+#app.hasdock{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.jdock{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:480px;margin:0 auto;display:flex;align-items:center;gap:2px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(255,252,246,.97);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid #eadfcd;box-shadow:0 -6px 18px rgba(60,40,20,.08);border-radius:18px 18px 0 0}
+.jdock .tb{flex:0 0 50px;display:flex;flex-direction:column;align-items:center;gap:1px;font:inherit;font-size:10.5px;font-weight:700;color:#6b5a45;background:none;border:0;padding:4px 0;cursor:pointer}
+.jdock .tb i{font-style:normal;font-size:20px;line-height:1.1}
+.jdock .cta{flex:1;margin-left:6px;border:0;border-radius:16px;padding:14px 8px;font:inherit;font-size:16px;font-weight:900;color:#fff;background:linear-gradient(135deg,#e0a33a,#c9781f);box-shadow:0 6px 14px rgba(201,120,31,.35);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jdock .cta:disabled{background:#d8cfc2;box-shadow:none;color:#fff8}
+.dockhid{display:none!important}
+.hasdock #noteBtn,.hasdock #logBtn{display:none!important}.hasdock .adrow{margin-top:6px}
+`;
   document.head.appendChild(css);
+
+  function cine(o,done){
+    const d=document.createElement("div"); d.className="cine"+(o.mini?" mini":"");
+    d.innerHTML=`<i class="lb t"></i><i class="lb b"></i><div class="cband"><div class="cnk">${o.k}</div><div class="cnt">${o.t}</div>${o.s?`<div class="cns">${o.s}</div>`:""}</div>`;
+    document.body.appendChild(d);
+    let fin=false; const end=()=>{if(fin)return; fin=true; d.classList.add("out"); setTimeout(()=>{d.remove(); done&&done();},520);};
+    d.onclick=end; setTimeout(end,o.ms||2300);
+  }
+  window.jCine=cine;
+  let shownChi=-1, lastQ=null, cineAt=0;
   const _rc=renderChapter;
   renderChapter=function(){
     _rc.apply(this,arguments);
-    if(!S||S.chi===shownChi) return; const first=shownChi===-1&&S.chi===0; shownChi=S.chi; if(first) return;
+    if(!S||S.chi===shownChi) return; shownChi=S.chi; cineAt=Date.now();
     const n=chNo(), c=CHAPTERS[n]||{};
-    const d=document.createElement("div"); d.className="chload";
-    d.innerHTML=`<div class="bld">🏗️</div><div class="no">CHAPTER ${String(n).padStart(2,"0")} / 12</div><h2>${c.name||"다음 챕터"}</h2><div class="bar"><i></i></div><div class="tip">💡 ${TIPS[Math.floor(Math.random()*TIPS.length)]}</div>`;
-    document.body.appendChild(d);
-    setTimeout(()=>{d.classList.add("out"); setTimeout(()=>d.remove(),400);},1400);
+    cine({k:`CHAPTER ${n}`,t:c.name||"",s:`${qStr()} · 조합장 ${yrsAsBoss()}년 차`});
   };
+  // 분기가 바뀌어 일정 화면이 처음 뜰 때 짧은 띠
+  function quarterBand(){
+    if(!S||S.phase!=="plan") return; const key=S.chi+":"+S.q; if(lastQ===key) return; const first=lastQ===null; lastQ=key;
+    if(first||Date.now()-cineAt<3500) return;
+    cine({k:"📅 새 분기",t:qStr(),s:"이번 분기 일정을 고르세요",ms:1300,mini:true});
+  }
+  // 하단 고정 바
+  function logModal(){ modal(`<h3 style="margin-top:0">📒 결재 기록</h3><div class="log" style="max-height:60vh">${(S.log||[]).map(x=>`<div>${x}</div>`).join("")||"아직 없음"}</div><button class="btn center" id="mClose">닫기</button>`); }
+  function updateDock(){
+    const app=document.getElementById("app"); let dk=document.querySelector(".jdock");
+    const on=S&&["plan","result","event","quiz","chat","chapter"].includes(S.phase);
+    if(!on){ if(dk) dk.remove(); app&&app.classList.remove("hasdock"); return; }
+    if(!dk){ dk=document.createElement("div"); dk.className="jdock"; document.body.appendChild(dk); }
+    app.classList.add("hasdock");
+    const main=app.querySelector("#planGo")||app.querySelector("#next")||app.querySelector("#go");
+    const shop=window.IAPJ&&IAPJ.on()?'<button class="tb" data-t="shop"><i>🛒</i>상점</button>':'<button class="tb" data-t="dex"><i>📖</i>도감</button>';
+    dk.innerHTML=`<button class="tb" data-t="note"><i>📋</i>수첩</button><button class="tb" data-t="log"><i>📒</i>기록</button>${shop}<button class="cta" ${main&&!main.disabled?"":"disabled"}>${main?main.textContent.replace(/\s+/g," ").trim().replace(/ ?▶$/,"")+" ▶▶":"선택지를 고르세요 ↑"}</button>`;
+    if(main){ main.classList.add("dockhid"); dk.querySelector(".cta").onclick=()=>main.click(); }
+    dk.querySelector('[data-t="note"]').onclick=()=>{try{showNote();}catch(e){}};
+    dk.querySelector('[data-t="log"]').onclick=logModal;
+    const sp=dk.querySelector('[data-t="shop"]'); if(sp) sp.onclick=()=>IAPJ.shop();
+    const dx=dk.querySelector('[data-t="dex"]'); if(dx) dx.onclick=()=>{try{showDex();}catch(e){}};
+  }
+  const kick=()=>{ try{updateDock(); quarterBand();}catch(e){} };
+  new MutationObserver(kick).observe(document.getElementById("app"),{childList:true});
+  kick();
 })();
 </script>
 </body></html>
