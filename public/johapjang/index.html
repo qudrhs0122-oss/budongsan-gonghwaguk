@@ -215,6 +215,16 @@ body:has(.tposter){background:radial-gradient(120% 70% at 50% 30%,#5a4660,#241b2
 .tp-btn.ghost{font-size:17px;padding:9px 0;width:46%;background:rgba(255,255,255,.18);color:#fff;box-shadow:0 0 0 1.5px rgba(255,255,255,.6) inset}
 .tp-bot{position:relative;margin-top:-1px;flex:1;background:linear-gradient(180deg,#5f4440,#3a2c3c 120px)}
 .tp-bot p{margin:0;padding:12px 0 24px;text-align:center;color:#f3e6ef;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+/* 첫 화면을 스크롤 없이 한 화면에: 위 그림이 남는 높이에 맞춰 줄어들고, 보조 버튼은 한 줄에 나란히 */
+.tposter{height:100vh;height:100dvh;min-height:0}
+.tposter .tp-top{flex:1 1 0;min-height:0;height:0;object-fit:cover;object-position:50% 92%}
+.tp-mid{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:10px 8px;padding:12px 10px 12px}
+.tp-mid .tp-btn{flex:0 0 72%}
+.tp-mid .tp-btn.ghost{flex:1 1 0;max-width:170px;font-size:15px;padding:9px 4px;white-space:nowrap}
+.tp-bot{flex:0 0 auto}
+.tp-bot img{height:9vh;object-fit:cover;object-position:50% 70%}
+.tp-bot p{padding:6px 0 calc(8px + env(safe-area-inset-bottom));font-size:11.5px}
+@media (min-aspect-ratio:3/4){.tposter{height:auto;min-height:100vh}.tposter .tp-top{flex:none;height:auto}}
 
 body:has(.cxpage){background:linear-gradient(180deg,#dfe2f3 0,#efe6ee 300px,#f3ebe8 100%)}
 .cxpage{margin:-10px -12px 0;padding:0 10px 10px}
