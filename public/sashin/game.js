@@ -51,6 +51,14 @@ function save() { if (G) { G.play += 0; store.set('save', G); } }
 const F = k => !!(G && G.flags[k]);
 const setF = (k, v) => { G.flags[k] = v === undefined ? 1 : v; save(); };
 
+function bgGround(m) {
+  const c = document.createElement('canvas'); c.width = m.W * T; c.height = m.H * T; const g = c.getContext('2d');
+  const im = IMG[m.bg] || (IMG[m.bg] = Object.assign(new Image(), { src: 'img/' + m.bg + '.webp' }));
+  const paint = () => { g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(im, 0, 0, c.width, c.height); if (mini && M === m) buildMini(); };
+  if (ok(im)) paint(); else { g.fillStyle = '#1a1626'; g.fillRect(0, 0, c.width, c.height); im.addEventListener('load', paint, { once: true }); }
+  return c;
+}
+['map_palace', 'map_shrine'].forEach(n => { const i = new Image(); i.src = 'img/' + n + '.webp'; IMG[n] = i; });
 // ----- 채팅 로그 -----
 function log(type, who, text) { const l = $('#log'); if (!l) return; const d = document.createElement('div'); d.className = type; d.innerHTML = `<em>${who}</em>${String(text).replace(/<[^>]+>/g, '')}`; l.appendChild(d); while (l.children.length > 40) l.firstChild.remove(); }
 const _toast = toast; toast = (h, ms) => { _toast(h, ms); log('sys', '시스템', h); };
@@ -61,7 +69,7 @@ function loadScene(id, at) {
   solidG = new Uint8Array(M.W * M.H);
   for (let y = 0; y < M.H; y++) for (let x = 0; x < M.W; x++) if (TILE_SOLID.has(M.t[y][x])) solidG[y * M.W + x] = 1;
   for (const o of M.objs) for (const s of [o.solid, o.sol2]) if (s) for (let y = s[1]; y < s[1] + s[3]; y++) for (let x = s[0]; x < s[0] + s[2]; x++) if (x >= 0 && y >= 0 && x < M.W && y < M.H) solidG[y * M.W + x] = 1;
-  ground = drawGround(M); buildMini();
+  ground = M.bg ? bgGround(M) : drawGround(M); buildMini();
   P = { x: (at || M.start).x, y: (at || M.start).y, dir: 'up', f: 0, step: 0, moving: false, r: .32, inv: 0, roll: 0, rvx: 0, rvy: 0, atkAnim: 0, guard: 0, ring: 0, spring: 0, flash: 0 };
   ents = (M.npcs || []).map(n => Object.assign({ dir: 'down', f: 0, step: 0, home: { x: n.x, y: n.y }, wt: 0 }, n));
   foes = []; shots = []; areas = []; parts = []; nums = []; fxs = [];
@@ -116,7 +124,7 @@ function questTarget() {
   const s = G.scene;
   if (s === 'village') { if (!F('mom')) return ents.find(e => e.id === 'mom'); return { x: 17, y: F('gateOpen') ? 4 : 7 }; }
   if (s === 'market') { if (!G.weapon) return { x: 8.5, y: 8.5 }; return { x: 15, y: 2.5 }; }
-  if (s === 'palace') { if (!G.house) return F('metHun') ? { x: 17, y: 14.5 } : ents.find(e => e.id === 'hun'); if (!F('trained')) { const d = M.objs.find(o => o.dummy && !o.down); return d ? { x: d.x + .5, y: d.y + .5 } : ents.find(e => e.id === 'hun'); } return { x: 17, y: 28 }; }
+  if (s === 'palace') { const mr = M.objs.find(o => o.k === 'mirror'), pt = M.objs.find(o => o.forest); if (!G.house) return F('metHun') ? { x: mr.x + 1, y: mr.y + 1.5 } : ents.find(e => e.id === 'hun'); if (!F('trained')) { const d = M.objs.find(o => o.dummy && !o.down); return d ? { x: d.x + .5, y: d.y + .5 } : ents.find(e => e.id === 'hun'); } return { x: pt.x + pt.w / 2, y: pt.y + 1 }; }
   if (s === 'forest') { if (!F('tigerDown')) { const tg = foes.find(f => f.k === 'tiger'); return tg || { x: 30, y: 6 }; } return { x: 29.5, y: 2.5 }; }
   return null;
 }
@@ -142,7 +150,7 @@ async function onEnter(id) {
   }
   if (id === 'palace') {
     ents.push({ id: 'magpie', k: 'magpie', x: P.x + 1, y: P.y - 1, follow: 1 });
-    if (!F('palaceIn')) { banner('CHAPTER 1', '신수의 선택', '사신궁 · 네 학당이 모이는 곳'); await wait(2400);
+    if (!F('palaceIn')) { state = 'talk'; await showArt('world', '구름 위의 사신궁', '인간계 위, 구름 사이에 떠 있는 네 학당의 섬들. 역사가 기록하지 않은 또 하나의 조선.', false); state = 'play'; banner('CHAPTER 1', '신수의 선택', '사신궁 · 네 학당이 모이는 곳'); await wait(2400);
       await talk([['까치', '와아… 저게 사신궁이야. 백호·청룡·현무·주작, 네 신수가 지키는 학당이 모여 있어.'], ['까치', '저기 갓 쓴 분이 청송 훈장님. 인사부터 드리자!']]);
       setF('palaceIn'); quest('청송 훈장님께 인사하기'); }
     else if (G.house && !F('trained')) quest('동쪽 수련장: 허수아비 쓰러뜨리기');
@@ -201,6 +209,7 @@ async function interact(e) {
       else await talk([['청송 훈장', '거울 앞에 서 보거라.']]);
       break;
     case 'sun': await talk([['주작학당 선배', '신입생이구나? 학당 대항전에서 만나면 안 봐준다! …그래도 길 모르면 물어봐.']]); break;
+    case 'kid2': await talk([['백호학당 교관', F('trained') ? '허수아비를 다 쓰러뜨렸다고? 신입생치곤 손이 맵구나!' : '수련장은 이쪽이다. 허수아비는 맞아도 아파하지 않으니 마음껏 쳐라!']]); break;
     case 'mate': await talk([['해솔', G.house ? `너 ${HOUSE[G.house].n}이야? 나랑 다르네! 그래도 같이 살아남자.` : '나도 오늘 왔어. 거울 앞에 서는 거… 좀 무섭지 않아?']]); break;
   }
 }
@@ -220,7 +229,7 @@ async function mirrorScene() {
   }
   G.house = pickH; save(); setF('house');
   for (const o of M.objs) if (o.house === pickH) o.mine = 1;
-  for (let j = 0; j < 50; j++) part(17, 13, rnd(-5, 5), rnd(-6, -1), HOUSE[pickH].c, 1, 4);
+  const mr0 = M.objs.find(o => o.k === 'mirror'); for (let j = 0; j < 50; j++) part(mr0.x + 1, mr0.y, rnd(-5, 5), rnd(-6, -1), HOUSE[pickH].c, 1, 4);
   pluck(392, 0, .06); pluck(523, .15, .06); pluck(659, .3, .06); pluck(784, .45, .07);
   banner('입학', `${HOUSE[pickH].ic} ${HOUSE[pickH].n}`, `첫 술법: ${SPELLS[pickH].map(s => s.n).join(' · ')}`);
   await wait(2200);
@@ -384,6 +393,7 @@ let mini = null, mmTick = 0;
 const MMC = { G: '#3f6e3c', F: '#24442c', D: '#7d6c4c', P: '#8c867a', N: '#6e6a66', S: '#a39380', W: '#2c5a8c', B: '#5c4a38', X: '#1a1a1a' };
 function buildMini() {
   mini = document.createElement('canvas'); mini.width = M.W * 4; mini.height = M.H * 4; const g = mini.getContext('2d');
+  if (M.bg) { const im = IMG[M.bg]; if (ok(im)) g.drawImage(im, 0, 0, mini.width, mini.height); else { g.fillStyle = '#333'; g.fillRect(0, 0, mini.width, mini.height); } return; }
   for (let y = 0; y < M.H; y++) for (let x = 0; x < M.W; x++) { g.fillStyle = MMC[M.t[y][x]] || '#444'; g.fillRect(x * 4, y * 4, 4, 4); }
   for (const o of M.objs) { if (o.k === 'portal' || o.herb) continue; const s = o.solid; if (!s) continue; g.fillStyle = (o.k === 'pine' || o.k === 'tree') ? '#152a18' : '#2a2030'; g.fillRect(s[0] * 4, s[1] * 4, s[2] * 4, s[3] * 4); }
 }
@@ -573,9 +583,9 @@ function fadeTo(id) {
 }
 
 // ----- 그리기 -----
-let camX = 0, camY = 0;
+let camX = 0, camY = 0, LS = 1;
 function draw() {
-  const z = ZOOM, vw = VW / z, vh = VH / z;
+  const z = M.bg ? Math.max(.75, ZOOM * .45) : ZOOM, vw = VW / z, vh = VH / z; LS = ZOOM / z; const CS = M.bg ? 1.3 : 1;
   const tx = clamp(P.x * T - vw / 2, 0, Math.max(0, M.W * T - vw)), ty = clamp(P.y * T - vh / 2 + (isTouch && VW < 760 ? vh * .1 : 0), 0, Math.max(0, M.H * T - vh));
   camX += (tx - camX) * .2; camY += (ty - camY) * .2; if (Math.abs(tx - camX) > 300) { camX = tx; camY = ty; }
   const sh = shake ? (Math.random() - .5) * 8 * shake : 0, cx = Math.round(camX + sh), cy = Math.round(camY + sh);
@@ -595,9 +605,9 @@ function draw() {
   list.sort((a, b) => a[0] - b[0]);
   for (const [, k, o] of list) {
     if (k === 0) { if (o.flash) ctx.globalAlpha = .6; drawObj(ctx, o.dummy && o.down ? Object.assign({}, o, { k: 'rock' }) : o, now); ctx.globalAlpha = 1; if (o.house && o.mine) { ctx.fillStyle = HOUSE[o.house].c; ctx.globalAlpha = .35 + .2 * Math.sin(now * 3); ctx.fillRect(o.x * T + 14, (o.y + o.h) * T - 48, o.w * T - 28, 48); ctx.globalAlpha = 1; } }
-    else if (k === 1) drawNPC(o);
-    else if (k === 2) drawFoe(o);
-    else drawPlayer();
+    else { const sx0 = o.x * T, sy0 = o.y * T; if (CS !== 1) { ctx.save(); ctx.translate(sx0, sy0); ctx.scale(CS, CS); ctx.translate(-sx0, -sy0); }
+      if (k === 1) drawNPC(o); else if (k === 2) drawFoe(o); else drawPlayer();
+      if (CS !== 1) ctx.restore(); }
   }
   for (const s of shots) drawShot(s);
   for (const a of areas) drawArea(a, false);
@@ -624,18 +634,18 @@ function draw() {
   }
   // 위에 그리는 것: 숫자, 상호작용 표시, 화살표
   ctx.setTransform(DPR * z, 0, 0, DPR * z, 0, 0); ctx.save(); ctx.translate(-cx, -cy);
-  for (const n of nums) { ctx.globalAlpha = Math.min(1, n.life * 2); ctx.font = `900 ${n.big ? 12 : 10}px sans-serif`; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.strokeText(n.t, n.x * T, n.y * T); ctx.fillStyle = n.c; ctx.fillText(n.t, n.x * T, n.y * T); } ctx.globalAlpha = 1;
+  for (const n of nums) { ctx.globalAlpha = Math.min(1, n.life * 2); ctx.font = `900 ${(n.big ? 12 : 10) * LS}px sans-serif`; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.strokeText(n.t, n.x * T, n.y * T); ctx.fillStyle = n.c; ctx.fillText(n.t, n.x * T, n.y * T); } ctx.globalAlpha = 1;
   for (const f of foes) if (!f.dead && (FOE[f.k].elite || FOE[f.k].boss || f.hp < f.mhp) && !f.fake) { const w = FOE[f.k].boss ? 0 : 26, bx = f.x * T - w / 2, by = f.y * T - (FOE[f.k].elite ? 38 : 30); if (w) { px(ctx, bx, by, w, 4, '#0008'); px(ctx, bx, by, w * Math.max(0, f.hp / f.mhp), 4, '#e04848'); } }
-  const pill = (x, y, txt, col, bg) => { ctx.font = '800 9px sans-serif'; const w = ctx.measureText(txt).width + 10; ctx.fillStyle = bg || 'rgba(12,9,18,.72)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - w / 2, y - 8, w, 12, 3) : ctx.rect(x - w / 2, y - 8, w, 12); ctx.fill(); ctx.fillStyle = col; ctx.textAlign = 'center'; ctx.fillText(txt, x, y + 1); };
+  const pill = (x, y, txt, col, bg) => { ctx.save(); ctx.translate(x, y); ctx.scale(LS, LS); ctx.font = '800 9px sans-serif'; const w = ctx.measureText(txt).width + 10; ctx.fillStyle = bg || 'rgba(12,9,18,.72)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-w / 2, -8, w, 12, 3) : ctx.rect(-w / 2, -8, w, 12); ctx.fill(); ctx.fillStyle = col; ctx.textAlign = 'center'; ctx.fillText(txt, 0, 1); ctx.restore(); };
   const tgt = state === 'play' ? questTarget() : null;
-  for (const e of ents) { if (e.hidden || e.k === 'magpie' || !e.name) continue; const x = e.x * T, y = e.y * T - (e.k === 'dok' ? 34 : 32); pill(x, y, e.name, '#ffd977');
-    if (tgt === e) { const by = y - 16 + Math.sin(now * 4) * 2; ctx.fillStyle = '#1a1208'; ctx.beginPath(); ctx.arc(x, by, 6.5, 0, 7); ctx.fill(); ctx.strokeStyle = '#ffd977'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#ffd977'; ctx.font = '900 9px sans-serif'; ctx.fillText('!', x, by + 3.5); } }
-  for (const f of foes) if (!f.dead && !f.fake && (FOE[f.k].elite || FOE[f.k].boss)) pill(f.x * T, f.y * T - (FOE[f.k].boss ? 62 : 46), FOE[f.k].n, '#ff8a7a');
-  if (state === 'play' || state === 'talk') { const x = P.x * T, y = P.y * T - 44; pill(x, y - 6, `Lv.${G.lv} ${G.name}`, '#fff'); px(ctx, x - 14, y + 1, 28, 3, 'rgba(0,0,0,.7)'); px(ctx, x - 14, y + 1, 28 * Math.max(0, G.hp / G.mhp), 3, G.hp / G.mhp > .3 ? '#5ad26a' : '#e04848'); }
+  for (const e of ents) { if (e.hidden || e.k === 'magpie' || !e.name) continue; const x = e.x * T, y = e.y * T - (e.k === 'dok' ? 34 : 32) * CS; pill(x, y, e.name, '#ffd977');
+    if (tgt === e) { const by = y - 16 * LS + Math.sin(now * 4) * 2; ctx.save(); ctx.translate(x, by); ctx.scale(LS, LS); ctx.translate(-x, -by); ctx.fillStyle = '#1a1208'; ctx.beginPath(); ctx.arc(x, by, 6.5, 0, 7); ctx.fill(); ctx.strokeStyle = '#ffd977'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#ffd977'; ctx.font = '900 9px sans-serif'; ctx.fillText('!', x, by + 3.5); ctx.restore(); } }
+  for (const f of foes) if (!f.dead && !f.fake && (FOE[f.k].elite || FOE[f.k].boss)) pill(f.x * T, f.y * T - (FOE[f.k].boss ? 62 : 46) * CS, FOE[f.k].n, '#ff8a7a');
+  if (state === 'play' || state === 'talk') { const x = P.x * T, y = P.y * T - 44 * CS; pill(x, y - 6 * LS, `Lv.${G.lv} ${G.name}`, '#fff'); const bw = 28 * LS, bh = 3 * LS; px(ctx, x - bw / 2, y + LS, bw, bh, 'rgba(0,0,0,.7)'); px(ctx, x - bw / 2, y + LS, bw * Math.max(0, G.hp / G.mhp), bh, G.hp / G.mhp > .3 ? '#5ad26a' : '#e04848'); }
   const ni = state === 'play' ? nearInteract() : null;
-  if (ni) { const x = (ni.obj ? ni.obj.x + .5 + (ni.k === 'mirror' ? .5 : 0) : ni.x) * T + 22, y = (ni.obj ? ni.obj.y - (ni.k === 'mirror' ? 1.6 : .2) : ni.y - .6) * T + Math.sin(now * 5) * 1.5; const lb = ni.k === 'chest' ? '열기' : ni.k === 'mirror' ? '거울 보기' : '대화';
+  if (ni) { const x = (ni.obj ? ni.obj.x + .5 + (ni.k === 'mirror' ? .5 : 0) : ni.x) * T + 22, y = (ni.obj ? ni.obj.y - (ni.k === 'mirror' ? 1.6 : .2) : ni.y - .6 * CS) * T + Math.sin(now * 5) * 1.5; ctx.save(); ctx.translate(x, y); ctx.scale(LS, LS); ctx.translate(-x, -y); const lb = ni.k === 'chest' ? '열기' : ni.k === 'mirror' ? '거울 보기' : '대화';
     ctx.font = '800 9px sans-serif'; const w = ctx.measureText(lb).width + 26; ctx.fillStyle = 'rgba(12,9,18,.82)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y - 9, w, 15, 7) : ctx.rect(x, y - 9, w, 15); ctx.fill(); ctx.strokeStyle = '#e9c77f'; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = '#f3ecdc'; ctx.beginPath(); ctx.arc(x + 8, y - 1.5, 5.5, 0, 7); ctx.fill(); ctx.fillStyle = '#1a1208'; ctx.textAlign = 'center'; ctx.fillText(isTouch ? '⚔' : 'E', x + 8, y + 1.5); ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText(lb, x + 16, y + 1.5); }
+    ctx.fillStyle = '#f3ecdc'; ctx.beginPath(); ctx.arc(x + 8, y - 1.5, 5.5, 0, 7); ctx.fill(); ctx.fillStyle = '#1a1208'; ctx.textAlign = 'center'; ctx.fillText(isTouch ? '⚔' : 'E', x + 8, y + 1.5); ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText(lb, x + 16, y + 1.5); ctx.restore(); }
   ctx.restore();
   // 보스 체력바
   const king = foes.find(f => f.k === 'king' && !f.dead);
@@ -755,7 +765,7 @@ function loop(ts) {
   requestAnimationFrame(loop);
 }
 // ----- 타이틀 -----
-const tc = $('#tc'), tctx = tc.getContext('2d'); const titleImg = new Image(); titleImg.src = 'img/key_cheongryong.webp';
+const tc = $('#tc'), tctx = tc.getContext('2d'); const titleImg = new Image(); titleImg.src = 'img/key_world.webp';
 function drawTitle(t) {
   const w = tc.clientWidth, h = tc.clientHeight; if (tc.width !== w * DPR) { tc.width = w * DPR; tc.height = h * DPR; }
   tctx.setTransform(DPR, 0, 0, DPR, 0, 0); tctx.fillStyle = '#0b0d1a'; tctx.fillRect(0, 0, w, h);
