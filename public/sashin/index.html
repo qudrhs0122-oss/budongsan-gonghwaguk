@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>사신학당 四神學堂 — 조선 판타지 액션 RPG | aptgame.kr</title>
+<meta name="description" content="조선에는 역사가 기록하지 않은 또 하나의 세계가 있었다. 까치가 물고 온 입학첩, 도깨비 장터, 네 신수의 학당, 금단의 숲과 도깨비왕. 조선 판타지 2D 액션 RPG 데모.">
+<meta property="og:title" content="사신학당 四神學堂 — 조선 판타지 액션 RPG">
+<meta property="og:description" content="조선에는 역사가 기록하지 않은 또 하나의 세계가 있었다.">
+<meta name="theme-color" content="#0b0d1a">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud" class="hide">
+  <div class="stat">
+    <div class="lv" id="lv">Lv.1</div>
+    <div class="bars">
+      <div class="bar hp"><i id="hpB"></i><span id="hpT"></span></div>
+      <div class="bar mp"><i id="mpB"></i><span id="mpT"></span></div>
+      <div class="bar xp"><i id="xpB"></i></div>
+    </div>
+  </div>
+  <div class="quest" id="quest"></div>
+  <div class="coin" id="coin">🪙 0</div>
+</div>
+
+<div id="pad" class="hide">
+  <button class="pb atk" id="bAtk">공격</button>
+  <button class="pb dodge" id="bDodge">회피</button>
+  <button class="pb sp" id="bS1"><span></span><i></i></button>
+  <button class="pb sp" id="bS2"><span></span><i></i></button>
+</div>
+<div id="joy"><i></i></div>
+
+<div id="dlg" class="hide"><img id="dPort" class="hide" alt=""><div class="who" id="dWho"></div><div class="txt" id="dTxt"></div><div class="nx">▼</div></div>
+<div id="choice" class="hide"></div>
+<div id="toast"></div>
+<div id="banner" class="hide"></div>
+
+<div class="scr on" id="sTitle">
+  <canvas id="tc"></canvas>
+  <div class="tbox">
+    <div class="tk">조선 판타지 액션 RPG</div>
+    <h1>사신학당<small>四神學堂</small></h1>
+    <p class="tag">“조선에는 역사가 기록하지 않은<br>또 하나의 세계가 있었다.”</p>
+    <button class="btn" id="bNew">새로 시작</button>
+    <button class="btn g hide" id="bCont">이어하기</button>
+    <p class="hint">이동: 화면 왼쪽 끌기 · WASD<br>공격 J · 회피 Space · 술법 K / L · 대화 J</p>
+    <p class="fine">데모 버전 · 등장하는 인물·단체·설화 해석은 모두 창작입니다.</p>
+  </div>
+</div>
+<div class="scr" id="sName"><div class="box">
+  <h2>이름을 정해주세요</h2>
+  <p>정월대보름 밤, 까치가 찾아올 아이의 이름.</p>
+  <input id="nm" maxlength="6" placeholder="예: 서연, 도윤" autocomplete="off">
+  <div class="gsel"><button class="gb on" data-g="m"><img src="img/m_port.png" alt="">도령</button><button class="gb" data-g="f"><img src="img/f_port.png" alt="">낭자</button></div>
+  <button class="btn" id="bNameOk">시작하기</button>
+</div></div>
+<div class="scr" id="sEnd"><div class="box" id="endBox"></div></div>
+
+<script src="core.js"></script>
+<script src="art.js"></script>
+<script src="maps.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
