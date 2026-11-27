@@ -127,8 +127,13 @@ body.talking #skills,body.talking .keys,body.talking .chat{opacity:0;pointer-eve
 .gsel{display:flex;gap:8px;margin-bottom:6px}.gb{flex:1;font:inherit;font-size:15px;font-weight:800;padding:12px;border-radius:12px;border:2px solid #5a4a3a;background:#1a1424;color:#d9cfba}.gb.on{border-color:#e9b955;color:#ffe2a0;background:#2a2030}
 .stats{display:flex;justify-content:center;gap:8px;margin:14px 0}.stats div{background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;min-width:84px}.stats b{display:block;font-size:20px;color:#ffd977}.stats small{font-size:11px;color:#a89e88}
 
-#dPort{position:absolute;left:8px;bottom:100%;width:104px;height:104px;object-fit:cover;object-position:50% 0;border-radius:12px 12px 0 0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
-#dlg.wp .who{left:120px}
+#dlg{display:flex;gap:14px;align-items:center;border:2px solid #c9a45a;border-radius:12px;box-shadow:inset 0 0 0 3px #2a1d10,inset 0 0 0 4px rgba(201,164,90,.45),0 8px 30px rgba(0,0,0,.55);background:linear-gradient(180deg,rgba(34,26,44,.96),rgba(18,13,24,.97));padding:16px 18px 18px}
+#dlg::before,#dlg::after{content:"";position:absolute;top:50%;width:10px;height:10px;background:#c9a45a;transform:translateY(-50%) rotate(45deg)}#dlg::before{left:-6px}#dlg::after{right:-6px}
+#dlg .txt{flex:1}
+#dlg .who{left:110px;top:-15px;background:linear-gradient(180deg,#e6c27a,#b8945a);border:1px solid #2a1d10;border-radius:8px;padding:3px 16px}
+#dPort{position:static;width:84px;height:84px;object-fit:cover;object-position:50% 12%;border-radius:10px;border:2px solid #8a6a3a;background:#1a1424;image-rendering:pixelated;flex:none}
+#dPort.hide+.who{left:18px}
+@media (max-width:760px){#dPort{width:64px;height:64px}#dlg .who{left:88px}#dlg .txt{font-size:14px}}
 .gb{display:flex;flex-direction:column;align-items:center;gap:6px}.gb img{width:84px;height:84px;object-fit:cover;object-position:50% 0;border-radius:10px;background:#2a2234}
 #log.f-world div:not(.np){display:none}#log.f-hak div:not(.q){display:none}#log.f-sys div:not(.sys):not(.it){display:none}
 #toast{top:34%!important}

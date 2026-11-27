@@ -59,6 +59,43 @@ function bgGround(m) {
   return c;
 }
 ['map_palace', 'map_shrine'].forEach(n => { const i = new Image(); i.src = 'img/' + n + '.webp'; IMG[n] = i; });
+// ----- 대화 초상화 (스프라이트로 생성) -----
+const PORT = {};
+function portraitOf(who) {
+  if (G && who === G.name) return 'img/' + (G.gender === 'f' ? 'f' : 'm') + '_port.png';
+  if (PORT[who] !== undefined) return PORT[who];
+  const c = document.createElement('canvas'); c.width = c.height = 40; const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+  const e = ents.find(n => n.name === who);
+  if (!/신수|입학첩|📜|거울/.test(who)) return (PORT[who] = ''); // 정식 초상화 아트가 오기 전까지 도트 자동 초상화는 숨김
+  try {
+    if (who === '까치') drawMagpie(g, 20, 30, 0, 1.6);
+    else if (who === '도깨비왕') drawDokkaebi(g, 20, 44, { dir: 'down', f: 0, s: 1.2, skin: '#d9533a', king: 1, cloth: '#2a2a2a' });
+    else if (e && e.k === 'dok') drawDokkaebi(g, 20, 44, Object.assign({ dir: 'down', f: 0, s: 1.3 }, e.look));
+    else if (e) drawHuman(g, 20, 46, Object.assign({ dir: 'down', f: 0 }, e.look, { s: 1.6 }));
+    else if (/신수|입학첩|📜|거울/.test(who)) { PORT[who] = G && G.house ? `img/key_${G.house}.webp` : 'img/key_world.webp'; return PORT[who]; }
+    else return (PORT[who] = '');
+  } catch (err) { return (PORT[who] = ''); }
+  const big = document.createElement('canvas'); big.width = big.height = 160; const b = big.getContext('2d'); b.imageSmoothingEnabled = false;
+  const gr = b.createRadialGradient(80, 70, 10, 80, 80, 100); gr.addColorStop(0, '#3a2c4a'); gr.addColorStop(1, '#140f1c'); b.fillStyle = gr; b.fillRect(0, 0, 160, 160);
+  b.drawImage(c, 0, 0, 40, 40, 0, 0, 160, 160);
+  return (PORT[who] = big.toDataURL());
+}
+// ----- 주변 연출 (꽃잎·반딧불) -----
+let amb = [];
+function ambient(dt, vx, vy, vw, vh) {
+  const kind = M.id === 'palace' || M.id === 'market' ? 'petal' : 'fly', want = kind === 'petal' ? 26 : 22;
+  if (amb.length < want && Math.random() < dt * 12) amb.push(kind === 'petal'
+    ? { k: 'p', x: vx + Math.random() * vw, y: vy - 10, vx: rnd(8, 22), vy: rnd(14, 26), r: rnd(0, 6), life: 9, c: pick(['#ffc0d8', '#ffb0cc', '#ffe0ec']) }
+    : { k: 'f', x: vx + Math.random() * vw, y: vy + Math.random() * vh, vx: rnd(-8, 8), vy: rnd(-8, 4), r: rnd(0, 6), life: rnd(4, 8), c: pick(['#9fe8ff', '#b8ffb0', '#d8b0ff']) });
+  for (const a of amb) { a.life -= dt; a.r += dt * 2; a.x += (a.vx + Math.sin(a.r) * 10) * dt; a.y += a.vy * dt; }
+  amb = amb.filter(a => a.life > 0 && a.y < vy + vh + 20);
+}
+function drawAmb() {
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (const a of amb) { if (a.k === 'p') { ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = .85; ctx.fillStyle = a.c; ctx.save(); ctx.translate(a.x, a.y); ctx.rotate(a.r); ctx.fillRect(-2.5, -1.5, 5, 3); ctx.restore(); }
+    else { ctx.globalCompositeOperation = 'lighter'; const al = Math.min(1, a.life) * (.5 + .5 * Math.sin(a.r * 3)); ctx.globalAlpha = al * .5; ctx.fillStyle = a.c; ctx.beginPath(); ctx.arc(a.x, a.y, 5, 0, 7); ctx.fill(); ctx.globalAlpha = al; ctx.beginPath(); ctx.arc(a.x, a.y, 1.6, 0, 7); ctx.fill(); } }
+  ctx.restore();
+}
 // ----- 채팅 로그 -----
 function log(type, who, text) { const l = $('#log'); if (!l) return; const d = document.createElement('div'); d.className = type; d.innerHTML = `<em>${who}</em>${String(text).replace(/<[^>]+>/g, '')}`; l.appendChild(d); while (l.children.length > 40) l.firstChild.remove(); }
 const _toast = toast; toast = (h, ms) => { _toast(h, ms); log('sys', '시스템', h); };
@@ -72,7 +109,7 @@ function loadScene(id, at) {
   ground = M.bg ? bgGround(M) : drawGround(M); buildMini();
   P = { x: (at || M.start).x, y: (at || M.start).y, dir: 'up', f: 0, step: 0, moving: false, r: .32, inv: 0, roll: 0, rvx: 0, rvy: 0, atkAnim: 0, guard: 0, ring: 0, spring: 0, flash: 0 };
   ents = (M.npcs || []).map(n => Object.assign({ dir: 'down', f: 0, step: 0, home: { x: n.x, y: n.y }, wt: 0 }, n));
-  foes = []; shots = []; areas = []; parts = []; nums = []; fxs = [];
+  foes = []; shots = []; areas = []; parts = []; nums = []; fxs = []; amb = [];
   if (!F('killed_' + id)) for (const f of (M.foes || [])) spawnFoe(f.k, f.x, f.y);
   // 진행에 따라 보이는 것
   for (const o of M.objs) {
@@ -102,7 +139,7 @@ let dlgRes = null, dlgFull = '', dlgShown = 0, dlgTyping = false, choiceRes = nu
 function say(who, text) {
   return new Promise(res => {
     state = 'talk'; dlgRes = res; dlgFull = text.replace(/\{name\}/g, G ? G.name : ''); dlgShown = 0; dlgTyping = true;
-    $('#dWho').textContent = who; { const pt = $('#dPort'), me = G && who === G.name; pt.classList.toggle('hide', !me); if (me) pt.src = 'img/' + (G.gender === 'f' ? 'f' : 'm') + '_port.png'; $('#dlg').classList.toggle('wp', !!me); } $('#dTxt').textContent = ''; $('#dlg').classList.remove('hide'); pluck(392, 0, .03); log(who === G.name ? 'q' : 'np', who, dlgFull.replace(/\n/g, ' ').slice(0, 60) + (dlgFull.length > 60 ? '…' : ''));
+    $('#dWho').textContent = who; { const pt = $('#dPort'), src = portraitOf(who); pt.classList.toggle('hide', !src); if (src) pt.src = src; } $('#dTxt').textContent = ''; $('#dlg').classList.remove('hide'); pluck(392, 0, .03); log(who === G.name ? 'q' : 'np', who, dlgFull.replace(/\n/g, ' ').slice(0, 60) + (dlgFull.length > 60 ? '…' : ''));
   });
 }
 function advanceDlg() {
@@ -585,7 +622,7 @@ function fadeTo(id) {
 // ----- 그리기 -----
 let camX = 0, camY = 0, LS = 1;
 function draw() {
-  const z = M.bg ? Math.max(.75, ZOOM * .45) : ZOOM, vw = VW / z, vh = VH / z; LS = ZOOM / z; const CS = M.bg ? 1.3 : 1;
+  const z = M.bg ? Math.max(.9, ZOOM * .5) : ZOOM, vw = VW / z, vh = VH / z; LS = ZOOM / z; const CS = M.bg ? 1.6 : 1;
   const tx = clamp(P.x * T - vw / 2, 0, Math.max(0, M.W * T - vw)), ty = clamp(P.y * T - vh / 2 + (isTouch && VW < 760 ? vh * .1 : 0), 0, Math.max(0, M.H * T - vh));
   camX += (tx - camX) * .2; camY += (ty - camY) * .2; if (Math.abs(tx - camX) > 300) { camX = tx; camY = ty; }
   const sh = shake ? (Math.random() - .5) * 8 * shake : 0, cx = Math.round(camX + sh), cy = Math.round(camY + sh);
@@ -609,6 +646,7 @@ function draw() {
       if (k === 1) drawNPC(o); else if (k === 2) drawFoe(o); else drawPlayer();
       if (CS !== 1) ctx.restore(); }
   }
+  if (state !== 'menu') ambient(1 / 60, cx, cy, vw, vh); drawAmb();
   for (const s of shots) drawShot(s);
   for (const a of areas) drawArea(a, false);
   ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.imageSmoothingEnabled = true;
@@ -639,6 +677,7 @@ function draw() {
   const pill = (x, y, txt, col, bg) => { ctx.save(); ctx.translate(x, y); ctx.scale(LS, LS); ctx.font = '800 9px sans-serif'; const w = ctx.measureText(txt).width + 10; ctx.fillStyle = bg || 'rgba(12,9,18,.72)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-w / 2, -8, w, 12, 3) : ctx.rect(-w / 2, -8, w, 12); ctx.fill(); ctx.fillStyle = col; ctx.textAlign = 'center'; ctx.fillText(txt, 0, 1); ctx.restore(); };
   const tgt = state === 'play' ? questTarget() : null;
   for (const e of ents) { if (e.hidden || e.k === 'magpie' || !e.name) continue; const x = e.x * T, y = e.y * T - (e.k === 'dok' ? 34 : 32) * CS; pill(x, y, e.name, '#ffd977');
+    if (tgt !== e && Math.hypot(e.x - P.x, e.y - P.y) < 10) { const bx = x + 14 * LS, by = y - 14 * LS; ctx.save(); ctx.translate(bx, by); ctx.scale(LS, LS); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-9, -6, 18, 11, 4) : ctx.rect(-9, -6, 18, 11); ctx.fill(); ctx.beginPath(); ctx.moveTo(-3, 5); ctx.lineTo(-6, 9); ctx.lineTo(1, 5); ctx.fill(); ctx.fillStyle = '#333'; for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.arc(i * 4, -.5, 1.2, 0, 7); ctx.fill(); } ctx.restore(); }
     if (tgt === e) { const by = y - 16 * LS + Math.sin(now * 4) * 2; ctx.save(); ctx.translate(x, by); ctx.scale(LS, LS); ctx.translate(-x, -by); ctx.fillStyle = '#1a1208'; ctx.beginPath(); ctx.arc(x, by, 6.5, 0, 7); ctx.fill(); ctx.strokeStyle = '#ffd977'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.fillStyle = '#ffd977'; ctx.font = '900 9px sans-serif'; ctx.fillText('!', x, by + 3.5); ctx.restore(); } }
   for (const f of foes) if (!f.dead && !f.fake && (FOE[f.k].elite || FOE[f.k].boss)) pill(f.x * T, f.y * T - (FOE[f.k].boss ? 62 : 46) * CS, FOE[f.k].n, '#ff8a7a');
   if (state === 'play' || state === 'talk') { const x = P.x * T, y = P.y * T - 44 * CS; pill(x, y - 6 * LS, `Lv.${G.lv} ${G.name}`, '#fff'); const bw = 28 * LS, bh = 3 * LS; px(ctx, x - bw / 2, y + LS, bw, bh, 'rgba(0,0,0,.7)'); px(ctx, x - bw / 2, y + LS, bw * Math.max(0, G.hp / G.mhp), bh, G.hp / G.mhp > .3 ? '#5ad26a' : '#e04848'); }
