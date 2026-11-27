@@ -14,24 +14,45 @@
 <canvas id="c"></canvas>
 
 <div id="hud" class="hide">
-  <div class="stat">
-    <div class="lv" id="lv">Lv.1</div>
-    <div class="bars">
+  <div class="pl">
+    <div class="pf"><img id="hPort" src="img/m_port.png" alt=""></div>
+    <div class="pi">
+      <div class="pn"><b id="lv">Lv.1</b><span id="pName"></span></div>
       <div class="bar hp"><i id="hpB"></i><span id="hpT"></span></div>
       <div class="bar mp"><i id="mpB"></i><span id="mpT"></span></div>
       <div class="bar xp"><i id="xpB"></i></div>
+      <div class="sg"><div class="sgi" id="sgIc">🥚</div><div class="sgb"><small id="sgN">신수 게이지 (봉인됨)</small><div class="bar spg"><i id="sgB"></i></div></div></div>
     </div>
   </div>
-  <div class="quest" id="quest"></div>
+  <div class="tr">
+    <div class="menu">
+      <button data-m="bag"><span>🎒</span><small>가방(I)</small></button>
+      <button data-m="spell"><span>📖</span><small>술법(K)</small></button>
+      <button data-m="beast"><span>🦊</span><small>신수(L)</small></button>
+      <button data-m="dex"><span>📜</span><small>도감(N)</small></button>
+      <button data-m="set"><span>⚙️</span><small>설정(Esc)</small></button>
+    </div>
+    <div class="mmw"><div class="mmT" id="mmT">달골 마을</div><div class="mm"><canvas id="mm"></canvas></div></div>
+    <div class="qp">
+      <div class="q main"><h4><em>!</em>메인 퀘스트</h4><b id="qT">-</b><p id="qS"></p></div>
+      <div class="q sub" id="qSubBox"><h4><em>◆</em>서브 퀘스트</h4><b id="qSubT">요괴의 잔해 수집</b><p id="qSub"></p></div>
+    </div>
+  </div>
+  <div class="chat"><div class="tabs"><b class="on" data-t="all">전체</b><b data-t="world">월드</b><b data-t="hak">학당</b><b data-t="sys">시스템</b></div><div id="log"></div><div class="cin">💬 <span>메시지를 입력하세요…</span></div></div>
+  <div class="keys"><span>이동 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>공격 <kbd>J</kbd>/<kbd>클릭</kbd></span><span>회피 <kbd class="w">Space</kbd></span><span>상호작용 <kbd>E</kbd></span><span>신수 호출 <kbd>R</kbd></span></div>
   <div class="coin" id="coin">🪙 0</div>
 </div>
 
-<div id="pad" class="hide">
-  <button class="pb atk" id="bAtk">공격</button>
-  <button class="pb dodge" id="bDodge">회피</button>
-  <button class="pb sp" id="bS1"><span></span><i></i></button>
-  <button class="pb sp" id="bS2"><span></span><i></i></button>
+<div id="skills" class="hide">
+  <button class="sk" id="skQ" data-k="q"><i class="cd"></i><b>Q</b><u></u></button>
+  <button class="sk" id="skE" data-k="e"><i class="cd"></i><b>E</b><u></u></button>
+  <button class="sk" id="skR" data-k="r"><i class="cd"></i><b>R</b><u></u></button>
+  <button class="sk" id="skF" data-k="f"><i class="cd"></i><b>F</b><u></u></button>
+  <button class="sk ult" id="skT" data-k="t"><i class="cd"></i><b>T</b><u></u></button>
+  <button class="sk atk" id="skA" data-k="j"><b></b><span>⚔️</span></button>
+  <button class="sk dg" id="skD" data-k=" "><span>💨</span><b>회피</b></button>
 </div>
+<div id="menuP" class="hide"><div class="mpan"><div class="mph"><b id="mpTitle"></b><button id="mpX">✕</button></div><div id="mpBody"></div></div></div>
 <div id="joy"><i></i></div>
 
 <div id="dlg" class="hide"><img id="dPort" class="hide" alt=""><div class="who" id="dWho"></div><div class="txt" id="dTxt"></div><div class="nx">▼</div></div>
@@ -47,7 +68,7 @@
     <p class="tag">“조선에는 역사가 기록하지 않은<br>또 하나의 세계가 있었다.”</p>
     <button class="btn" id="bNew">새로 시작</button>
     <button class="btn g hide" id="bCont">이어하기</button>
-    <p class="hint">이동: 화면 왼쪽 끌기 · WASD<br>공격 J · 회피 Space · 술법 K / L · 대화 J</p>
+    <p class="hint">이동 WASD · 공격 J/클릭 · 회피 Space · 상호작용 E<br>술법 Q·E · 신수 호출 R · 부적 F · 궁극기 T<br>모바일: 화면 왼쪽을 끌어 이동</p>
     <p class="fine">데모 버전 · 등장하는 인물·단체·설화 해석은 모두 창작입니다.</p>
   </div>
 </div>

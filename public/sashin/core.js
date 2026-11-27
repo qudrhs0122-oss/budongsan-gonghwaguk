@@ -37,11 +37,10 @@ cv.addEventListener('pointerdown', e => {
 cv.addEventListener('pointermove', e => { if (!joy || e.pointerId !== joy.id) return; let dx = e.clientX - joy.ox, dy = e.clientY - joy.oy; const d = Math.hypot(dx, dy), m = 50; if (d > m) { dx *= m / d; dy *= m / d; } joy.dx = dx / m; joy.dy = dy / m; joyKnob.style.transform = `translate(${dx}px,${dy}px)`; });
 const joyEnd = e => { if (joy && e.pointerId === joy.id) { joy = null; joyEl.style.display = 'none'; } };
 cv.addEventListener('pointerup', joyEnd); cv.addEventListener('pointercancel', joyEnd);
-for (const [id, k] of [['bAtk', 'j'], ['bDodge', ' '], ['bS1', 'k'], ['bS2', 'l']]) {
-  const b = document.getElementById(id);
+document.querySelectorAll('#skills [data-k]').forEach(b => { const k = b.dataset.k;
   b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); press[k] = 1; keys[k] = 1; b.classList.add('on'); });
   for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) b.addEventListener(ev, () => { keys[k] = 0; b.classList.remove('on'); });
-}
+});
 function moveVec() {
   let mx = (keys['arrowright'] || keys['d'] ? 1 : 0) - (keys['arrowleft'] || keys['a'] ? 1 : 0);
   let my = (keys['arrowdown'] || keys['s'] ? 1 : 0) - (keys['arrowup'] || keys['w'] ? 1 : 0);
