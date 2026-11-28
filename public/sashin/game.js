@@ -58,7 +58,15 @@ function bgGround(m) {
   if (ok(im)) paint(); else { g.fillStyle = '#1a1626'; g.fillRect(0, 0, c.width, c.height); im.addEventListener('load', paint, { once: true }); }
   return c;
 }
-['map_palace', 'map_shrine'].forEach(n => { const i = new Image(); i.src = 'img/' + n + '.webp'; IMG[n] = i; });
+const CH = { mom: 4, kid: 4, halmi: 4, magpie: 4, ttuk: 4, yak: 1, ssir: 4, eggm: 4, hun: 4, haesol: 4, sun: 4, gyo: 4, wisp: 2, imp: 2, impatk: 3, egg: 2, tiger: 3, tigerdash: 2, king: 3, kingslam: 1, kingspin: 1, bjujak: 3, bbaekho: 3, bcheong: 3, bhyeon: 3 };
+for (const k in CH) for (let i = 0; i < CH[k]; i++) { const im = new Image(); im.src = `img/ch/${k}${i}.png`; IMG[`ch_${k}${i}`] = im; }
+const BABY = { jujak: 'bjujak', baekho: 'bbaekho', cheongryong: 'bcheong', hyeonmu: 'bhyeon' };
+const PFILE = { '어머니': 'mom', '동네 꼬마': 'kid', '당산할미': 'halmi', '까치': 'magpie', '뚝딱이': 'ttuk', '약장수 도깨비': 'yak', '씨름꾼 도깨비': 'ssir', '알 파는 도깨비': 'eggm', '청송 훈장': 'hun', '해솔': 'haesol', '주작학당 선배': 'sun', '백호학당 교관': 'gyo', '도깨비왕': 'king' };
+// 스프라이트 그리기: 발밑(x,y) 기준, 높이 h(월드 px), face = 원본이 바라보는 방향
+function spr(name, x, y, h, flip, alpha) { const im = IMG['ch_' + name]; if (!ok(im)) return false; const w = h * im.naturalWidth / im.naturalHeight;
+  ctx.save(); ctx.imageSmoothingEnabled = true; if (alpha != null) ctx.globalAlpha *= alpha; ctx.translate(x, y); if (flip) ctx.scale(-1, 1); ctx.drawImage(im, -w / 2, -h, w, h); ctx.restore(); ctx.imageSmoothingEnabled = false; return true; }
+function shadowE(x, y, r) { ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y, r, r * .38, 0, 0, 7); ctx.fill(); }
+['map_palace', 'map_shrine', 'map_village', 'map_market', 'map_forest'].forEach(n => { const i = new Image(); i.src = 'img/' + n + '.webp'; IMG[n] = i; });
 // ----- 대화 초상화 (스프라이트로 생성) -----
 const PORT = {};
 function portraitOf(who) {
@@ -66,7 +74,8 @@ function portraitOf(who) {
   if (PORT[who] !== undefined) return PORT[who];
   const c = document.createElement('canvas'); c.width = c.height = 40; const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
   const e = ents.find(n => n.name === who);
-  if (!/신수|입학첩|📜|거울/.test(who)) return (PORT[who] = ''); // 정식 초상화 아트가 오기 전까지 도트 자동 초상화는 숨김
+  if (PFILE[who]) return (PORT[who] = `img/ch/p_P_${PFILE[who]}.png`);
+  if (!/신수|입학첩|📜|거울/.test(who)) return (PORT[who] = '');
   try {
     if (who === '까치') drawMagpie(g, 20, 30, 0, 1.6);
     else if (who === '도깨비왕') drawDokkaebi(g, 20, 44, { dir: 'down', f: 0, s: 1.2, skin: '#d9533a', king: 1, cloth: '#2a2a2a' });
@@ -119,7 +128,7 @@ function loadScene(id, at) {
     if (o.dummy) { o.hp = 40; if (F('trained')) o.down = 1; }
     if (o.house && G.house === o.house) o.mine = 1;
   }
-  if (id === 'village' && F('gateOpen')) { M.objs.push({ k: 'portal', x: 15, y: 3, w: 4, h: 2, rgb: '255,220,140', light: 1 }); const h = ents.find(e => e.id === 'halmi'); if (h) h.hidden = 0; }
+  if (id === 'village' && F('gateOpen')) { M.objs.push(Object.assign({ k: 'portal', rgb: '255,220,140', light: 1 }, M.pts.portal)); const h = ents.find(e => e.id === 'halmi'); if (h) h.hidden = 0; }
   if (id === 'forest' && F('tigerDown')) foes = foes.filter(f => f.k !== 'tiger');
   music(M.music);
   updateHUD(); updatePad();
@@ -159,10 +168,10 @@ async function talk(lines) { scriptBusy = true; for (const [w, t] of lines) awai
 function quest(t) { if (t && t !== G.quest) log('q', '퀘스트', '메인 퀘스트 갱신: ' + t); G.quest = t; save(); updateHUD(); }
 function questTarget() {
   const s = G.scene;
-  if (s === 'village') { if (!F('mom')) return ents.find(e => e.id === 'mom'); return { x: 17, y: F('gateOpen') ? 4 : 7 }; }
-  if (s === 'market') { if (!G.weapon) return { x: 8.5, y: 8.5 }; return { x: 15, y: 2.5 }; }
+  if (s === 'village') { if (!F('mom')) return ents.find(e => e.id === 'mom'); return { x: M.pts.tree.x, y: F('gateOpen') ? M.pts.portal.y + 1.2 : M.pts.tree.y + 1 }; }
+  if (s === 'market') { if (!G.weapon) return M.pts.shop; return M.pts.gate; }
   if (s === 'palace') { const mr = M.objs.find(o => o.k === 'mirror'), pt = M.objs.find(o => o.forest); if (!G.house) return F('metHun') ? { x: mr.x + 1, y: mr.y + 1.5 } : ents.find(e => e.id === 'hun'); if (!F('trained')) { const d = M.objs.find(o => o.dummy && !o.down); return d ? { x: d.x + .5, y: d.y + .5 } : ents.find(e => e.id === 'hun'); } return { x: pt.x + pt.w / 2, y: pt.y + 1 }; }
-  if (s === 'forest') { if (!F('tigerDown')) { const tg = foes.find(f => f.k === 'tiger'); return tg || { x: 30, y: 6 }; } return { x: 29.5, y: 2.5 }; }
+  if (s === 'forest') { if (!F('tigerDown')) { const tg = foes.find(f => f.k === 'tiger'); return tg || M.pts.redgate; } return M.pts.redgate; }
   return null;
 }
 
@@ -522,7 +531,7 @@ function update(dt) {
     moveEnt(P, 0, .6, P.r);
   }
   // 마을: 당산나무 앞
-  if (M.id === 'village' && F('mom') && !F('gateOpen') && P.y < 9.2 && Math.abs(P.x - 17) < 4 && !scriptBusy) halmiScene();
+  if (M.id === 'village' && F('mom') && !F('gateOpen') && P.y < M.pts.tree.y + 2 && Math.abs(P.x - M.pts.tree.x) < 5 && !scriptBusy) halmiScene();
   shake = Math.max(0, shake - dt * 3);
   if (Math.random() < dt * 4) updateHUD();
 }
@@ -530,7 +539,7 @@ async function halmiScene() {
   scriptBusy = true; const h = ents.find(e => e.id === 'halmi'); if (h) { h.hidden = 0; for (let i = 0; i < 24; i++) part(h.x, h.y - .5, rnd(-2, 2), rnd(-3, 0), '#fff4c0', .8, 3); }
   pluck(659, 0, .05); pluck(880, .2, .05);
   await talk([['당산할미', '허허, 왔구나. 까치가 물고 간 편지의 주인이.'], ['당산할미', '사람들은 이 나무를 그저 마을 지킴이로 알지. 허나 오백 년 동안 이 뿌리는 두 세상을 이어왔단다. 역사가 적지 않은 또 하나의 조선과.'], ['당산할미', '금줄 아래로 지나가거라. 문 너머는 도깨비 장터. 거기서 법구를 마련해 사신궁으로 가면 된다.'], ['까치', '열렸다! 빛나는 문으로 가자, {name}!']]);
-  setF('gateOpen'); M.objs.push({ k: 'portal', x: 15, y: 3, w: 4, h: 2, rgb: '255,220,140', light: 1 }); quest('당산나무 아래 빛나는 문으로 들어가기'); scriptBusy = false;
+  setF('gateOpen'); M.objs.push(Object.assign({ k: 'portal', rgb: '255,220,140', light: 1 }, M.pts.portal)); quest('당산나무 아래 빛나는 문으로 들어가기'); scriptBusy = false;
 }
 function nearestFoe(s, r) { let b = null, bd = r; for (const f of foes) { if (f.dead || f.fake) continue; const d = Math.hypot(f.x - s.x, f.y - s.y); if (d < bd) { bd = d; b = f; } } return b; }
 function boom(s) { areas.push({ x: s.x, y: s.y + .3, r: s.boom, t: 0, delay: 0, life: .35, kind: 'boom', owner: 'fx' }); fx('fx_hongryeon', s.x, s.y - .6, 4.2, .55); shake = .4; noise(.3, .09, 200); for (const f of foes) if (!f.dead && Math.hypot(f.x - s.x, f.y - s.y) < s.boom + FOE[f.k].r) hurtFoe(f, 30, 'fire'); for (let i = 0; i < 18; i++) part(s.x, s.y, rnd(-4, 4), rnd(-5, 1), pick(['#ffb040', '#ff6a2a', '#ffe070']), .5, 4); for (const o of M.objs) if (o.dummy && !o.down && Math.hypot(o.x + .5 - s.x, o.y + .5 - s.y) < s.boom + .5) hitDummy(o, 30); }
@@ -716,11 +725,12 @@ function drawPlayer() {
     else if (G.weapon === 'talisman') { px(ctx, wx - 3, wy - 5, 6, 9, '#f2e3a0'); px(ctx, wx - 1, wy - 3, 2, 5, '#c0392b'); }
     else if (G.weapon === 'fan') { ctx.fillStyle = '#e8d8b0'; ctx.beginPath(); ctx.moveTo(wx, wy); ctx.arc(wx, wy, 8, Math.atan2(fy, fx) - .8 + sw, Math.atan2(fy, fx) + .8 + sw); ctx.closePath(); ctx.fill(); }
     else { px(ctx, wx - 3, wy - 3, 6, 6, '#d9b05a'); px(ctx, wx - 1, wy + 2, 2, 3, '#8a5a2a'); } }
-  if (F('cleared') && G.house) drawBeast(ctx, x - 14, y - 26, G.house, now, .45);
+  if (F('cleared') && G.house) { if (!spr(BABY[G.house] + (Math.floor(now * 4) % 3), x - 26, y + 6, 30, P.dir === 'left')) drawBeast(ctx, x - 14, y - 26, G.house, now, .45); }
 }
 function drawNPC(e) {
   const x = e.x * T, y = e.y * T;
-  if (e.k === 'magpie') { drawMagpie(ctx, x, y, now, 1); return; }
+  if (e.k === 'magpie') { if (spr('magpie' + (Math.floor(now * 8) % 4), x, y + 6, 24, false)) return; drawMagpie(ctx, x, y, now, 1); return; }
+  if (e.spr && ok(IMG['ch_' + e.spr + '0'])) { if (e.glow) { ctx.fillStyle = `rgba(255,240,180,${.25 + .1 * Math.sin(now * 3)})`; ctx.beginPath(); ctx.arc(x, y - 18, 26, 0, 7); ctx.fill(); } shadowE(x, y + 7, 10); const bob = e.f ? 1.5 : Math.sin(now * 2 + x) * .6; spr(e.spr + '0', x, y + 8 - bob, e.sh || 48, false); return; }
   if (e.glow) { ctx.fillStyle = `rgba(255,240,180,${.25 + .1 * Math.sin(now * 3)})`; ctx.beginPath(); ctx.arc(x, y - 6, 22, 0, 7); ctx.fill(); }
   if (e.k === 'dok') drawDokkaebi(ctx, x, y, Object.assign({ dir: e.dir, f: e.f, club: false }, e.look));
   else drawHuman(ctx, x, y, Object.assign({ dir: e.dir, f: e.f, moving: e.f }, e.look));
@@ -728,7 +738,14 @@ function drawNPC(e) {
 function drawFoe(f) {
   const x = f.x * T, y = f.y * T;
   if (f.flash > 0) ctx.globalAlpha = .55; if (f.fake) ctx.globalAlpha = .75;
-  if (f.k === 'wisp') drawWisp(ctx, x, y, now);
+  const fl = f.dir === 'right', sp = f.k === 'wisp' ? 'wisp' + (Math.floor(now * 6) % 2) : f.k === 'imp' ? (f.clone ? 'king' + (Math.floor(now * 5) % 3) : f.st === 'wind' ? 'impatk' + Math.min(2, Math.floor((.38 - (f.wt || 0)) / .13)) : 'imp' + (f.f || 0)) : f.k === 'egg' ? 'egg' + (f.f || 0)
+    : f.k === 'tiger' ? (f.st === 'aim' || f.st === 'dash' ? 'tigerdash' + (f.st === 'dash' ? 1 : 0) : 'tiger' + (Math.floor(f.step || 0) % 3)) : f.k === 'king' ? (f.act === 'spin' ? 'kingspin0' : (f.act === 'slam' || f.act === 'rain') ? 'kingslam0' : 'king' + (Math.floor(f.step || 0) % 3)) : '';
+  const sh = { wisp: 34, imp: f.clone ? 92 : (f.minion ? 34 : 38), egg: 36, tiger: f.st === 'dash' || f.st === 'aim' ? 62 : 56, king: f.act === 'spin' || f.act === 'slam' || f.act === 'rain' ? 104 : 92 }[f.k];
+  if (sp && ok(IMG['ch_' + sp])) { if (f.k === 'tiger' && f.st === 'aim') { ctx.fillStyle = 'rgba(255,60,60,.3)'; ctx.beginPath(); ctx.arc(x, y, 24, 0, 7); ctx.fill(); }
+    if (f.k !== 'wisp') shadowE(x, y + 6, f.k === 'king' ? 26 : f.k === 'tiger' ? 18 : 11);
+    const al = f.k === 'egg' ? Math.min(1, f.alpha || .9) : null; if (f.minion && !f.clone) { ctx.save(); ctx.filter = 'hue-rotate(240deg)'; }
+    spr(sp, x, y + (f.k === 'wisp' ? -2 + Math.sin(now * 4) * 2 : 8), sh, f.k === 'egg' || f.k === 'wisp' ? false : fl, al); if (f.minion && !f.clone) ctx.restore(); }
+  else if (f.k === 'wisp') drawWisp(ctx, x, y, now);
   else if (f.k === 'imp') { if (f.clone) drawDokkaebi(ctx, x, y, { dir: f.dir, f: f.f, s: 1.9, skin: '#c0392b', king: 1, cloth: '#2a2a2a', eye: '#ff0', swing: Math.sin(now * 5) * .3 }); else drawDokkaebi(ctx, x, y, { dir: f.dir, f: f.f, skin: f.minion ? '#7a4ad9' : '#d9533a', s: .85, swing: f.st === 'wind' ? -.8 : 0 }); }
   else if (f.k === 'egg') { ctx.globalAlpha = Math.min(ctx.globalAlpha, f.alpha || .9); drawEgg(ctx, x, y, now, f.f); }
   else if (f.k === 'tiger') { if (f.st === 'aim') { ctx.fillStyle = 'rgba(255,60,60,.3)'; ctx.beginPath(); ctx.arc(x, y, 22, 0, 7); ctx.fill(); } drawTigerSpirit(ctx, x, y, now, f.f, f.dir === 'left' ? 'left' : 'right'); }
