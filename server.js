@@ -207,7 +207,7 @@ function serveStatic(p, res) {
   fs.stat(fp, (err, st) => {
     if (err || !st.isFile()) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Not found'); }
     const ext = path.extname(fp).toLowerCase();
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600' });
+    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': ext === '.html' || rel.startsWith('/sashin/') ? 'no-cache' : 'public, max-age=3600', 'Last-Modified': st.mtime.toUTCString() });
     fs.createReadStream(fp).pipe(res);
   });
 }
