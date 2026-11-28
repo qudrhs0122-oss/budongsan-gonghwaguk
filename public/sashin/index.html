@@ -8,7 +8,7 @@
 <meta property="og:title" content="사신학당 四神學堂 — 조선 판타지 액션 RPG">
 <meta property="og:description" content="조선에는 역사가 기록하지 않은 또 하나의 세계가 있었다.">
 <meta name="theme-color" content="#0b0d1a">
-<link rel="stylesheet" href="style.css?v=202611281214">
+<link rel="stylesheet" href="style.css?v=202611281217">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -26,20 +26,20 @@
   </div>
   <div class="tr">
     <div class="menu">
-      <button data-m="bag"><span>🎒</span><small>가방(I)</small></button>
-      <button data-m="spell"><span>📖</span><small>술법(K)</small></button>
-      <button data-m="beast"><span>🦊</span><small>신수(L)</small></button>
-      <button data-m="dex"><span>📜</span><small>도감(N)</small></button>
-      <button data-m="set"><span>⚙️</span><small>설정(Esc)</small></button>
+      <button data-m="bag"><span><img src="img/ui/i_bag.png" alt=""></span><small>가방(I)</small></button>
+      <button data-m="spell"><span><img src="img/ui/i_spell.png" alt=""></span><small>술법(K)</small></button>
+      <button data-m="beast"><span><img src="img/ui/i_beast.png" alt=""></span><small>신수(L)</small></button>
+      <button data-m="dex"><span><img src="img/ui/i_dex.png" alt=""></span><small>도감(N)</small></button>
+      <button data-m="set"><span><img src="img/ui/i_set.png" alt=""></span><small>설정(Esc)</small></button>
     </div>
-    <div class="mmw"><div class="mmT" id="mmT">달골 마을</div><div class="mm"><canvas id="mm"></canvas></div></div>
+    <div class="mmw"><div class="mmT" id="mmT">달골 마을</div><div class="mm" id="mmBtn" title="지도 크게 보기 (M)"><canvas id="mm"></canvas><i class="mmz">🔍</i></div></div>
     <div class="qp">
       <div class="q main"><h4><em>!</em>메인 퀘스트</h4><b id="qT">-</b><p id="qS"></p></div>
       <div class="q sub" id="qSubBox"><h4><em>◆</em>서브 퀘스트</h4><b id="qSubT">요괴의 잔해 수집</b><p id="qSub"></p></div>
     </div>
   </div>
   <div class="chat"><div class="tabs"><b class="on" data-t="all">전체</b><b data-t="world">월드</b><b data-t="hak">학당</b><b data-t="sys">시스템</b></div><div id="log"></div><div class="cin">💬 <span>메시지를 입력하세요…</span></div></div>
-  <div class="keys"><span>이동 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>공격 <kbd>J</kbd>/<kbd>클릭</kbd></span><span>회피 <kbd class="w">Space</kbd></span><span>상호작용 <kbd>E</kbd></span><span>신수 호출 <kbd>R</kbd></span></div>
+  <div class="keys"><span>이동 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>공격 <kbd>J</kbd>/<kbd>클릭</kbd></span><span>회피 <kbd class="w">Space</kbd></span><span>상호작용 <kbd>E</kbd></span><span>신수 호출 <kbd>R</kbd></span><span>지도 <kbd>M</kbd></span></div>
   <div class="coin" id="coin">🪙 0</div>
 </div>
 
@@ -52,6 +52,10 @@
   <button class="sk atk" id="skA" data-k="j"><b></b><span>⚔️</span></button>
   <button class="sk dg" id="skD" data-k=" "><span>💨</span><b>회피</b></button>
 </div>
+<div id="mapP" class="hide"><div class="mapw"><div class="mph"><b id="mapT">지도</b><button id="mapX">✕</button></div>
+  <div class="mapbig"><canvas id="mapC"></canvas></div>
+  <div class="mapleg"><span><i style="background:#ffe14a"></i>나</span><span><i style="background:#ffd977"></i>인물</span><span><i style="background:#ff6a5a"></i>요괴</span><span><i style="background:#7ad0ff"></i>문</span><span>★ 목표</span></div>
+  <div class="route" id="mapRoute"></div></div></div>
 <div id="menuP" class="hide"><div class="mpan"><div class="mph"><b id="mpTitle"></b><button id="mpX">✕</button></div><div id="mpBody"></div></div></div>
 <div id="joy"><i></i></div>
 
@@ -81,9 +85,9 @@
 </div></div>
 <div class="scr" id="sEnd"><div class="box" id="endBox"></div></div>
 
-<script src="core.js?v=202611281214"></script>
-<script src="art.js?v=202611281214"></script>
-<script src="maps.js?v=202611281214"></script>
-<script src="game.js?v=202611281214"></script>
+<script src="core.js?v=202611281217"></script>
+<script src="art.js?v=202611281217"></script>
+<script src="maps.js?v=202611281217"></script>
+<script src="game.js?v=202611281217"></script>
 </body>
 </html>

@@ -139,3 +139,18 @@ body.talking #skills,body.talking .keys,body.talking .chat{opacity:0;pointer-eve
 #toast{top:34%!important}
 @media (min-width:761px){#dlg{bottom:calc(env(safe-area-inset-bottom) + 60px)}}
 @media (max-width:1240px){.keys{display:none}}
+
+.menu span{overflow:hidden;background:#1a1222;padding:0}.menu span img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.08)}
+.mm{position:relative;cursor:pointer;pointer-events:auto;background:#000}
+.mmz{position:absolute;right:8px;bottom:8px;font-style:normal;font-size:13px;width:24px;height:24px;border-radius:50%;background:rgba(20,14,8,.85);border:1px solid #e9c77f;display:grid;place-items:center}
+.mm:active{transform:scale(.97)}
+#mapP{position:fixed;inset:0;z-index:41;background:rgba(5,4,10,.72);display:grid;place-items:center;padding:12px}
+.mapw{width:min(1000px,100%);max-height:96vh;overflow:auto;background:linear-gradient(180deg,#221a2e,#140f1c);border:2px solid #c9a45a;border-radius:14px;padding:12px 14px;box-shadow:inset 0 0 0 3px #2a1d10,0 10px 40px rgba(0,0,0,.6)}
+.mapbig{border:2px solid #8a6a3a;border-radius:10px;overflow:hidden;background:#000}.mapbig canvas{width:100%;display:block}
+.mapleg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:#d9cfba;margin:8px 2px}.mapleg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.route{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.route div{flex:1;min-width:90px;position:relative;text-align:center;font-size:11px;color:#d9cfba}
+.route img{width:100%;border-radius:8px;display:block}
+.route .cur img{outline:3px solid #ffe14a;outline-offset:-1px}.route .cur{color:#ffe14a;font-weight:800}
+.route .lock img{filter:grayscale(1) brightness(.35)}.route .lock::after{content:"🔒";position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-size:22px}
+@media (max-width:760px){.route div{min-width:64px}}

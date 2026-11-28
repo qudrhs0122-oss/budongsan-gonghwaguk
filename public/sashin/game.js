@@ -443,17 +443,42 @@ function buildMini() {
   for (let y = 0; y < M.H; y++) for (let x = 0; x < M.W; x++) { g.fillStyle = MMC[M.t[y][x]] || '#444'; g.fillRect(x * 4, y * 4, 4, 4); }
   for (const o of M.objs) { if (o.k === 'portal' || o.herb) continue; const s = o.solid; if (!s) continue; g.fillStyle = (o.k === 'pine' || o.k === 'tree') ? '#152a18' : '#2a2030'; g.fillRect(s[0] * 4, s[1] * 4, s[2] * 4, s[3] * 4); }
 }
-function drawMini() {
-  const c = $('#mm'); if (!c || !mini || !P) return; const sz = c.clientWidth || 88; if (c.width !== sz * DPR) { c.width = c.height = sz * DPR; }
-  const g = c.getContext('2d'), sc = sz / 34 * DPR; g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#0b1410'; g.fillRect(0, 0, c.width, c.height);
-  g.setTransform(sc, 0, 0, sc, c.width / 2 - P.x * sc, c.height / 2 - P.y * sc); g.imageSmoothingEnabled = false; g.drawImage(mini, 0, 0, M.W, M.H);
-  const dot = (x, y, col, r) => { g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
-  for (const o of M.objs) if (o.k === 'portal' && !o.hidden) dot(o.x + o.w / 2, o.y + o.h / 2, '#7ad0ff', .9);
-  for (const e of ents) if (!e.hidden && e.k !== 'magpie') dot(e.x, e.y, '#ffd977', .55);
-  for (const f of foes) if (!f.dead) dot(f.x, f.y, FOE[f.k].boss || FOE[f.k].elite ? '#ff3a3a' : '#ff7a6a', FOE[f.k].boss ? 1.2 : .45);
-  const tg = questTarget(); if (tg) { g.fillStyle = '#ffe14a'; g.font = '2.2px sans-serif'; g.textAlign = 'center'; g.fillText('★', tg.x, tg.y + .8); }
-  g.save(); g.translate(P.x, P.y); g.rotate(ANG[P.dir] + Math.PI / 2); g.fillStyle = '#ffe14a'; g.strokeStyle = '#000'; g.lineWidth = .2; g.beginPath(); g.moveTo(0, -1.1); g.lineTo(.8, .8); g.lineTo(0, .4); g.lineTo(-.8, .8); g.closePath(); g.fill(); g.stroke(); g.restore();
+const MMI = {}; ['village', 'market', 'palace', 'forest', 'boss'].forEach(n => { const i = new Image(); i.src = 'img/ui/mm_' + n + '.png'; MMI[n] = i; });
+const ROUTE = [['village', '달골 마을'], ['market', '도깨비 장터'], ['palace', '사신궁'], ['forest', '금단의 숲'], ['boss', '도깨비왕의 터']];
+function mapMarks(g, sx, sy, r) { // 실제 맵 좌표 → (sx,sy) 배율
+  const dot = (x, y, col, rr) => { g.fillStyle = col; g.strokeStyle = 'rgba(0,0,0,.7)'; g.lineWidth = Math.max(1, rr * .35); g.beginPath(); g.arc(x * sx, y * sy, rr, 0, 7); g.fill(); g.stroke(); };
+  for (const o of M.objs) if (o.k === 'portal' && !o.hidden) dot(o.x + o.w / 2, o.y + o.h / 2, '#7ad0ff', r * 1.2);
+  for (const e of ents) if (!e.hidden && e.k !== 'magpie') dot(e.x, e.y, '#ffd977', r * .8);
+  for (const f of foes) if (!f.dead && !f.fake) dot(f.x, f.y, '#ff6a5a', FOE[f.k].boss ? r * 1.6 : FOE[f.k].elite ? r * 1.2 : r * .65);
+  const tg = questTarget(); if (tg) { g.fillStyle = '#ffe14a'; g.strokeStyle = '#000'; g.lineWidth = r * .4; g.font = `900 ${r * 3.4}px sans-serif`; g.textAlign = 'center'; g.strokeText('★', tg.x * sx, tg.y * sy + r); g.fillText('★', tg.x * sx, tg.y * sy + r); }
+  g.save(); g.translate(P.x * sx, P.y * sy); g.rotate(ANG[P.dir] + Math.PI / 2); const k = r * 1.5; g.fillStyle = '#ffe14a'; g.strokeStyle = '#000'; g.lineWidth = r * .35; g.beginPath(); g.moveTo(0, -k * 1.3); g.lineTo(k, k); g.lineTo(0, k * .45); g.lineTo(-k, k); g.closePath(); g.fill(); g.stroke(); g.restore();
 }
+function drawMini() {
+  const c = $('#mm'); if (!c || !M || !P) return; const sz = c.clientWidth || 88; if (c.width !== sz * DPR) { c.width = c.height = sz * DPR; }
+  const g = c.getContext('2d'), W = c.width; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, W);
+  const im = MMI[M.id];
+  if (ok(im)) { g.drawImage(im, 0, 0, W, W); }
+  else if (mini) { const sc = W / 34; g.setTransform(sc, 0, 0, sc, W / 2 - P.x * sc, W / 2 - P.y * sc); g.drawImage(mini, 0, 0, M.W, M.H); g.setTransform(1, 0, 0, 1, 0, 0); }
+  // 원형 일러스트 안쪽(테두리 제외)에 맵 전체를 맞춰 위치 표시
+  const pad = W * .1, iw = W - pad * 2, s = Math.min(iw / M.W, iw / M.H), ox = (W - M.W * s) / 2, oy = (W - M.H * s) / 2;
+  g.save(); g.beginPath(); g.arc(W / 2, W / 2, W * .44, 0, 7); g.clip(); g.translate(ox, oy); mapMarks(g, s, s, W * .022); g.restore();
+}
+function openMap() {
+  if (state !== 'play') return; state = 'menu'; $('#mapP').classList.remove('hide'); $('#mapT').textContent = '🗺️ ' + M.name;
+  const cur = ROUTE.findIndex(r => r[0] === M.id), seen = { village: 1, market: F('gateOpen'), palace: !!G.weapon && F('palaceIn'), forest: F('forestIn'), boss: F('tigerDown') };
+  $('#mapRoute').innerHTML = ROUTE.map(([id, n], i) => `<div class="${i === cur ? 'cur' : seen[id] ? '' : 'lock'}"><img src="img/ui/ex_${id}.png" alt="">${i + 1}. ${seen[id] || i === cur ? n : '???'}</div>`).join('');
+  drawBigMap();
+}
+function drawBigMap() {
+  const c = $('#mapC'), wrap = c.parentNode, w = wrap.clientWidth || 800, h = Math.round(w * M.H / M.W);
+  c.width = w * DPR; c.height = h * DPR; c.style.height = h + 'px'; const g = c.getContext('2d'); g.imageSmoothingEnabled = true;
+  if (ground) g.drawImage(ground, 0, 0, c.width, c.height);
+  const s = c.width / M.W; mapMarks(g, s, s, Math.max(4, s * .35));
+}
+function closeMap() { $('#mapP').classList.add('hide'); if (state === 'menu') state = 'play'; clearPress(); }
+$('#mmBtn').addEventListener('click', e => { e.stopPropagation(); openMap(); });
+$('#mapX').onclick = closeMap; $('#mapP').addEventListener('pointerdown', e => { if (e.target.id === 'mapP') closeMap(); });
+
 function questProg() {
   const s = G.scene;
   if (s === 'palace' && G.house && !F('trained')) { const d = M.objs.filter(o => o.dummy), n = d.filter(o => o.down).length; return `☐ 허수아비 쓰러뜨리기 (${n}/${d.length || 4})`; }
@@ -481,6 +506,7 @@ function update(dt) {
     if (took('j') || took('click') || took('enter')) { if (near) doInteract(near); else basicAttack(); }
     if (took('e')) { if (near) doInteract(near); else castSpell(1); }
     if (took('q')) castSpell(0); if (took('r')) beastCall(); if (took('f')) talismanSkill(); if (took('t')) ultimate();
+    if (took('m')) openMap();
     for (const [k, m] of [['i', 'bag'], ['k', 'spell'], ['l', 'beast'], ['n', 'dex'], ['escape', 'set']]) if (took(k)) openMenu(m);
     if (took(' ') && CD.dodge <= 0 && !P.roll) { const [dx, dy] = (mx || my) ? [mx, my] : facing(); const l = Math.hypot(dx, dy) || 1; P.roll = .24; P.inv = .3; P.rvx = dx / l * 12; P.rvy = dy / l * 12; CD.dodge = .6; noise(.12, .04, 900); }
   } else clearPress();
@@ -813,10 +839,10 @@ function updatePad() {
 // ----- 루프 -----
 function loop(ts) {
   const dt = Math.min(.05, (ts - last) / 1000); last = ts;
-  if (state === 'menu' && took('escape')) closeMenu();
+  if (state === 'menu' && (took('escape') || took('m'))) { closeMenu(); closeMap(); }
   document.body.classList.toggle('talking', state === 'talk');
   if (state === 'talk') { if (took('j') || took(' ') || took('click') || took('enter') || took('e')) advanceDlg(); if (dlgTyping) { dlgShown += dt * 45; if (dlgShown >= dlgFull.length) { dlgShown = dlgFull.length; dlgTyping = false; } $('#dTxt').textContent = dlgFull.slice(0, Math.floor(dlgShown)); } }
-  if (M && P && (state === 'play' || state === 'talk' || state === 'fade' || state === 'end' || state === 'dead' || state === 'menu')) { if (state === 'play') update(dt); else { now += dt; for (const e of ents) if (e.k === 'magpie' && e.follow) { e.x += (P.x + 1.1 - e.x) * .05; e.y += (P.y - 1.4 - e.y) * .05; } } draw(); cdHUD(); if ((mmTick = (mmTick + 1) % 2) === 0) drawMini(); }
+  if (M && P && (state === 'play' || state === 'talk' || state === 'fade' || state === 'end' || state === 'dead' || state === 'menu')) { if (state === 'play') update(dt); else { now += dt; for (const e of ents) if (e.k === 'magpie' && e.follow) { e.x += (P.x + 1.1 - e.x) * .05; e.y += (P.y - 1.4 - e.y) * .05; } } draw(); cdHUD(); if ((mmTick = (mmTick + 1) % 2) === 0) drawMini(); if (state === 'menu' && !$('#mapP').classList.contains('hide') && mmTick === 0) drawBigMap(); }
   if (state === 'title') drawTitle(ts / 1000);
   requestAnimationFrame(loop);
 }
