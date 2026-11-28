@@ -60,6 +60,8 @@ function bgGround(m) {
 }
 const CH = { mom: 4, kid: 4, halmi: 4, magpie: 4, ttuk: 4, yak: 1, ssir: 4, eggm: 4, hun: 4, haesol: 4, sun: 4, gyo: 4, wisp: 2, imp: 2, impatk: 3, egg: 2, tiger: 3, tigerdash: 2, king: 3, kingslam: 1, kingspin: 1, bjujak: 3, bbaekho: 3, bcheong: 3, bhyeon: 3 };
 for (const k in CH) for (let i = 0; i < CH[k]; i++) { const im = new Image(); im.src = `img/ch/${k}${i}.png`; IMG[`ch_${k}${i}`] = im; }
+for (const g of ['m', 'f']) for (let i = 0; i < 12; i++) { const im = new Image(); im.src = `img/ch/${g}_dodge${i}.png`; IMG[`dg_${g}${i}`] = im; }
+let trail = [];
 const BABY = { jujak: 'bjujak', baekho: 'bbaekho', cheongryong: 'bcheong', hyeonmu: 'bhyeon' };
 const PFILE = { '어머니': 'mom', '동네 꼬마': 'kid', '당산할미': 'halmi', '까치': 'magpie', '뚝딱이': 'ttuk', '약장수 도깨비': 'yak', '씨름꾼 도깨비': 'ssir', '알 파는 도깨비': 'eggm', '청송 훈장': 'hun', '해솔': 'haesol', '주작학당 선배': 'sun', '백호학당 교관': 'gyo', '도깨비왕': 'king' };
 // 스프라이트 그리기: 발밑(x,y) 기준, 높이 h(월드 px), face = 원본이 바라보는 방향
@@ -487,6 +489,19 @@ function questProg() {
   if (s === 'market' && !G.weapon) return '☐ 법구 구입 (엽전 30냥)';
   return '';
 }
+// ----- 회피 -----
+const DG_MOVE = .26, DG_T = .44;
+function dgFrame() { const t = P.dodge; if (t < DG_MOVE) return 1 + Math.min(4, Math.floor(t / DG_MOVE * 5)); return 5 + Math.min(6, Math.floor((t - DG_MOVE) / (DG_T - DG_MOVE) * 6)); }
+function startDodge(mx, my) {
+  if (state !== 'play') return; let [dx, dy] = (mx || my) ? [mx, my] : facing(); const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+  P.dodge = .001; P.landed = 0; P.roll = 0; P.inv = Math.max(P.inv, DG_MOVE + .08); P.rvx = dx * 17; P.rvy = dy * 17; P.tT = 0;
+  P.dface = Math.abs(dx) > .2 ? Math.sign(dx) : (P.face || 1); if (Math.abs(dx) > .2) P.dir = dx > 0 ? 'right' : 'left';
+  const c = G.house ? HOUSE[G.house].c : '#bfe0ff';
+  for (let i = 0; i < 14; i++) { const a = rnd(0, 6.28); part(P.x, P.y - .5, Math.cos(a) * 3, Math.sin(a) * 2 - 1, i % 2 ? c : '#fff', .35, 3); }
+  for (let i = 0; i < 6; i++) part(P.x - dx * .4 + rnd(-.3, .3), P.y + .1, -dx * rnd(1, 3), rnd(-1.5, -.3), '#e8d8b8', .5, 4);
+  areas.push({ x: P.x, y: P.y, r: 1.1, t: 0, delay: 0, life: .25, kind: 'dgring', owner: 'fx' });
+  noise(.14, .06, 1800); beep(900, .12, 'sine', .03, 300);
+}
 // ----- 업데이트 -----
 function update(dt) {
   now += dt;
@@ -497,6 +512,12 @@ function update(dt) {
   P.inv = Math.max(0, P.inv - dt); P.flash = Math.max(0, P.flash - dt); P.atkAnim = Math.max(0, P.atkAnim - dt); P.guard = Math.max(0, P.guard - dt);
   // 이동
   const [mx, my] = state === 'play' ? moveVec() : [0, 0];
+  if (mx) P.face = mx > 0 ? 1 : -1;
+  if (P.dodge > 0) { P.dodge += dt; if (P.dodge > DG_T) P.dodge = 0;
+    if (P.dodge > 0 && P.dodge < DG_MOVE) { const k = 1 - P.dodge / DG_MOVE * .55; moveEnt(P, P.rvx * k * dt, P.rvy * k * dt, P.r); if ((P.tT = (P.tT || 0) - dt) <= 0) { P.tT = .028; trail.push({ x: P.x, y: P.y, f: dgFrame(), fl: P.dface < 0, life: .28 }); }
+      if (Math.random() < dt * 60) part(P.x - P.rvx * .03 + rnd(-.3, .3), P.y - rnd(.2, 1), -P.rvx * rnd(.2, .5), rnd(-1, .4), G.house ? HOUSE[G.house].c : '#cfe6ff', .3, 2); }
+    if (P.dodge > DG_MOVE && !P.landed) { P.landed = 1; for (let i = 0; i < 10; i++) part(P.x + rnd(-.6, .6), P.y + .1, rnd(-2.5, 2.5), rnd(-2, -.4), '#e8d8b8', .45, 3); shake = Math.max(shake, .15); noise(.06, .04, 400); } }
+  for (const t of trail) t.life -= dt; trail = trail.filter(t => t.life > 0);
   if (P.roll > 0) { P.roll -= dt; moveEnt(P, P.rvx * dt, P.rvy * dt, P.r); }
   else if (mx || my) { const sp = 4.3; moveEnt(P, mx * sp * dt, my * sp * dt, P.r); P.dir = dirOf(mx, my); P.moving = true; P.step += dt * 8; } else P.moving = false;
   P.f = P.moving ? Math.floor(P.step) % 2 : 0;
@@ -508,7 +529,8 @@ function update(dt) {
     if (took('q')) castSpell(0); if (took('r')) beastCall(); if (took('f')) talismanSkill(); if (took('t')) ultimate();
     if (took('m')) openMap();
     for (const [k, m] of [['i', 'bag'], ['k', 'spell'], ['l', 'beast'], ['n', 'dex'], ['escape', 'set']]) if (took(k)) openMenu(m);
-    if (took(' ') && CD.dodge <= 0 && !P.roll) { const [dx, dy] = (mx || my) ? [mx, my] : facing(); const l = Math.hypot(dx, dy) || 1; P.roll = .24; P.inv = .3; P.rvx = dx / l * 12; P.rvy = dy / l * 12; CD.dodge = .6; noise(.12, .04, 900); }
+    if (took(' ')) { if (P.dodge > .3 || !P.dodge) startDodge(mx, my); else P.dq = 1; }
+    if (P.dq && (!P.dodge || P.dodge > .3)) { P.dq = 0; startDodge(mx, my); }
   } else clearPress();
   // 화염장막
   if (P.ring > 0) { P.ring -= dt; if (Math.random() < dt * 30) part(P.x + Math.cos(now * 8) * 1.6, P.y + Math.sin(now * 8) * 1.6, 0, -1, '#ff8a3a', .4, 3); for (const f of foes) if (!f.dead && dist(f, P) < 1.9 + FOE[f.k].r && (f.ringT = (f.ringT || 0) - dt) <= 0) { f.ringT = .35; hurtFoe(f, 9, 'fire'); } }
@@ -733,8 +755,14 @@ function draw() {
 }
 function lookOf() { const h = G.house ? HOUSE[G.house] : null; return { gender: G.gender, top: '#f4efe0', bottom: G.gender === 'f' ? (h ? h.d : '#c0392b') : '#e8e0d0', belt: h ? h.c : '#c0392b', hair: '#1a1410' }; }
 function drawPlayer() {
-  if (P.inv > 0 && !P.roll && Math.floor(now * 14) % 2) return;
-  const x = P.x * T, y = P.y * T;
+  if (P.inv > 0 && !P.roll && !P.dodge && Math.floor(now * 14) % 2) return;
+  const x = P.x * T, y = P.y * T, gg = G.gender === 'f' ? 'f' : 'm', DS = 46 / 96;
+  const dg = (f, X, Y, fl) => { const im = IMG[`dg_${gg}${f}`]; if (!ok(im)) return false; const h = im.naturalHeight * DS, w = im.naturalWidth * DS, foot = 104 * DS; ctx.save(); ctx.imageSmoothingEnabled = true; ctx.translate(X, Y + 8); if (fl) ctx.scale(-1, 1); ctx.drawImage(im, -w / 2, -foot, w, h); ctx.restore(); ctx.imageSmoothingEnabled = false; return true; };
+  if (trail.length) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (const t of trail) { ctx.globalAlpha = t.life / .28 * .45; ctx.filter = G.house ? `drop-shadow(0 0 4px ${HOUSE[G.house].c})` : 'none'; dg(t.f, t.x * T, t.y * T, t.fl); } ctx.restore(); ctx.filter = 'none'; }
+  if (P.dodge > 0 && ok(IMG[`dg_${gg}1`])) {
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y + 6, P.dodge < DG_MOVE ? 13 : 11, 4, 0, 0, 7); ctx.fill();
+    if (P.dodge < DG_MOVE) { ctx.strokeStyle = G.house ? HOUSE[G.house].c : '#cfe6ff'; ctx.globalAlpha = .7; ctx.lineWidth = 1.2; for (let i = 0; i < 5; i++) { const yy = y - 4 - i * 7 + rnd(-2, 2), ln = rnd(10, 24); ctx.beginPath(); ctx.moveTo(x - P.dface * (12 + rnd(0, 6)), yy); ctx.lineTo(x - P.dface * (12 + ln), yy); ctx.stroke(); } ctx.globalAlpha = 1; }
+    dg(dgFrame(), x, y, P.dface < 0); return; }
   if (P.guard > 0) { ctx.strokeStyle = `rgba(230,230,255,${.5 + .3 * Math.sin(now * 10)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y - 4, 16, 0, 7); ctx.stroke(); }
   if (P.roll > 0) { ctx.save(); ctx.translate(x, y - 4); ctx.rotate(now * 30); ctx.translate(-x, -y + 4); }
   const g = G.gender === 'f' ? 'f' : 'm', side = P.dir === 'left' || P.dir === 'right';
@@ -801,6 +829,7 @@ function drawArea(a, floor) {
     return;
   }
   if (a.kind === 'slash') { const k = a.t / a.life; ctx.strokeStyle = `rgba(255,255,255,${1 - k})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(P.x * T, P.y * T - 4, r, a.a - 1.1, a.a + 1.1); ctx.stroke(); }
+  if (a.kind === 'dgring') { const k = a.t / a.life; ctx.strokeStyle = `rgba(255,255,255,${.8 * (1 - k)})`; ctx.lineWidth = 3 * (1 - k) + .5; ctx.beginPath(); ctx.ellipse(x, y + 4, r * (.4 + k), r * (.4 + k) * .4, 0, 0, 7); ctx.stroke(); }
   if (a.kind === 'eslash') { ctx.strokeStyle = 'rgba(255,120,80,.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.stroke(); }
   if (a.kind === 'bolt') { ctx.strokeStyle = '#fff6a0'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x + rnd(-6, 6), y - 140); for (let i = 1; i <= 6; i++) ctx.lineTo(x + rnd(-10, 10), y - 140 + i * 23); ctx.stroke(); ctx.fillStyle = 'rgba(255,250,180,.5)'; ctx.beginPath(); ctx.arc(x, y, 16, 0, 7); ctx.fill(); }
   if (a.kind === 'boom') { const k = a.t / a.life; ctx.fillStyle = `rgba(255,150,40,${.7 * (1 - k)})`; ctx.beginPath(); ctx.arc(x, y, r * (.4 + k * .6), 0, 7); ctx.fill(); }
